@@ -12,7 +12,6 @@ import {
   Gem,
   Cpu
 } from "lucide-react";
-import { EncryptedText } from "./encrypted-text";
 
 // --- MOCK BRANDS ---
 // Replaced PNGs with Lucide icons to simulate tech logos
@@ -75,14 +74,14 @@ export default function HeroSection() {
           <div className="lg:col-span-7 flex flex-col justify-center space-y-8 pt-8">
 
             {/* Badge */}
-            <div className="animate-fade-in delay-100">
+            {/* <div className="animate-fade-in delay-100">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-md transition-colors hover:bg-white/10">
                 <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-300 flex items-center gap-2">
                   Award-Winning Product
                   <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
                 </span>
               </div>
-            </div>
+            </div> */}
 
             {/* Heading */}
             <h1
@@ -92,32 +91,28 @@ export default function HeroSection() {
                 WebkitMaskImage: "linear-gradient(180deg, black 0%, black 80%, transparent 100%)"
               }}
             >
-              Crafting Digital<br />
+              Crafting Smart<br />
               <span className="bg-gradient-to-br from-white via-white to-[#ffcd75] bg-clip-text text-transparent">
-                Experiences
+                Contracts
               </span><br />
-              That Matter
+              That Works
             </h1>
 
-            <EncryptedText
-                className="animate-fade-in delay-300 max-w-xl text-lg text-evergreen-50 leading-relaxed"
-                text="We design interfaces that combine beauty with functionality,
-                creating seamless experiences that users love and businesses thrive on."
-                encryptedClassName="text-neutral-500"
-                revealedClassName="text-white"
-                revealDelayMs={35}
-             />
+            <p className="animate-fade-in delay-300 max-w-xl text-lg text-evergreen-50 leading-relaxed">
+                We enhance the experience between football players and clubs by bringing confidence and correctness as it should be,
+                on the light of decentraliztion, security and trust.
+             </p>
 
             {/* CTA Buttons */}
             <div className="animate-fade-in delay-400 flex flex-col sm:flex-row gap-4">
               <button className="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-semibold text-zinc-950 transition-all hover:scale-[1.02] hover:bg-zinc-200 active:scale-[0.98]">
-                View Portfolio
+                Begin
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
 
               <button className="group inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-8 py-4 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10 hover:border-white/20">
                 <Play className="w-4 h-4 fill-current" />
-                Watch Showreel
+                Read More
               </button>
             </div>
           </div>
@@ -133,11 +128,11 @@ export default function HeroSection() {
               <div className="relative z-10">
                 <div className="flex items-center gap-4 mb-8">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20">
-                    <Target className="h-6 w-6 text-white" />
+                    <Target className="h-6 w-6 text-lime-400" />
                   </div>
                   <div>
-                    <div className="text-3xl font-bold tracking-tight text-white">150+</div>
-                    <div className="text-sm text-zinc-400">Projects Delivered</div>
+                    <div className="text-3xl font-bold tracking-tight text-white">4.000.000+</div>
+                    <div className="text-sm text-zinc-300">Transactions Executed</div>
                   </div>
                 </div>
 
@@ -156,11 +151,11 @@ export default function HeroSection() {
 
                 {/* Mini Stats Grid */}
                 <div className="grid grid-cols-3 gap-4 text-center">
-                  <StatItem value="5+" label="Years" />
+                  <StatItem value="15+" label="Clubs" />
                   <div className="w-px h-full bg-white/10 mx-auto" />
                   <StatItem value="24/7" label="Support" />
                   <div className="w-px h-full bg-white/10 mx-auto" />
-                  <StatItem value="100%" label="Quality" />
+                  <StatItem value="100%" label="Contract Compliance" />
                 </div>
               </div>
             </div>
