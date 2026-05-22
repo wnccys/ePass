@@ -34,46 +34,46 @@ Esse tópico define uma lista de tarefas para serem concluídas. Uma mesma taref
 
 Retirado do Manual Educacional. Características que agregam pontos.
 
-- [] uso de blockchain;
-- [] registro de ações de impacto;
-- [] uso de smart contracts;
-- [] histórico auditável;
-- [] emissão automática de certificados, NFTs ou reconhecimentos, quando aplicável;
-- [] clareza da solução;
-- [] valor social, ambiental ou comunitário;
-- [] aplicação prática real;
-- [] quais dados são registrados;
-- [] quais evidências são vinculadas às ações;
-- [] como a informação pode ser consultada ou verificada;
-- [] quem participa do fluxo;
-- [] qual métrica de impacto está sendo acompanhada;
-- [] como a solução aumenta transparência e confiança.
+- [] Uso de blockchain;
+- [] Registro de ações de impacto;
+- [] Uso de smart contracts;
+- [] Histórico auditável;
+- [] Emissão automática de certificados, NFTs ou reconhecimentos, quando aplicável;
+- [] Clareza da solução;
+- [] Valor social, ambiental ou comunitário;
+- [] Aplicação prática real;
+- [] Quais dados são registrados;
+- [] Quais evidências são vinculadas às ações;
+- [] Como a informação pode ser consultada ou verificada;
+- [] Quem participa do fluxo;
+- [] Qual métrica de impacto está sendo acompanhada;
+- [] Como a solução aumenta transparência e confiança.
 
-- [] transparência dos dados;
-- [] impacto social ou ambiental claro;
-- [] boa visualização das informações;
-- [] automações bem definidas;
-- [] experiência do usuário;
-- [] potencial real de adoção;
-- [] dashboard simples e compreensível;
-- [] uso adequado de certificados digitais ou NFTs;
-- [] integração funcional entre frontend, blockchain e smart contracts;
-- [] clareza sobre quais dados ficam on-chain e quais ficam off-chain;
-- [] uso de IPFS ou solução equivalente para evidências, quando fizer sentido;
-- [] métricas de impacto bem definidas;
-- [] solução conectada a um problema real de ONGs, empresas, governos ou comunidades.
+- [] Transparência dos dados;
+- [] Impacto social ou ambiental claro;
+- [] Boa visualização das informações;
+- [] Automações bem definidas;
+- [] Experiência do usuário;
+- [] Potencial real de adoção;
+- [] Dashboard simples e compreensível;
+- [] Uso adequado de certificados digitais ou NFTs;
+- [] Integração funcional entre frontend, blockchain e smart contracts;
+- [] Clareza sobre quais dados ficam on-chain e quais ficam off-chain;
+- [] Uso de IPFS ou solução equivalente para evidências, quando fizer sentido;
+- [] Métricas de impacto bem definidas;
+- [] Solução conectada a um problema real de ONGs, empresas, governos ou comunidades.
 
 ## Não-Obrigatório
 
-* tokens com valor financeiro real;
-* integração bancária real;
-* auditoria profissional;
-* aplicativo mobile completo;
-* deploy em produção;
-* sistema escalável para uso comercial;
-* dashboard avançado;
-* integração com órgãos públicos ou bases oficiais;
-* validação real por uma ONG, empresa ou governo.
+* Tokens com valor financeiro real;
+* Integração bancária real;
+* Auditoria profissional;
+* Aplicativo mobile completo;
+* Deploy em produção;
+* Sistema escalável para uso comercial;
+* Dashboard avançado;
+* Integração com órgãos públicos ou bases oficiais;
+* Validação real por uma ONG, empresa ou governo.
 
 ### Desafio
 
@@ -82,20 +82,20 @@ Selecionar a categoria mais adequada pro problema.
 A equipe deverá escolher um problema real relacionado a impacto social,
 ambiental ou comunitário e propor uma solução capaz de gerar histórico verificável, registrar evidências e, quando fizer sentido, automatizar certificações digitais.
 
-O escolhido é exatamente:
+A categoria escolhida foi exatamente:
 
-- [x] projetos sociais;
+- [x] projetos sociais.
 
 // TODO explicar melhor
 
 ## Visão Geral
 
-Toda a engenharia financeira dessas negociações multibilionárias continua amarrada ao sistema tradicional: contratos em PDF assinados via DocuSign/Adobe Sign, transferências bancárias internacionais via rede SWIFT e validação centralizada no FIFA TMS.
-
-Existem razões jurídicas pesadas para isso: a FIFA exige que ela própria seja a validadora centralizada do sistema, e o mercado de futebol depende de garantias bancárias tradicionais e da regulamentação de bancos centrais (como o Banco Central do Brasil) para compliance de lavagem de dinheiro.
+// TODO O tópico abaixo deve ser refeito para se adaptar á demanda de projeto social. Atualmente ela foca muito em transferências internacionais.
+// STUB Existem razões jurídicas pesadas para isso: a FIFA exige que ela própria seja a validadora centralizada do sistema, e o mercado de futebol depende de garantias bancárias tradicionais e da regulamentação de bancos centrais (como o Banco Central do Brasil) para compliance de lavagem de dinheiro.
 
 ## Transferências
 
+// STUB Reescrever e expandir este trecho.
 * O Software Suíço (FIFA TMS): Para transferências internacionais (ex: Brasil para Europa), tudo passa pelo Transfer Matching System (TMS) da FIFA.
 O clube que compra e o clube que vende precisam fazer o upload de todos os contratos em PDF e preencher os dados da operação (valores, contas bancárias, prazos).
 Se o time europeu colocar que comprou por €10 milhões e o time brasileiro colocar €10,5 milhões, o sistema trava o "match" e a transferência não ocorre.
@@ -106,6 +106,8 @@ Hoje, todo pagamento internacional passa por lá para garantir que os clubes que
 * O Sistema Nacional (CBF BID): Para transferências entre clubes brasileiros, usa-se o Sistema de Registro Desportivo (SRD) da CBF. Quando o contrato é validado, o nome do jogador sai no Boletim Informativo Diário (BID). Só então ele tem condição legal de jogo.
 
 ### Contratos (Como são feitos?)
+
+// STUB Refinar o texto
 
 * Transfer Agreement (Contrato de Transferência): Assinado entre os dois clubes.
 Define o valor, o número de parcelas, o banco de destino e as cláusulas de bônus.

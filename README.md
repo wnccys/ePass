@@ -1,14 +1,91 @@
 # ePass
 
-Este documento representa o README final.
+// STUB Este documento representa o README final.
 
-- [] o problema de impacto que pretende resolver;
-- [] qual ação social, ambiental ou comunitária será registrada;
-- [] quais evidências serão usadas;
-- [] como a blockchain entra na solução;
-- [] como os smart contracts automatizam validações, certificações ou reconhecimentos;
-- [] como o histórico pode ser auditado;
-- [] qual seria a aplicação prática em um cenário real.
+- [x] O problema de impacto que pretende resolver;
+    Somos uma startup que apresenta uma solução social para jogadores começando suas carreiras e clubes, que buscam fazer negócios de forma **confiável**, **barata** e ter mais **visibilidade** no meio.
+
+- [x] Qual ação social, ambiental ou comunitária será registrada;
+    Ação social.
+
+- [x] Quais evidências serão usadas;
+    Evidências estatísticas e lógicas.
+
+- [x] Como a blockchain entra na solução;
+    Age como um ponto central de confiança. O motor que automatiza execução e garante segurança.
+
+- [x] Como os smart contracts automatizam validações, certificações ou reconhecimentos;
+    Com sistema de Locks e NFTs.
+
+- [x] Como o histórico pode ser auditado;
+    Via aplicação e com ferramentas de visualização on-chain.
+
+- [x] Qual seria a aplicação prática em um cenário real;
+    Completa. Se aproveitando de todo fluxo e produto que oferecemos.
+
+## Nosso trabalho
+
+* Perfil de Jogador e Clube
+    * Jogador
+        * O que é
+            Representado por uma carteira, um jogador é efetivamente a carteira que receberá salários e abonos.
+
+        * O que pode fazer
+            * Visualizar
+                * Clube atual
+                * Outros clubes
+                * Seu perfil
+
+            * Contratos
+                * Visualizar
+                * Rescindir
+
+    * Clube
+        * O que é
+            Representado por uma carteira multi-sig (Gnosis Safe), um jogador é efetivamente a carteira que receberá salários e abonos.
+
+        * O que pode fazer
+            * Apresentar uma lista concisa de jogadores
+                * Lista que pode ser ordenada por preço, qualidade e outros atributos
+
+            * Apresentar perfil individual dos jogadores
+                * Qualidades, preço, e outras preferências contratuais
+                    // TODO Á definir
+
+                * Comprar jogadores
+                    * Uma requisição de compra é aberta, uma transação é proposta
+                        * Essa transação será avaliada pelo jogador, família, advogados, etc...
+                            * Se assinada por todos:
+                                *  O contrato é transformado em NFT, e liquidado em tokens que ficam disponíveis para compra.
+                                    * O jogador pode receber uma porcentagem desses tokens, decididos via contrato.
+                                    // TODO Definir como abonos, luvas etc... serão cobrados.
+
+                            * Se não for concordada (tempo e assinaturas) por todos:
+                                * O contrato expira e não pode ser executado.
+
+                * Vender jogadores
+                    * Uma requisição de compra é aberta, uma transação é proposta
+
+Com esse recorte de fluxo, excluímos as necessidades de:
+
+* Auditoria Contratual
+* Criação de contas (feita pela MetaMask, nosso trabalho é apenas indexar essas contas) // STUB
+
+## Benefícios gerais
+
+* Extinção de erros de intermediários
+* Execução rápida após aprovação
+* Burocracia desnecessária
+* Acessível
+* Transparente
+
+## Benefícios para o Jogador
+
+Garantia de contrato físico válido
+
+## Benefícios para Clubes
+
+Garantia de contrato físico válido
 
 ## Arquitetura
 
@@ -45,6 +122,11 @@ Este documento representa o README final.
 |                    |
 +--------------------+
 
+
+Atualmente o Fluxo se dá
+
+### TODOs
+
 ## The Role of Domain Separator
 
 Step 1: Calculate the Domain Separator Hash (Your Code)
@@ -61,4 +143,5 @@ address signer = ecrecover([Final Message Hash], signature);
 
 ## Ferramentas
 
-Normally, if a Player, Club, and Attorney need to agree to something on Ethereum, they would each have to open MetaMask, pay a gas fee, and click "Submit Transaction". That means 3 separate transactions, 3 gas fees, and a messy user experience.
+Normally, if a Player, Club, and Attorney need to agree to something on Ethereum, they would each have to open MetaMask, pay a gas fee, and click "Submit Transaction".
+That means 3 separate transactions, 3 gas fees, and a messy user experience.
