@@ -1,9 +1,7 @@
 import {
   ArrowRight,
-  Play,
   Target,
-  Crown,
-  Star,
+  Scroll,
   // Brand Icons
   Hexagon,
   Triangle,
@@ -12,6 +10,14 @@ import {
   Gem,
   Cpu
 } from "lucide-react";
+import AnimatedTextRoller from "./animated-text";
+
+const greetings = [
+    "Smart",
+    "Secure",
+    "Decentralized",
+    "Compliant"
+];
 
 // --- MOCK BRANDS ---
 // Replaced PNGs with Lucide icons to simulate tech logos
@@ -87,11 +93,11 @@ export default function HeroSection() {
             <h1
               className="animate-fade-in delay-200 text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-medium tracking-tighter leading-[0.9]"
               style={{
-                maskImage: "linear-gradient(180deg, black 0%, black 80%, transparent 100%)",
-                WebkitMaskImage: "linear-gradient(180deg, black 0%, black 80%, transparent 100%)"
+                // maskImage: "linear-gradient(180deg, black 0%, black 90%, transparent 100%)",
+                // WebkitMaskImage: "linear-gradient(180deg, black 0%, black 90%, transparent 100%)"
               }}
             >
-              Crafting Smart<br />
+              Crafting <AnimatedTextRoller greetings={greetings}  /><br />
               <span className="bg-gradient-to-br from-white via-white to-[#ffcd75] bg-clip-text text-transparent">
                 Contracts
               </span><br />
@@ -100,7 +106,7 @@ export default function HeroSection() {
 
             <p className="animate-fade-in delay-300 max-w-xl text-lg text-evergreen-50 leading-relaxed">
                 We enhance the experience between football players and clubs by bringing confidence and correctness as it should be,
-                on the light of decentraliztion, security and trust.
+                on the light of decentralization, security and compliance.
              </p>
 
             {/* CTA Buttons */}
@@ -111,7 +117,7 @@ export default function HeroSection() {
               </button>
 
               <button className="group inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-8 py-4 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10 hover:border-white/20">
-                <Play className="w-4 h-4 fill-current" />
+                <Scroll className="w-4 h-4 fill-current" />
                 Read More
               </button>
             </div>
