@@ -81,3 +81,61 @@ The other SPV board members review the proposed transaction.
 Once the threshold is met, the Safe submits the transaction to the blockchain, paying the gas.
 The smart contract uses ecrecover to verify the attached raw signatures from Step 1.
 If valid, the NFT is minted directly into the Safe's vault.
+
+# RWA Securitization Flow: Football Player Image Rights
+
+This document outlines the architectural breakdown, optimal ERC standards, and step-by-step execution flow for the tokenization of a football player's image rights and future receivables. By tokenizing these rights, an on-chain bond is issued, backed by the future cash flow of brand deals and sponsorships.
+
+## 1. ERC Standards: Options & Trade-offs
+
+Choosing the right token standard dictates how DeFi protocols can interact with the asset.
+
+| Standard | Architecture | Pros | Cons |
+| :--- | :--- | :--- | :--- |
+| **ERC-721 (NFT)** | One token represents the exact legal contract (1:1). | Perfectly maps to a unique legal PDF. Easy to implement metadata pointing to IPFS. | **Illiquid.** You cannot borrow *partial* value in most DeFi lending protocols; it's all or nothing. |
+| **ERC-1155 (Multi-Token)** | One token ID represents the player, with a supply representing "shares" of the contract. | Allows fractional ownership natively. Investors can buy 10% of the player's image rights. | Less standard support in legacy DeFi lending markets compared to pure ERC-20s. |
+| **ERC-3525 (Semi-Fungible)** | Tokens have unique IDs (like 721) but contain a quantitative `value` slot (like 20). | **Ideal for financial bonds/receivables.** You can split, merge, and transfer *values* of the image rights between wallets. | Requires custom adapters for standard DEXs and lending pools. |
+| **Fractionalized (ERC-721 → ERC-20)** | ERC-721 is locked in a vault, which issues ERC-20 tokens representing shares. | **Maximum liquidity.** ERC-20s easily plug into Uniswap or Aave-style lending pools. | High architectural complexity. Extreme regulatory risk (functions exactly like an unregistered security). |
+
+**Recommendation for a Fintech PoC:** Use the **Fractionalized approach (ERC-721 locked into an ERC-20 vault)** or **ERC-1155**. They provide the easiest integration into existing liquidity pools to release immediate capital.
+
+---
+
+## 2. The End-to-End Execution Flow
+
+The securitization of an RWA requires a strict, ordered process where failure at one step invalidates the asset. Here is how the flow operates after the legal terms are agreed upon.
+
+### Step 1: The Legal Wrapper (SPV)
+A Special Purpose Vehicle (SPV) must be created off-chain. The player signs the rights over to the SPV. The smart contract doesn't own the player; the smart contract owns the SPV, which holds the legal rights.
+
+### Step 2: Multi-Sig Authorization (ERC-712 & Safe)
+The transaction to mint the tokenized asset is queued. Because multiple parties must agree, you utilize a **Safe (formerly Gnosis Safe)** smart account. The Player, Attorney, and the Club provide structured off-chain signatures using **ERC-712** to verify their intent. Once all signatures are collected, the transaction is executed on-chain.
+
+### Step 3: Minting the Asset
+The Smart Contract verifies the ERC-712 signatures. If valid, it mints an ERC-721 representing the master contract. This NFT is immediately deposited into a **Vault Contract**.
+
+### Step 4: Fractionalization & Collateralization
+The Vault Contract mints ERC-20 tokens (e.g., `$P_IMAGE`) representing fractional shares of the future receivables. The Club takes these ERC-20 tokens and deposits them into a DeFi Lending Pool (like a custom Aave fork).
+
+### Step 5: Liquidity Release
+The lending pool accepts `$P_IMAGE` as collateral and releases stablecoins (USDC) to the Club, providing immediate capital.
+
+### Step 6: Yield Repayment
+As the player generates real-world revenue (Nike deals, TV spots), fiat is paid to the SPV, converted to USDC, and routed back to the Vault Contract. The Vault distributes this yield proportionally to whoever holds the `$P_IMAGE` tokens (or uses it to pay down the Club's stablecoin loan).
+
+---
+
+## 3. Tracking the Player's Value on Ethereum
+
+Value tracking in RWAs operates on two distinct vectors: **Speculative Value** and **Yield Value**.
+
+### Speculative Value (AMM Price)
+If you create an ERC-20 liquidity pool (`$P_IMAGE` / `USDC`) on a decentralized exchange like Uniswap, the free market dictates the value.
+* If the player scores a hat-trick in a final, demand for their token increases, and the AMM price rises.
+* To track this securely on-chain for your lending pool to calculate liquidation thresholds, you would use a **TWAP (Time-Weighted Average Price)** oracle directly from the Uniswap V3 pool.
+
+### Yield Value & Performance Oracles
+You can link the player's real-world performance directly to the contract's financial mechanics using a custom EVM Oracle architecture. Instead of just tracking goals, the Oracle node fetches data from sports APIs and social media metrics to update the on-chain state:
+
+* **Dynamic Interest Rates:** The smart contract can be programmed so that if the Oracle reports the player reached 10 million Instagram followers, the interest rate the Club pays on their DeFi loan decreases (because the collateral is now considered "safer" or more valuable).
+* **Performance Dividends:** If the player hits specific milestones (e.g., winning the Ballon d'Or), the Oracle triggers a pre-programmed bonus payout from the Club's treasury to the token holders.

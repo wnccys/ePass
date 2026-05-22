@@ -6,9 +6,6 @@
 * Pixel Logo Grid: https://21st.dev/community/components/smammar100/pixel-logo-grid/default
 * Liquid Glass Nav: https://21st.dev/community/components/easemize/apple-tahoe-liquid-glass-button/default
 
-* Background(1): https://21st.dev/community/components/easemize/flow-field-background/default
-* Background(2): https://21st.dev/community/components/easemize/spooky-smoke-animation/default
-* Background(3): https://21st.dev/community/components/easemize/noisy-gradient-backgrounds/default
 * Background(4): https://21st.dev/community/components/shadway/paper-design-shader-background/default
 
 * Hero Example: https://21st.dev/community/components/easemize/glassmorphism-trust-hero/default
