@@ -29,7 +29,7 @@ The nonce state is tied to the player's address.
 Domain Separator is a pattern to prevent replay attacks on ERC-712 contracts. It acts like a guarantee the contract can only be executed on a choosen contract.
 This way the signatures can't be twisted maliciously.
 
-Digest is the final packed data
+Digest is the final packed data // TODO
 
 ## Player Rights Minter
 

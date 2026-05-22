@@ -69,7 +69,7 @@
 Com esse recorte de fluxo, excluímos as necessidades de:
 
 * Auditoria Contratual
-* Criação de contas (feita pela MetaMask, nosso trabalho é apenas indexar essas contas) // STUB
+* Criação de Carteiras
 
 ## Benefícios gerais
 

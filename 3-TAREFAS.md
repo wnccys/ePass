@@ -6,6 +6,7 @@ Este documento representa aspectos técnicos e TODOs de desenvolvimento funciona
     - [] Stack Back-end
     - [] Stack Front-end
     - [] Definir DB
+    - [] Docker
 
 - [] Regras Funcionais
 // TODO

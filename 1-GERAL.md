@@ -19,7 +19,7 @@ Esse tópico define uma lista de tarefas para serem concluídas. Uma mesma taref
             - [] Smart contract deployado: Link da testnet pública e endereço do smart contract deployado, quando aplicável à solução.
             - [] Demonstração funcional: Demonstração do fluxo principal da solução, incluindo registro, consulta, validação ou certificação de uma ação de impacto.
             - [] Demonstração auditável: Exemplo de registro e validação de impacto, com Vídeo demo, prints, links, transações, instruções ou evidências que permitam à banca verificar o funcionamento.
-            - [] Link da aplicação, quando aplicável: Link da aplicação publicada, protótipo navegável, dashboard ou ambiente de demonstração, caso exista.
+            - [] Link da aplicação, quando aplicável: Link da aplicação publicada, protótipo navegável, dashboard ou ambiente de demonstração.
 
         - [] Código minimamente comentado
         - [] README explicando o funcionamento da solução
