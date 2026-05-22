@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Merriweather, Noto_Serif } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const notoSerifHeading = Noto_Serif({subsets:['latin'],variable:'--font-heading'});
+
+const merriweather = Merriweather({subsets:['latin'],variable:'--font-serif'});
+
 
 // Our local main font
 const rodinProB = localFont({
@@ -24,7 +31,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${rodinProB.variable} h-full antialiased`}
+      className={cn("h-full", "antialiased", rodinProB.variable, "font-serif", merriweather.variable, notoSerifHeading.variable)}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
