@@ -1,4 +1,4 @@
-# ePass (Provisório)
+# ePass
 
 Este documento define termos e informações relevantes sobre todo o desenvolvimento.
 
@@ -82,18 +82,11 @@ Selecionar a categoria mais adequada pro problema.
 A equipe deverá escolher um problema real relacionado a impacto social,
 ambiental ou comunitário e propor uma solução capaz de gerar histórico verificável, registrar evidências e, quando fizer sentido, automatizar certificações digitais.
 
-Esses problemas aparecem em contextos como:
+O escolhido é exatamente:
 
-- [] doações;
-- [] voluntariado;
-- [] reciclagem;
-- [] ações ambientais;
-- [] projetos sociais;
-- [] campanhas comunitárias;
-- [] certificações ESG;
-- [] prestação de contas públicas;
-- [] reconhecimento de participação social;
-- [] comprovação de impacto educacional ou territorial.
+- [x] projetos sociais;
+
+// TODO explicar melhor
 
 ## Visão Geral
 
