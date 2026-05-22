@@ -1,6 +1,6 @@
 # ePass
 
-// STUB Este documento representa o README final.
+ePass é um dApp, facilitando transferências entre jogadores e times de futebol, baseado em smart-contracts.
 
 - [x] O problema de impacto que pretende resolver;
     Somos uma startup que apresenta uma solução social para jogadores começando suas carreiras e clubes, que buscam fazer negócios de forma **confiável**, **barata** e ter mais **visibilidade** no meio.
