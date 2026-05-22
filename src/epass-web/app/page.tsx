@@ -10,9 +10,9 @@ export default function Home() {
         <div className = "absolute inset-0 -z-10 bg-black/15" />
 
         <div className="absolute top-8 left-0 right-0 flex justify-center z-50">
-            <LiquidGlassNavbar className="cursor">
-                <div className="font-light text-white text-xl">ePass</div>
-                <div className="flex items-center gap-6 text-sm text-zinc-300">
+            <LiquidGlassNavbar>
+                <div className="font-light text-white text-xl pointer-events-none select-none">ePass</div>
+                <div className="flex items-center gap-6 text-sm text-zinc-300 [&_a]:cursor-default [&_a]:select-none">
                     <a href="#" className="hover:text-white transition-colors">Clubs</a>
                     <a href="#" className="hover:text-white transition-colors">Players</a>
                     <a href="#" className="hover:text-white transition-colors">About</a>
