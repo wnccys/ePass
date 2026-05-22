@@ -1,34 +1,44 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
-	"vcs": {
-		"enabled": true,
-		"clientKind": "git",
-		"useIgnoreFile": true
-	},
-	"files": {
-		"ignoreUnknown": false
-	},
-	"formatter": {
-		"enabled": true,
-		"indentStyle": "tab"
-	},
-	"linter": {
-		"enabled": true,
-		"rules": {
-			"recommended": true
-		}
-	},
-	"javascript": {
-		"formatter": {
-			"quoteStyle": "double"
-		}
-	},
-	"assist": {
-		"enabled": true,
-		"actions": {
-			"source": {
-				"organizeImports": "on"
-			}
-		}
-	}
+    "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+    "vcs": {
+        "enabled": true,
+        "clientKind": "git",
+        "useIgnoreFile": true
+    },
+    "organizeImports": {
+        "enabled": true
+    },
+    "formatter": {
+        "enabled": true,
+        "formatWithErrors": false,
+        "indentStyle": "space",
+        "indentWidth": 4,
+        "lineWidth": 80,
+        "ignore": ["node_modules", ".next", "dist", "build"]
+    },
+    "javascript": {
+        "formatter": {
+        "quoteStyle": "double",
+        "jsxQuoteStyle": "double",
+        "trailingCommas": "all",
+        "semicolons": "always"
+        }
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+        "recommended": true,
+        "nursery": {
+            "useSortedClasses": {
+            "level": "warn",
+            "fix": "safe",
+            "options": {
+                        "attributes": ["className"],
+                        "functions": ["clsx", "cva", "tw", "twMerge"]
+                    }
+                }
+            }
+        },
+        "ignore": ["node_modules", ".next", "dist", "build"]
+    }
 }
