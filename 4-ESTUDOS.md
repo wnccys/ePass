@@ -2,6 +2,9 @@
 
 This file exposes how the project works in this specific study branch.
 
+// ERC-1155
+// ERC-6909
+
 ## Rights Minter
 
 Works by creating the MintAgreement structure, which can be signed (and must) by multiple defined persons.
