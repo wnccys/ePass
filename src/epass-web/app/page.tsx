@@ -4,7 +4,7 @@ import { LiquidGlassNavbar } from "@/components/ui/liquid-glass-navbar";
 
 export default function Home() {
     return (
-    <main className= "relative min-h-screen h-full w-full flex items-center justify-center overflow-hidden">
+    <main className= "relative min-h-screen h-full w-full flex items-center justify-center overflow-hidden selection:bg-lime-200/80">
         <GradientBackground />
         {/* Oppacity Filter */}
         <div className = "absolute inset-0 -z-10 bg-black/15" />
