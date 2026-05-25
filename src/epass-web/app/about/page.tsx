@@ -1,1 +1,3 @@
-export default function About() { return null; }
+export default function About() {
+    return "Gitbook Impl";
+}
