@@ -92,10 +92,6 @@ export default function HeroSection() {
             {/* Heading */}
             <h1
               className="animate-fade-in delay-200 text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-medium tracking-tighter leading-[0.9]"
-              style={{
-                // maskImage: "linear-gradient(180deg, black 0%, black 90%, transparent 100%)",
-                // WebkitMaskImage: "linear-gradient(180deg, black 0%, black 90%, transparent 100%)"
-              }}
             >
               Crafting <AnimatedTextRoller greetings={greetings}  /><br />
               <span className="bg-gradient-to-br from-white via-white to-[#ffcd75] bg-clip-text text-transparent">
