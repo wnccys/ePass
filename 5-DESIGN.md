@@ -16,11 +16,7 @@ https://21st.dev/
 * Sign In(1): https://21st.dev/community/components/easemize/sign-up/default
 * Sign In(2): https://21st.dev/community/components/easemize/sign-in/default
 
-* Scroll Action Example: https://21st.dev/community/components/easemize/motion-footer/default
-* Contract Scroll Example: https://21st.dev/community/components/boudjadjasamira/story-scroll/default
 * Theme Toggler: https://magicui.design/docs/components/animated-theme-toggler
-
-* Text Effect: https://ui.aceternity.com/components/encrypted-text
 
 ## Fonts
 

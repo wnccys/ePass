@@ -10,7 +10,7 @@ ePass é um protocolo descentralizado que transforma contratos de direito de ima
 
 Quando um jovem atleta assina seu primeiro contrato profissional, dois documentos são produzidos: o contrato de trabalho e o contrato de direito de imagem. O segundo é praticamente uma folha em branco — não há padrão de registro, não há auditabilidade pública, e o atleta raramente entende ou controla o que está cedendo.
 
-Além disso, jogadores em início de carreira possuem contratos de baixo valor nominal. Não existe nenhum mecanismo para que um talento emergente gere interesse de mercado antes de uma grande transferência. Eles dependem inteiramente da visibilidade que o clube decide — ou não — dar.
+Além disso, jogadores em início de carreira possuem contratos de baixo valor nominal. Não existe nenhum mecanismo para que um talento emergente gere interesse de mercado antes de uma grande transferência. Eles dependem inteiramente da visibilidade que o clube decide — ou não — promover.
 
 **O ePass resolve isso.**
 
@@ -29,14 +29,14 @@ O protocolo é composto por quatro contratos interligados, deployados na **Sepol
 ```
   MUNDO OFF-CHAIN
   ───────────────────────────────────────────────────────────────────
-  
+
   [Contrato PDF]  ──hash──►  [IPFS]  ──URI──►  tokenURI do NFT
-  
+
        │
        │  Jogador, Clube e Advogado
        │  assinam digitalmente (EIP-712, sem gas)
        ▼
-  
+
   ───────────────────────────────────────────────────────────────────
   MUNDO ON-CHAIN
   ───────────────────────────────────────────────────────────────────
@@ -212,7 +212,7 @@ epass/
 │   └── SimulatePipeline.s.sol     # Simulação end-to-end do fluxo
 ├── test/
 │   └── (em desenvolvimento)
-├── frontend/
+├── epass-web/
 │   └── (Next.js — em desenvolvimento)
 └── README.md
 ```
