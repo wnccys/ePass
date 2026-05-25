@@ -13,8 +13,7 @@ https://21st.dev/
 
 * Hero Example: https://21st.dev/community/components/easemize/glassmorphism-trust-hero/default
 
-* Sign In(1): https://21st.dev/community/components/easemize/sign-up/default
-* Sign In(2): https://21st.dev/community/components/easemize/sign-in/default
+* Sign In: https://21st.dev/community/components/easemize/sign-up/default
 
 * Theme Toggler: https://magicui.design/docs/components/animated-theme-toggler
 
