@@ -1,147 +1,236 @@
-# ePass
+# ePass ⚽
 
-ePass é um dApp, facilitando transferências entre jogadores e times de futebol, baseado em smart-contracts.
+> **Tokenizando o primeiro contrato do atleta. Construindo carreiras desde o início.**
 
-- [x] O problema de impacto que pretende resolver;
-    Somos uma startup que apresenta uma solução social para jogadores começando suas carreiras e clubes, que buscam fazer negócios de forma **confiável**, **barata** e ter mais **visibilidade** no meio.
+ePass é um protocolo descentralizado que transforma contratos de direito de imagem de jovens atletas de futebol em ativos registrados on-chain. Por meio de smart contracts, assinaturas multi-parte e um contrato DAO por atleta, o ePass garante transparência, segurança jurídica e um mecanismo real de valorização de mercado para jogadores que estão começando.
 
-- [x] Qual ação social, ambiental ou comunitária será registrada;
-    Ação social.
+***
 
-- [x] Quais evidências serão usadas;
-    Evidências estatísticas e lógicas.
+## O Problema
 
-- [x] Como a blockchain entra na solução;
-    Age como um ponto central de confiança. O motor que automatiza execução e garante segurança.
+Quando um jovem atleta assina seu primeiro contrato profissional, dois documentos são produzidos: o contrato de trabalho e o contrato de direito de imagem. O segundo é praticamente uma folha em branco — não há padrão de registro, não há auditabilidade pública, e o atleta raramente entende ou controla o que está cedendo.
 
-- [x] Como os smart contracts automatizam validações, certificações ou reconhecimentos;
-    Com sistema de Locks e NFTs.
+Além disso, jogadores em início de carreira possuem contratos de baixo valor nominal. Não existe nenhum mecanismo para que um talento emergente gere interesse de mercado antes de uma grande transferência. Eles dependem inteiramente da visibilidade que o clube decide — ou não — dar.
 
-- [x] Como o histórico pode ser auditado;
-    Via aplicação e com ferramentas de visualização on-chain.
+**O ePass resolve isso.**
 
-- [x] Qual seria a aplicação prática em um cenário real;
-    Completa. Se aproveitando de todo fluxo e produto que oferecemos.
+***
 
-## Nosso trabalho
+## A Solução
 
-* Perfil de Jogador e Clube
-    * Jogador
-        * O que é
-            Representado por uma carteira, um jogador é efetivamente a carteira que receberá salários e abonos.
+O ePass digitaliza e registra o contrato de direito de imagem on-chain, com respaldo em IPFS. A partir disso, qualquer pessoa pode apoiar diretamente o atleta adquirindo tokens `$P_IMAGE` — um **certificado de apoio**, não um ativo especulativo. O valor doado entra no fundo do atleta, aumentando seu valor de mercado. Quem apoia acredita na carreira e ajuda o futuro do jogador!.
 
-        * O que pode fazer
-            * Visualizar
-                * Clube atual
-                * Outros clubes
-                * Seu perfil
+***
 
-            * Contratos
-                * Visualizar
-                * Rescindir
+## Arquitetura de Smart Contracts
 
-    * Clube
-        * O que é
-            Representado por uma carteira multi-sig (Gnosis Safe), um jogador é efetivamente a carteira que receberá salários e abonos.
+O protocolo é composto por quatro contratos interligados, deployados na **Sepolia Testnet**.
 
-        * O que pode fazer
-            * Apresentar uma lista concisa de jogadores
-                * Lista que pode ser ordenada por preço, qualidade e outros atributos
+```
+  MUNDO OFF-CHAIN
+  ───────────────────────────────────────────────────────────────────
+  
+  [Contrato PDF]  ──hash──►  [IPFS]  ──URI──►  tokenURI do NFT
+  
+       │
+       │  Jogador, Clube e Advogado
+       │  assinam digitalmente (EIP-712, sem gas)
+       ▼
+  
+  ───────────────────────────────────────────────────────────────────
+  MUNDO ON-CHAIN
+  ───────────────────────────────────────────────────────────────────
 
-            * Apresentar perfil individual dos jogadores
-                * Qualidades, preço, e outras preferências contratuais
-                    // TODO Á definir
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                        RightsMinter                             │
+  │                    (Gateway EIP-712)                            │
+  │                                                                 │
+  │  Recebe as 3 assinaturas (jogador + clube + advogado)           │
+  │  Valida cada uma · Checa nonce e deadline · Dispara o mint      │
+  └───────────────────────────┬─────────────────────────────────────┘
+                              │
+                              │ executeMint()
+                              ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                    PlayerRightsMaster                           │
+  │                      (ERC-721 NFT)                              │
+  │                                                                 │
+  │  Minta o NFT master para o clube                                │
+  │  URI imutável aponta para os documentos no IPFS                 │
+  │  Só pode ser mintado pelo RightsMinter                          │
+  └───────────────────────────┬─────────────────────────────────────┘
+                              │
+                              │ Clube chama a Factory
+                              ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                   ContractDAOFactory                            │
+  │                                                                 │
+  │  Recebe os parâmetros do contrato real (porcentagens,           │
+  │  valor, partes, caução) e deploya um ContractDAO único          │
+  │  por atleta — custeado pelo clube                               │
+  └───────────────────────────┬─────────────────────────────────────┘
+                              │
+                              │ deploy()  →  1 contrato por atleta
+                              ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                       ContractDAO                               │
+  │               (Contrato único por atleta)                       │
+  │                                                                 │
+  │  STATUS: PENDING ──► ACTIVE (clube deposita caução)             │
+  │                                                                 │
+  │  Regras do acordo (espelhando o PDF):                           │
+  │    · Divisão: Jogador X% · Clube Y% · Advogado Z%               │
+  │    · Bonificação em $P_IMAGE tokens                             │
+  │    · Rescisão com caução como proteção das partes               │
+  │                                                                 │
+  │  Emissão de $P_IMAGE  ──►  Certificados de Apoio                │
+  │                                                                 │
+  │    Apoiadores compram $P_IMAGE  ──►  valor entra no fundo       │
+  │    do atleta  ──►  aumenta seu valor de mercado                 │
+  │                                                                 │
+  │    [ Jogador ]  ←── saca $P_IMAGE → converte fora do sistema    │
+  └─────────────────────────────────────────────────────────────────┘
 
-                * Comprar jogadores
-                    * Uma requisição de compra é aberta, uma transação é proposta
-                        * Essa transação será avaliada pelo jogador, família, advogados, etc...
-                            * Se assinada por todos:
-                                *  O contrato é transformado em NFT, e liquidado em tokens que ficam disponíveis para compra.
-                                    * O jogador pode receber uma porcentagem desses tokens, decididos via contrato.
-                                    // TODO Definir como abonos, luvas etc... serão cobrados.
+  TRANSFERÊNCIA DE CLUBE
+  ───────────────────────────────────────────────────────────────────
 
-                            * Se não for concordada (tempo e assinaturas) por todos:
-                                * O contrato expira e não pode ser executado.
+  [Clube Atual]  ──transferFrom()──►  [Novo Clube]
+       │
+       └── NFT master é transferido · ContractDAO acompanha
+           Histórico completo preservado on-chain
+```
 
-                * Vender jogadores
-                    * Uma requisição de compra é aberta, uma transação é proposta
+***
 
-Com esse recorte de fluxo, excluímos as necessidades de:
+## Contratos
 
-* Auditoria Contratual
-* Criação de Carteiras
+### `RightsMinter.sol` — Gateway de Autorização
+Contrato central do fluxo de criação. Recebe as três assinaturas EIP-712 (jogador, clube, advogado), valida cada uma, previne replay attacks via nonces e deadline, e aciona o mint do NFT master somente quando **todos** os signatários aprovaram.
 
-## Benefícios gerais
+- `executeMint(agreement, playerSig, clubSig, attorneySig)` — valida e dispara o mint
 
-* Extinção de erros de intermediários
-* Execução rápida após aprovação
-* Burocracia desnecessária
-* Acessível
-* Transparente
+### `PlayerRightsMaster.sol` — NFT Master (ERC-721)
+Representa o contrato de direito de imagem do atleta como token não-fungível. URI imutável aponta para os documentos legais hasheados no IPFS. Só pode ser mintado pelo `RightsMinter`.
 
-## Benefícios para o Jogador
+- `mintRights(recipient, uri)` — cria o NFT master
 
-Garantia de contrato físico válido
+### `ContractDAOFactory.sol` — Factory de Contratos
+Deployada uma vez. O clube a chama para criar um `ContractDAO` dedicado a cada atleta, passando os parâmetros reais do contrato físico. O custo do deploy é arcado pelo clube.
 
-## Benefícios para Clubes
+- `deploy(player, club, attorney, splits, caucion, tokenSupply)` — cria o ContractDAO do atleta
 
-Garantia de contrato físico válido
+### `ContractDAO.sol` — Contrato por Atleta
+O coração do protocolo. Espelha as regras do contrato físico on-chain. Controla o status do contrato, as regras de bonificação e rescisão, e a emissão dos tokens `$P_IMAGE`.
 
-## Arquitetura
+- `activate()` — clube deposita caução → status muda de `PENDING` para `ACTIVE`
+- `mintSupportTokens(amount)` — emite tokens $P_IMAGE para apoiadores
+- `claimBonus()` — jogador resgata bonificação em $P_IMAGE
+- `rescind()` — inicia processo de rescisão conforme regras do caução
 
-## Design
+***
 
-## Interações
+## O Token `$P_IMAGE` — Certificado de Apoio
 
-## Organização de Pastas
+O `$P_IMAGE` **não é um ativo especulativo**. Quem adquire um token está doando para o fundo do atleta, expressando confiança na carreira dele. O valor entra diretamente no montante do contrato, valorizando o jogador no mercado.
 
-## Fluxo Geral
+Não há expectativa de retorno financeiro para quem apoia. É um gesto — registrado, imutável e público na blockchain.
 
-+--------------------+        1. Request Voucher        +--------------------+
-|                    | -------------------------------> |                    |
-|                    |                                  |                    |
-|                    |        2. Return Voucher         |  Central Database  |
-|                    |        & Creator's Signature     | (Holds the signed  |
-|                    | <------------------------------- |     metadata)      |
-|   Marketplace      |                                  +--------------------+
-|   Web Frontend     |
-| (React/NextJS app) |                                  +--------------------+
-|                    |        3. Send Transaction       |                    |
-|                    | -------------------------------> |  Buyer's MetaMask  |
-|                    |   (Calls contract.redeem())      |  (Asks for gas &   |
-|                    |                                  |   purchase price)  |
-|                    | <------------------------------- +--------------------+
-|                    |        4. User Approves & Broadcasts
-+---------+----------+
-          |
-          | 5. Transaction Sent
-          v
-+--------------------+
-|                    |
-| Ethereum Network   | ---> Contract runs _safeMint()
-|                    |
-+--------------------+
+O atleta pode receber `$P_IMAGE` como bonificação e convertê-los para stablecoin fora do sistema, na própria carteira.
 
+***
 
-Atualmente o Fluxo se dá
+## Status do Contrato
 
-### TODOs
+| Status | Descrição |
+|---|---|
+| `PENDING` | Contrato mintado, aguardando depósito de caução do clube |
+| `ACTIVE` | Caução depositada — contrato em vigor, tokens disponíveis |
+| `RESCINDED` | Rescisão executada conforme regras do acordo |
 
-## The Role of Domain Separator
+***
 
-Step 1: Calculate the Domain Separator Hash (Your Code)
-[Domain Separator] = keccak256( abi.encode( "EIP712Domain...", "RightsMinter", "1", block.chainid, address(gateway) ) )
+## Fluxo Completo
 
-Step 2: Calculate the Voucher Hash (The Transaction Data)
-[Voucher Hash] = keccak256( abi.encode( VOUCHER_TYPE, tokenId, price ) )
+**FASE 1 — ACORDO OFF-CHAIN**
+Partes negociam. O contrato PDF é assinado. O documento é hasheado e enviado ao IPFS.
 
-Step 3: Glue them together (The EIP-712 Standard Formula)
-[Final Message Hash] = keccak256( abi.encodePacked( "\x19\x01", [Domain Separator], [Voucher Hash] ) )
+**FASE 2 — ASSINATURAS DIGITAIS (sem gas)**
+Jogador, Clube e Advogado assinam o `MintAgreement` via EIP-712 em suas carteiras. Nenhuma transação on-chain ainda — apenas assinaturas coletadas.
 
-Step 4: Check the Signature
-address signer = ecrecover([Final Message Hash], signature);
+**FASE 3 — MINT DO NFT MASTER**
+As 3 assinaturas são submetidas ao `RightsMinter`. Validadas, o NFT master é mintado para o clube, com URI apontando para o IPFS.
 
-## Ferramentas
+**FASE 4 — DEPLOY DO CONTRATO DAO**
+O clube chama a `ContractDAOFactory`, passando os parâmetros do contrato real. Um `ContractDAO` dedicado ao atleta é deployado.
 
-Normally, if a Player, Club, and Attorney need to agree to something on Ethereum, they would each have to open MetaMask, pay a gas fee, and click "Submit Transaction".
-That means 3 separate transactions, 3 gas fees, and a messy user experience.
+**FASE 5 — ATIVAÇÃO (Caução)**
+O clube deposita a caução no `ContractDAO`. Status muda de `PENDING` → `ACTIVE`. O contrato entra em vigor.
+
+**FASE 6 — APOIO E VALORIZAÇÃO**
+Tokens `$P_IMAGE` ficam disponíveis. Apoiadores compram tokens — o valor entra no fundo do atleta, aumentando seu valor de mercado.
+
+**FASE 7 — TRANSFERÊNCIA (quando ocorre)**
+O novo clube adquire o NFT master do clube atual via `transferFrom`. Histórico preservado. Novo `ContractDAO` é criado para o novo vínculo.
+
+***
+
+## Segurança
+
+- **Replay Attack Prevention:** Nonces por endereço (`_useCheckedNonce` OZ v5) + `deadline` por transação
+- **Typed Signatures:** EIP-712 — o usuário vê exatamente o que está assinando no MetaMask
+- **Minter Único:** Só o `RightsMinter` pode mintar NFTs no `PlayerRightsMaster`
+- **Contrato Isolado:** Um `ContractDAO` por atleta — falha em um não afeta os demais
+- **Caução como Garantia:** Rescisão sem caução não pode ser executada unilateralmente
+
+***
+
+## Stack
+
+| Camada | Tecnologia |
+|---|---|
+| Smart Contracts | Solidity ^0.8.24, OpenZeppelin v5 |
+| Framework de Dev | Foundry (Forge, Cast, Anvil) |
+| Padrões | ERC-721, ERC-20, EIP-712, EIP-1167 (Factory) |
+| Armazenamento | IPFS |
+| Rede | Sepolia Testnet |
+| Frontend | Next.js + React, Vercel |
+| Web3 | MetaMask, Wagmi/Viem |
+| Multi-sig | Gnosis Safe |
+
+***
+
+## Estrutura do Repositório
+
+```
+epass/
+├── src/
+│   ├── RightsMinter.sol           # Gateway de autorização multi-sig
+│   ├── PlayerRightsMaster.sol     # NFT master ERC-721
+│   ├── ContractDAOFactory.sol     # Factory — 1 deploy por atleta
+│   └── ContractDAO.sol            # Contrato por atleta (regras, caução, tokens)
+├── script/
+│   └── SimulatePipeline.s.sol     # Simulação end-to-end do fluxo
+├── test/
+│   └── (em desenvolvimento)
+├── frontend/
+│   └── (Next.js — em desenvolvimento)
+└── README.md
+```
+
+***
+
+## Demonstração
+
+```bash
+forge script script/SimulatePipeline.s.sol --rpc-url sepolia --broadcast
+```
+
+| Item | Link |
+|---|---|
+| Smart Contracts (Sepolia) | *(endereço a publicar)* |
+| Aplicação | *(link Vercel — a publicar)* |
+| Vídeo Demo | *(a publicar)* |
+
+***
+
+*ePass*
