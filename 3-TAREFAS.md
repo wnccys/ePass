@@ -10,6 +10,7 @@ Este documento representa aspectos técnicos e TODOs de desenvolvimento funciona
 // TODO
 
 - [] Tasks Funcionais
+    - [] Internacionalização (Tradução)
 // TODO
 
 - [] Tasks Não-Funcionais
