@@ -45,8 +45,9 @@ export default function RootLayout({
     <html
       lang="en"
       className={cn("h-full", "antialiased", rodinProB.variable, "font-serif", merriweather.variable, notoSerifHeading.variable)}
+      suppressHydrationWarning
     >
-      <body suppressHydrationWarning className="min-h-full flex flex-col selection:bg-lime-200/80">
+      <body className="min-h-full flex flex-col selection:bg-lime-200/80">
       <ThemeProvider
         attribute="class"
         defaultTheme="system"
