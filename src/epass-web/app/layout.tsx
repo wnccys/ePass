@@ -21,6 +21,18 @@ const rodinProB = localFont({
 export const metadata: Metadata = {
   title: "ePass",
   description: "The on-chain football market",
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    // Custom/Other tags (e.g., Safari pinned tabs or Android web manifests)
+    other: [
+      {
+        rel: 'mask-icon',
+        url: '/favicon.png',
+        color: '#84cc16', // Lime color
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
