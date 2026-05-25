@@ -33,7 +33,7 @@ export default function RootLayout({
       lang="en"
       className={cn("h-full", "antialiased", rodinProB.variable, "font-serif", merriweather.variable, notoSerifHeading.variable)}
     >
-      <body suppressHydrationWarning className="min-h-full flex flex-col">{children}</body>
+      <body suppressHydrationWarning className="min-h-full flex flex-col selection:bg-lime-200/80">{children}</body>
     </html>
   );
 }
