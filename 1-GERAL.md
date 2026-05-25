@@ -2,6 +2,8 @@
 
 Este documento define termos e informações relevantes sobre todo o desenvolvimento.
 
+// TODO DAI -> Study
+
 ## TODOs
 
 Esse tópico define uma lista de tarefas para serem concluídas. Uma mesma tarefa pode (e é recomendado) ser quebrada em tarefas menores no que a ideia for amadurecendo.
