@@ -12,7 +12,7 @@ export default function Home() {
         <div className="absolute inset-0 -z-10 bg-black/15" />
 
         <div className="fixed top-8 left-0 right-0 flex justify-center z-50">
-            <LiquidGlassNavbar className="">
+            <LiquidGlassNavbar>
                 <div className="flex items-center select-none cursor-pointer gap-1.5">
                     <Image
                         src="/favicon.png"

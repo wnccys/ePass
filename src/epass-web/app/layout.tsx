@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Merriweather, Noto_Serif } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/components/theme-provider"
 
 const notoSerifHeading = Noto_Serif({subsets:['latin'],variable:'--font-heading'});
 
@@ -45,7 +46,16 @@ export default function RootLayout({
       lang="en"
       className={cn("h-full", "antialiased", rodinProB.variable, "font-serif", merriweather.variable, notoSerifHeading.variable)}
     >
-      <body suppressHydrationWarning className="min-h-full flex flex-col selection:bg-lime-200/80">{children}</body>
+      <body suppressHydrationWarning className="min-h-full flex flex-col selection:bg-lime-200/80">
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        {children}
+      </ThemeProvider>
+      </body>
     </html>
   );
 }
