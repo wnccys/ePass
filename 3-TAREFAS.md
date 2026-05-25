@@ -9,11 +9,8 @@ Este documento representa aspectos técnicos e TODOs de desenvolvimento funciona
     - [] Docker
 // TODO
 
-- [] Regras Funcionais
+- [] Tasks Funcionais
 // TODO
 
-- [] Regras Não-Funcionais
-// TODO
-
-- [] Design
+- [] Tasks Não-Funcionais
 // TODO
