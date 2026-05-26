@@ -30,16 +30,16 @@ export function MainNavbar({ role }: MainNavbarProps) {
                     <div className='flex items-center gap-6 text-sm [&_a]:cursor-default [&_a]:select-none text-muted-foreground dark:text-zinc-300'>
                         {role === 'player' && (
                             <>
-                                <a href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>My Profile</a>
-                                <a href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Find Clubs</a>
-                                <a href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Contracts</a>
+                                <Link href="/profile" className='transition-colors hover:text-foreground dark:hover:text-white'>My Profile</Link>
+                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Find Clubs</Link>
+                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Contracts</Link>
                             </>
                         )}
                         {role === 'club' && (
                             <>
-                                <a href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Dashboard</a>
-                                <a href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Scouting</a>
-                                <a href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Management</a>
+                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Dashboard</Link>
+                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Scouting</Link>
+                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Management</Link>
                             </>
                         )}
                     </div>
