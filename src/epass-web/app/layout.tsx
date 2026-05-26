@@ -4,6 +4,9 @@ import "./globals.css";
 import { Merriweather, Noto_Serif } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { AppProviders } from "@/components/providers";
+import { MainNavbar } from "@/components/main-navbar";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]/route";
 
 const notoSerifHeading = Noto_Serif({subsets:['latin'],variable:'--font-heading'});
 
@@ -36,11 +39,14 @@ export const metadata: Metadata = {
     },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const session = await getServerSession(authOptions);
+    const role = session?.user?.role as 'player' | 'club' | undefined;
+
     return (
         <html
             lang="en"
@@ -49,6 +55,7 @@ export default function RootLayout({
         >
             <body className="min-h-full flex flex-col selection:bg-lime-200/80">
                 <AppProviders>
+                    <MainNavbar role={role} />
                     {children}
                 </AppProviders>
             </body>
