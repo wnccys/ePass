@@ -11,6 +11,7 @@
     "@paper-design/shaders-react": "^0.0.76",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.40.0",
     "lucide-react": "^1.16.0",
     "mongoose": "^9.6.2",
     "motion": "^12.40.0",
