@@ -1,5 +1,148 @@
 # ePass ⚽
 
+- [x] Definir Nome
+    - [x] ePass
+
+- [] Definir Ideia de Projeto (Vai mesmo ser uma Multi-Sig Ledger)
+    - [x] Projeto social focado em acessiblidade e conformidade entre jogadores e clubes de futebol.
+
+- [] Definir Requisitos
+    - [] Obrigatórios
+        - [] Uso de blockchain
+        - [] Registro verificável de ações de impacto
+        - [] Histórico auditável
+        - [] Smart contract funcional
+        - [] Repositório GitHub funcional
+            - [] Smart contract deployado: Link da testnet pública e endereço do smart contract deployado, quando aplicável à solução.
+            - [] Demonstração funcional: Demonstração do fluxo principal da solução, incluindo registro, consulta, validação ou certificação de uma ação de impacto.
+            - [] Demonstração auditável: Exemplo de registro e validação de impacto, com Vídeo demo, prints, links, transações, instruções ou evidências que permitam à banca verificar o funcionamento.
+            - [] Link da aplicação, quando aplicável: Link da aplicação publicada, protótipo navegável, dashboard ou ambiente de demonstração.
+
+        - [] Código minimamente comentado
+        - [] README explicando o funcionamento da solução
+        - [] Vídeo-pitch demonstrando a execução
+        - [] Apresentação de slides
+
+    - [] De Implementação (Funcional)
+
+    - [] De Implementação (Não-Funcional -- Não é uma ação direta do usuário)
+
+## Video-Pitch e Documentação Escrita
+
+Retirado do Manual Educacional. Características que agregam pontos.
+
+- [] Uso de blockchain;
+- [] Registro de ações de impacto;
+- [] Uso de smart contracts;
+- [] Histórico auditável;
+- [] Emissão automática de certificados, NFTs ou reconhecimentos, quando aplicável;
+- [] Clareza da solução;
+- [] Valor social, ambiental ou comunitário;
+- [] Aplicação prática real;
+- [] Quais dados são registrados;
+- [] Quais evidências são vinculadas às ações;
+- [] Como a informação pode ser consultada ou verificada;
+- [] Quem participa do fluxo;
+- [] Qual métrica de impacto está sendo acompanhada;
+- [] Como a solução aumenta transparência e confiança.
+
+- [] Transparência dos dados;
+- [] Impacto social ou ambiental claro;
+- [] Boa visualização das informações;
+- [] Automações bem definidas;
+- [] Experiência do usuário;
+- [] Potencial real de adoção;
+- [] Dashboard simples e compreensível;
+- [] Uso adequado de certificados digitais ou NFTs;
+- [] Integração funcional entre frontend, blockchain e smart contracts;
+- [] Clareza sobre quais dados ficam on-chain e quais ficam off-chain;
+- [] Uso de IPFS ou solução equivalente para evidências, quando fizer sentido;
+- [] Métricas de impacto bem definidas;
+- [] Solução conectada a um problema real de ONGs, empresas, governos ou comunidades.
+
+## Não-Obrigatório
+
+* Tokens com valor financeiro real;
+* Integração bancária real;
+* Auditoria profissional;
+* Aplicativo mobile completo;
+* Deploy em produção;
+* Sistema escalável para uso comercial;
+* Dashboard avançado;
+* Integração com órgãos públicos ou bases oficiais;
+* Validação real por uma ONG, empresa ou governo.
+
+=====================
+
+ O problema de impacto que pretende resolver; Somos uma startup que apresenta uma solução social para jogadores começando suas carreiras e clubes, que buscam fazer negócios de forma confiável, barata e ter mais visibilidade no meio.
+
+ Qual ação social, ambiental ou comunitária será registrada; Ação social.
+
+ Quais evidências serão usadas; Evidências estatísticas e lógicas.
+
+ Como a blockchain entra na solução; Age como um ponto central de confiança. O motor que automatiza execução e garante segurança.
+
+ Como os smart contracts automatizam validações, certificações ou reconhecimentos; Com sistema de Locks e NFTs.
+
+ Como o histórico pode ser auditado; Via aplicação e com ferramentas de visualização on-chain.
+
+ Qual seria a aplicação prática em um cenário real; Completa. Se aproveitando de todo fluxo e produto que oferecemos.
+
+Nosso trabalho
+Perfil de Jogador e Clube
+Jogador
+
+O que é Representado por uma carteira, um jogador é efetivamente a carteira que receberá salários e abonos.
+
+O que pode fazer
+
+Visualizar
+
+Clube atual
+Outros clubes
+Seu perfil
+Contratos
+
+Visualizar
+Rescindir
+Clube
+
+O que é Representado por uma carteira multi-sig (Gnosis Safe), um jogador é efetivamente a carteira que receberá salários e abonos.
+
+O que pode fazer
+
+Apresentar uma lista concisa de jogadores
+
+Lista que pode ser ordenada por preço, qualidade e outros atributos
+Apresentar perfil individual dos jogadores
+
+Qualidades, preço, e outras preferências contratuais // TODO Á definir
+
+Comprar jogadores
+
+Uma requisição de compra é aberta, uma transação é proposta
+Essa transação será avaliada pelo jogador, família, advogados, etc...
+Se assinada por todos:
+
+O contrato é transformado em NFT, e liquidado em tokens que ficam disponíveis para compra.
+O jogador pode receber uma porcentagem desses tokens, decididos via contrato. // TODO Definir como abonos, luvas etc... serão cobrados.
+Se não for concordada (tempo e assinaturas) por todos:
+
+O contrato expira e não pode ser executado.
+Vender jogadores
+
+Uma requisição de compra é aberta, uma transação é proposta
+Com esse recorte de fluxo, excluímos as necessidades de:
+
+Auditoria Contratual
+Criação de Carteiras
+Benefícios gerais
+Extinção de erros de intermediários
+Execução rápida após aprovação
+Burocracia desnecessária
+Acessível
+Transparente
+
 > **Tokenizando o primeiro contrato do atleta. Construindo carreiras desde o início.**
 
 ePass é um protocolo descentralizado que transforma contratos de direito de imagem de jovens atletas de futebol em ativos registrados on-chain. Por meio de smart contracts, assinaturas multi-parte e um contrato DAO por atleta, o ePass garante transparência, segurança jurídica e um mecanismo real de valorização de mercado para jogadores que estão começando.
