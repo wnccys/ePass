@@ -259,8 +259,8 @@ useEffect(() => {
                         <BlurFade delay={0.25 * 1} className="w-full"><div className="text-center"><p className="font-serif font-light text-4xl sm:text-5xl md:text-6xl tracking-tight text-foreground whitespace-nowrap">Get started with Us</p></div></BlurFade>
                         <BlurFade delay={0.25 * 2}><p className="text-sm font-medium text-muted-foreground">Continue with</p></BlurFade>
                         <BlurFade delay={0.25 * 3}><div className="flex items-center justify-center gap-4 w-full">
-                            <GlassButton onClick={() => signIn("google", { callbackUrl: "/home" })} contentClassName="flex items-center justify-center gap-2" size="sm"><GoogleIcon /><span className="font-semibold text-foreground">Google</span></GlassButton>
-                            <GlassButton onClick={() => signIn("github", { callbackUrl: "/home" })} contentClassName="flex items-center justify-center gap-2" size="sm"><GitHubIcon /><span className="font-semibold text-foreground">GitHub</span></GlassButton>
+                            <GlassButton onClick={() => signIn("google", { callbackUrl: "/profile" })} contentClassName="flex items-center justify-center gap-2" size="sm"><GoogleIcon /><span className="font-semibold text-foreground">Google</span></GlassButton>
+                            <GlassButton onClick={() => signIn("github", { callbackUrl: "/profile" })} contentClassName="flex items-center justify-center gap-2" size="sm"><GitHubIcon /><span className="font-semibold text-foreground">GitHub</span></GlassButton>
                         </div></BlurFade>
                         <BlurFade delay={0.25 * 4} className="w-[300px]"><div className="flex items-center w-full gap-2 py-2"><hr className="w-full border-border"/><span className="text-xs font-semibold text-muted-foreground">OR</span><hr className="w-full border-border"/></div></BlurFade>
                     </motion.div>}
