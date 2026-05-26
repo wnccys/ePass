@@ -27,7 +27,7 @@ export default async function Page() {
                                 height={20}
                                 priority
                             />
-                            <Link href="/" className={`font-light text-xl`}>ePass</Link>
+                            <Link href="/" className={`font-light text-white text-xl`}>ePass</Link>
                         </div>
                         <div className='flex items-center gap-6 text-sm [&_a]:cursor-default [&_a]:select-none text-zinc-300'>
                             <>
