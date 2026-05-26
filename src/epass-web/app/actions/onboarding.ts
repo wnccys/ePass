@@ -5,16 +5,17 @@ import { authOptions } from "../api/auth/[...nextauth]/route";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 
-export async function completeOnboarding(formData: FormData) {
+export async function completeOnboarding(data: { name: string; role: string }) {
     const session = await getServerSession(authOptions);
     if (!session?.user) throw new Error("Unauthorized");
 
-    const username = formData.get("username") as string;
+    const { name, role } = data;
 
     await dbConnect();
 
     await User.findByIdAndUpdate(session.user.id, {
-        username: username,
+        name: name,
+        role: role,
         onboardingComplete: true, // <- Flip onboarding switch
     });
 
