@@ -6,15 +6,15 @@ import { LogoutButton } from "./logout-button";
 import { Demo } from "@/components/ui/card-information";
 
 export default async function Home() {
-    const session = await getServerSession(authOptions);
-
-    await dbConnect();
+    const session = await getServerSession(authOptions)!;
 
     // Type Guard
     if (!session) {
+        // TODO set better callback for unauthorized requests
         return <div>Access Denied</div>;
     }
 
+    await dbConnect();
     const myProfile = await User.findById(session.user.id);
 
     return (
