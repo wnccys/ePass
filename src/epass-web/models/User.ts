@@ -1,11 +1,13 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IUser extends Document {
-  name: string;
-  email: string;
-  image?: string;         // Optional
-  authProvider: string;
-  authProviderId: string;
+    name: string;
+    email: string;
+    image?: string;         // Optional
+    authProvider: string;
+    authProviderId: string;
+    role: string;
+    onboardingComplete: boolean;
 }
 
 // Pass the interface into the Schema via <IUser>
@@ -15,6 +17,8 @@ const UserSchema = new Schema<IUser>({
   image: { type: String },
   authProvider: { type: String, required: true },
   authProviderId: { type: String, required: true },
+  role: { type: String, enum: ["player, club"], required: true, default: "player" },
+  onboardingComplete: { type: Boolean, default: false }
 }, {
   timestamps: true // Automatically adds createdAt and updatedAt
 });
