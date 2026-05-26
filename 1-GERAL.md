@@ -8,8 +8,11 @@ Este documento define termos e informações relevantes sobre todo o desenvolvim
 
 Esse tópico define uma lista de tarefas para serem concluídas. Uma mesma tarefa pode (e é recomendado) ser quebrada em tarefas menores no que a ideia for amadurecendo.
 
-- [] Definir Nome
-- [] Definir Ideia de Projeto (Vai mesmo ser uma Multi-Sig Ledger?)
+- [x] Definir Nome
+    - [x] ePass;
+
+- [x] Definir Ideia de Projeto
+    - [x] Projeto social focado em acessiblidade e conformidade entre jogadores e clubes de futebol;
 
 - [] Definir Requisitos
     - [] Obrigatórios
