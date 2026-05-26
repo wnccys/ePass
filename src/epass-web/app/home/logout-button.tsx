@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 
 export function LogoutButton() {
     return (
-        <Button 
-            onClick={() => signOut({ callbackUrl: "/login" })}
+        <Button
+            onClick={() => signOut({ redirect: true, callbackUrl: "/login" })}
             variant="destructive"
         >
             Log Out
