@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 
 export default async function LoginPage() {
     const session = await getServerSession(authOptions);
-
     // If not logged, render signin form
     if (!session) return <AuthComponent />
 
