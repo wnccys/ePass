@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Merriweather, Noto_Serif } from "next/font/google";
 import { cn } from "@/lib/utils";
-import { ThemeProvider } from "@/components/theme-provider"
+import { AppProviders } from "@/components/providers";
 
 const notoSerifHeading = Noto_Serif({subsets:['latin'],variable:'--font-heading'});
 
@@ -20,43 +20,38 @@ const rodinProB = localFont({
 })
 
 export const metadata: Metadata = {
-  title: "ePass",
-  description: "The on-chain football market",
-  icons: {
-    icon: '/favicon.png',
-    shortcut: '/favicon.png',
-    // Custom/Other tags (e.g., Safari pinned tabs or Android web manifests)
-    other: [
-      {
-        rel: 'mask-icon',
-        url: '/favicon.png',
-        color: '#84cc16', // Lime color
-      },
-    ],
-  },
+    title: "ePass",
+    description: "The on-chain football market",
+    icons: {
+        icon: '/favicon.png',
+        shortcut: '/favicon.png',
+        // Custom/Other tags (e.g., Safari pinned tabs or Android web manifests)
+        other: [
+            {
+                rel: 'mask-icon',
+                url: '/favicon.png',
+                color: '#84cc16', // Lime color
+            },
+        ],
+    },
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html
-      lang="en"
-      className={cn("h-full", "antialiased", rodinProB.variable, "font-serif", merriweather.variable, notoSerifHeading.variable)}
-      suppressHydrationWarning
-    >
-      <body className="min-h-full flex flex-col selection:bg-lime-200/80">
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        {children}
-      </ThemeProvider>
-      </body>
-    </html>
-  );
+    return (
+        <html
+            lang="en"
+            className={cn("h-full", "antialiased", rodinProB.variable, "font-serif", merriweather.variable, notoSerifHeading.variable)}
+            suppressHydrationWarning
+        >
+            <body className="min-h-full flex flex-col selection:bg-lime-200/80">
+                <AppProviders>
+                    {children}
+                </AppProviders>
+            </body>
+        </html>
+    );
 }
