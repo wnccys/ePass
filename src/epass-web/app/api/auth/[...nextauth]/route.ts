@@ -15,6 +15,7 @@ export const authOptions: NextAuthOptions = {
         strategy: "jwt",
     },
     callbacks: {
+        // Saves data securelly into browser cookie
         async jwt({ token, user, account }) {
             if (account && user?.email) {
                 await dbConnect();
@@ -28,17 +29,24 @@ export const authOptions: NextAuthOptions = {
                         image: user.image || "",
                         authProvider: account?.provider,
                         authProviderId: account?.providerAccountId,
+                        // Role is default to 'player'
+                        onboardingComplete: false
                     });
                 }
 
                 token.id = dbUser._id.toString();
+                token.onboardingComplete = dbUser.onboardingComplete;
+                token.role = dbUser.role;
             }
             return token;
         },
 
+        // Takes data out of that decrypted cookie and exposes it to the actual application.
         async session({ session, token }) {
             if (session.user) {
                 session.user.id = token.id as string;
+                session.user.role = token.role as string;
+                session.user.onboardingComplete = token.onboardingComplete as boolean;
             }
 
             return session;
