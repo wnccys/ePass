@@ -10,9 +10,7 @@ export default async function Profile() {
         <div>
             {session!.user.role === "player" ? (
                 <div>player</div>
-            )
-            :
-            (
+            ) : (
                 <div>club</div>
             )
         }
