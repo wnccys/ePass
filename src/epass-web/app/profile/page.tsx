@@ -9,9 +9,10 @@ export default async function Profile() {
 
     return (
         <div>
-            {session!.user.role === "player" ? (
-                <PlayerProfile user={session!.user} />
-            ) : (
+            {session!.user.role === "player" ?
+                (
+                    <PlayerProfile user={session!.user} />
+                ) : (
                     <div>club</div>
                 )
             }
