@@ -193,6 +193,29 @@
     }
 }
 
+@layer components {
+  .glass-panel {
+    backdrop-filter: blur(12px);
+    background: linear-gradient(135deg, oklch(from var(--card) l c h / 5%), oklch(from var(--card) l c h / 15%));
+    border: 1px solid oklch(from var(--foreground) l c h / 10%);
+  }
+
+  .glass-card {
+    background: linear-gradient(-75deg, oklch(from var(--card) l c h / 5%), oklch(from var(--card) l c h / 15%), oklch(from var(--card) l c h / 5%));
+    border: 1px solid oklch(from var(--border) l c h / 20%);
+  }
+
+  .glass-input {
+    background: linear-gradient(-75deg, oklch(from var(--card) l c h / 5%), oklch(from var(--card) l c h / 15%), oklch(from var(--card) l c h / 5%));
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+  }
+
+  .glass-input:focus-within, .glass-input:hover {
+    border-color: oklch(from var(--foreground) l c h / 20%);
+  }
+}
+
 ::view-transition-old(root), ::view-transition-new(root) {
     animation: none;
     mix-blend-mode: normal;
