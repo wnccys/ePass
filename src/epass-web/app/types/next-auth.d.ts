@@ -8,9 +8,7 @@ declare module "next-auth" {
     user: {
       /** The user's database unique Mongoose _id. */
       id: string;
-      role: "player" | "club";
-      onboardingComplete: boolean;
-    } & DefaultSession["user"];
+    }
   }
 
   interface User {

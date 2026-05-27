@@ -17,6 +17,7 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         // Saves data securelly into encrypted browser cookie
         async jwt({ token, user, account }) {
+            // Only true after Provider Login (Google in our case)
             if (account && user?.email) {
                 await dbConnect();
 
@@ -35,19 +36,13 @@ export const authOptions: NextAuthOptions = {
                 }
 
                 token.id = dbUser._id.toString();
-                token.onboardingComplete = dbUser.onboardingComplete;
-                token.role = dbUser.role;
             }
             return token;
         },
 
         // Takes data out of that decrypted cookie and exposes it to the actual application.
         async session({ session, token }) {
-            if (session.user) {
-                session.user.id = token.id as string;
-                session.user.role = token.role as "player" | "club";
-                session.user.onboardingComplete = token.onboardingComplete as boolean;
-            }
+            if (session.user) { session.user.id = token.id as string; }
 
             return session;
         }
