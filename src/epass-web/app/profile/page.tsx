@@ -1,17 +1,18 @@
-import { getServerSession } from "next-auth/next";
+import { getCurrentUser } from "@/services/user";
 import { OnBoardingForm } from "./onboarding-form";
-import { authOptions } from "../api/auth/[...nextauth]/route";
 import { PlayerProfile } from "./player";
 
 export default async function Profile() {
-    const session = await getServerSession(authOptions);
-    if (!session!.user.onboardingComplete) return <OnBoardingForm user={session!.user} />
+    const user = await getCurrentUser();
+
+    if (!user) return <div>No user data available</div>
+    if (!user.onboardingComplete) return <OnBoardingForm user={user} />
 
     return (
         <div>
-            {session!.user.role === "player" ?
+            {user.role === "player" ?
                 (
-                    <PlayerProfile user={session!.user} />
+                    <PlayerProfile user={user} />
                 ) : (
                     <div>club</div>
                 )
