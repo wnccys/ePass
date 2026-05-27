@@ -44,11 +44,9 @@ export function MainNavbar({ role }: MainNavbarProps) {
                         )}
                     </div>
                 </div>
-                {role && (
-                    <div className='flex items-center ml-4 text-foreground dark:text-white'>
-                        <AnimatedThemeToggler />
-                    </div>
-                )}
+                <div className='flex items-center ml-4 text-foreground dark:text-white'>
+                    <AnimatedThemeToggler />
+                </div>
             </LiquidGlassNavbar>
         </div>
     );
