@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import { OnBoardingForm } from "./onboarding-form";
 import { authOptions } from "../api/auth/[...nextauth]/route";
+import { PlayerProfile } from "./player";
 
 export default async function Profile() {
     const session = await getServerSession(authOptions);
@@ -9,11 +10,11 @@ export default async function Profile() {
     return (
         <div>
             {session!.user.role === "player" ? (
-                <div>player</div>
-            ) : (
-                <div>club</div>
-            )
-        }
-    </div>
+                <PlayerProfile user={session!.user} />
+                ) : (
+                    <div>club</div>
+                )
+            }
+        </div>
     )
 }
