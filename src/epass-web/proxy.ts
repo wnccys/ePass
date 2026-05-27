@@ -7,6 +7,7 @@ export default async function proxy(req: NextRequest) {
     const isAuth = !!token;
     const isLoginPage = req.nextUrl.pathname.startsWith("/login");
     const isHome = req.nextUrl.pathname.startsWith("/home");
+    const isProfile = req.nextUrl.pathname.startsWith("/profile");
 
     // 1. Inverse Redirection: Logged in users cannot access /login
     if (isLoginPage) {
@@ -17,7 +18,7 @@ export default async function proxy(req: NextRequest) {
     }
 
     // 2. Protected Routes: Unlogged users cannot access /home
-    if (isHome && !isAuth) {
+    if ((isHome || isProfile) && !isAuth) {
         return NextResponse.redirect(new URL("/login", req.url));
     }
 
