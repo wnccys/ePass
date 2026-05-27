@@ -35,6 +35,7 @@ export const authOptions: NextAuthOptions = {
                     });
                 }
 
+                token.email = dbUser.email;
                 token.id = dbUser._id.toString();
             }
             return token;
@@ -42,7 +43,10 @@ export const authOptions: NextAuthOptions = {
 
         // Takes data out of that decrypted cookie and exposes it to the actual application.
         async session({ session, token }) {
-            if (session.user) { session.user.id = token.id as string; }
+            if (session.user) {
+                session.user.id = token.id as string;
+                session.user.email = token.email as string;
+            }
 
             return session;
         }

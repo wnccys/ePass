@@ -8,11 +8,8 @@ declare module "next-auth" {
     user: {
       /** The user's database unique Mongoose _id. */
       id: string;
+      email: string;
     }
-  }
-
-  interface User {
-    id: string;
   }
 }
 
