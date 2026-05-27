@@ -11,4 +11,8 @@ out/
 docs/
 
 # Dotenv file
-.env
+.env/
+
+
+# Remapping de lib
+remappings.txt

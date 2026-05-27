@@ -1,58 +1,83 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Test, console2} from "forge-std/Test.sol";
-import {RightsMinter} from "../src/RightsMinter.sol";
-import {PlayerRightsMaster} from "../src/PlayerRightsMaster.sol";
+import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract RightsMinterTest is Test {
-    RightsMinter minter;
-    PlayerRightsMaster masterNft;
 
-    // 1. Define Private Keys for our three signers
-    uint256 playerPk = 0xA11CE;
-    uint256 clubPk = 0xB0B;
-    uint256 attorneyPk = 0xCAD;
+interface IPlayerRightsMaster {
+    function mintRights(
+        address recipient,
+        string calldata uri
+    ) external returns (uint256);
+}
 
-    // 2. Derive public addresses from private keys
-    address player = vm.addr(playerPk);
-    address club = vm.addr(clubPk);
-    address attorney = vm.addr(attorneyPk);
+contract RightsMinter is EIP712, Nonces, Ownable, ReentrancyGuard {
+    using ECDSA for bytes32;
 
-    function setUp() public {
-        // Deploy both contracts, making the test contract the initial owner/admin
-        minter = new RightsMinter(address(this));
-        masterNft = new PlayerRightsMaster(address(this));
 
-        // Tell the gateway where the NFT contract is
-        minter.setMasterNftAddress(address(masterNft));
+    address public masterNftAddress;
 
-        // Tell the NFT contract that ONLY the gateway is allowed to mint
-        masterNft.setAuthorizedMinter(address(minter));
+
+    bytes32 public constant MINT_AGREEMENT_TYPEHASH =
+        keccak256(
+            "MintAgreement(address player,address club,address attorney,string tokenURI,uint256 nonce,uint256 deadline)"
+        );
+
+
+    error SignatureExpired();
+    error InvalidSignature(address expected);
+    error ZeroAddress();
+
+
+    event AgreementAuthorized(
+        address indexed player,
+        address indexed club,
+        string tokenURI
+    );
+
+
+    struct MintAgreement {
+        address player;
+        address club;
+        address attorney;
+        string  tokenURI;
+        uint256 nonce;
+        uint256 deadline;
     }
 
-    /** Prevents replay attacks */
-    function _getDomainSeparator() internal view returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    keccak256(
-                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                    ),
-                    keccak256(bytes("RightsMinter")),
-                    keccak256(bytes("1")),
-                    block.chainid,
-                    address(minter)
-                )
-            );
+
+    constructor(
+        address initialOwner
+    ) EIP712("RightsMinter", "1") Ownable(initialOwner) {}
+
+    function setMasterNftAddress(address _masterNftAddress) external onlyOwner {
+        if (_masterNftAddress == address(0)) revert ZeroAddress();
+        masterNftAddress = _masterNftAddress;
     }
 
-    function _getDigest(
-        RightsMinter.MintAgreement memory req
-    ) internal view returns (bytes32) {
+
+    /// @dev   Apliquei nonReentrant pois qualquer pessoa pode dar entrada, 
+    ///        se o site sofrer ataque ele pode fazer requisições no contrato
+    function executeMint(
+        MintAgreement calldata req,
+        bytes calldata playerSig,
+        bytes calldata clubSig,
+        bytes calldata attorneySig
+    ) external nonReentrant {
+        //  impede transações velhas de serem submetidas
+        if (block.timestamp > req.deadline) revert SignatureExpired();
+
+        //  impossibilita reuso das assinaturas
+        _useCheckedNonce(req.player, req.nonce);
+
+
         bytes32 structHash = keccak256(
             abi.encode(
-                minter.MINT_AGREEMENT_TYPEHASH(),
+                MINT_AGREEMENT_TYPEHASH,
                 req.player,
                 req.club,
                 req.attorney,
@@ -61,104 +86,21 @@ contract RightsMinterTest is Test {
                 req.deadline
             )
         );
-        return
-            keccak256(
-                // \x19\x01: Is a mandatory prefix required by Ethereum (EIP-191/EIP-712).
-                // It tells the Ethereum virtual machine: "Hey, this isn't a raw transaction to move funds. This is a signed message intended for a smart contract."
-                abi.encodePacked("\x19\x01", _getDomainSeparator(), structHash)
-            );
-    }
 
-    function _signAgreement(
-        RightsMinter.MintAgreement memory req,
-        uint256 pk
-    ) internal view returns (bytes memory) {
-        bytes32 digest = _getDigest(req);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(pk, digest);
-        return abi.encodePacked(r, s, v);
-    }
 
-    function test_ExecuteMintSuccess() public {
-        RightsMinter.MintAgreement memory agreement = RightsMinter
-            .MintAgreement({
-                player: player,
-                club: club,
-                attorney: attorney,
-                tokenURI: "ipfs://QmLegalDocs",
-                nonce: 0,
-                deadline: block.timestamp + 1 hours
-            });
+        bytes32 digest = _hashTypedDataV4(structHash);
 
-        bytes memory playerSig = _signAgreement(agreement, playerPk);
-        bytes memory clubSig = _signAgreement(agreement, clubPk);
-        bytes memory attorneySig = _signAgreement(agreement, attorneyPk);
+ 
+        if (digest.recover(playerSig)   != req.player)   revert InvalidSignature(req.player);
+        if (digest.recover(clubSig)     != req.club)     revert InvalidSignature(req.club);
+        if (digest.recover(attorneySig) != req.attorney) revert InvalidSignature(req.attorney);
 
-        vm.expectEmit(true, true, false, true);
-        emit RightsMinter.AgreementAuthorized(
-            player,
-            club,
-            "ipfs://QmLegalDocs"
+
+        IPlayerRightsMaster(masterNftAddress).mintRights(
+            req.club,
+            req.tokenURI
         );
 
-        // Execute the multi-sig transaction
-        minter.executeMint(agreement, playerSig, clubSig, attorneySig);
-
-        // Prove the Club received exactly 1 NFT (Token ID 1)
-        assertEq(masterNft.ownerOf(1), club);
-
-        // Prove the legal document URI is permanently attached to the NFT
-        assertEq(masterNft.tokenURI(1), "ipfs://QmLegalDocs");
-    }
-
-    function test_RevertIf_SignatureIsInvalid() public {
-        // Here we're basically saying: this specific agreement which will be verified by executeMint MUST have the player, club and attorney passed here (EXACTLY).
-        // That's preciselly why the test fail, malicious cannot sign.
-        RightsMinter.MintAgreement memory agreement = RightsMinter
-            .MintAgreement({
-                player: player,
-                club: club,
-                attorney: attorney,
-                tokenURI: "ipfs://QmLegalDocs",
-                nonce: 0,
-                deadline: block.timestamp + 1 hours
-            });
-
-        bytes memory playerSig = _signAgreement(agreement, playerPk);
-        bytes memory clubSig = _signAgreement(agreement, clubPk);
-
-        uint256 maliciousPk = 0xBAD;
-        bytes memory maliciousSig = _signAgreement(agreement, maliciousPk);
-
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                RightsMinter.InvalidSignature.selector,
-                attorney
-            )
-        );
-        minter.executeMint(agreement, playerSig, clubSig, maliciousSig);
-    }
-
-    function test_RevertIf_ReplayAttack() public {
-        RightsMinter.MintAgreement memory agreement = RightsMinter
-            .MintAgreement({
-                player: player,
-                club: club,
-                attorney: attorney,
-                tokenURI: "ipfs://QmLegalDocs",
-                nonce: 0,
-                deadline: block.timestamp + 1 hours
-            });
-
-        bytes memory playerSig = _signAgreement(agreement, playerPk);
-        bytes memory clubSig = _signAgreement(agreement, clubPk);
-        bytes memory attorneySig = _signAgreement(agreement, attorneyPk);
-
-        // Valid
-        minter.executeMint(agreement, playerSig, clubSig, attorneySig);
-
-        vm.expectRevert();
-
-        // Invalid, a new agreement must be created in order to work
-        minter.executeMint(agreement, playerSig, clubSig, attorneySig);
+        emit AgreementAuthorized(req.player, req.club, req.tokenURI);
     }
 }
