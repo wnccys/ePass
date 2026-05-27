@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { useAccount, useBalance } from "wagmi"
 import { cn } from "@/lib/utils"
 import { type ClassValue } from "clsx"
+import { formatUnits } from 'viem'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -93,7 +94,7 @@ export function ConnectWalletButton({ className, customDropdownItems }: ConnectW
 
   // Format the balance for display (4 decimal places)
   const formattedBalance = balance
-    ? `${parseFloat(balance.formatted).toFixed(4)} ${balance.symbol}`
+    ? `${parseFloat(formatUnits(balance.value, balance.decimals)).toFixed(4)} ${balance.symbol}`
     : '0.0000 ETH'
 
   // Connected state: Show balance with dropdown menu
