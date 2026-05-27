@@ -1,7 +1,6 @@
 'use client';
 
 import { ProfilePayload, updateProfile } from "@/app/actions/profile";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from '@tanstack/react-form';
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,7 +21,6 @@ export function PlayerProfile({
   user: { name?: string | null; email?: string | null; image?: string | null; bio?: string | null; role?: 'player' | 'club' }
 }) {
   const router = useRouter();
-  const { data: session, update } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.image || null);
@@ -43,10 +41,6 @@ export function PlayerProfile({
         const result = await updateProfile(value as unknown as ProfilePayload);
 
         if (result.success) {
-          await update({
-            ...session,
-            user: { ...session?.user, name: value.name, role: value.role, image: result.imageUrl || session?.user?.image }
-          });
           setSubmitMessage({ type: 'success', text: 'Profile updated successfully!' });
           router.refresh();
         } else {
@@ -64,7 +58,6 @@ export function PlayerProfile({
 
   return (
     <Card className="flex w-full flex-1 min-h-screen items-center justify-center border-none rounded-none shadow-none py-12 relative overflow-hidden px-[8em]">
-
       <FadeIn className="glass-panel p-8 md:p-12 rounded-3xl w-full flex flex-col md:flex-row gap-12">
         <form
           onSubmit={(e) => {
