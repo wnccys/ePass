@@ -7,7 +7,7 @@ export interface IUser extends Document {
     bio?: string;
     authProvider: string;
     authProviderId: string;
-    role: string;
+    role: "player" | "club";
     onboardingComplete: boolean;
 }
 

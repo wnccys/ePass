@@ -45,9 +45,6 @@ export default async function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const session = await getServerSession(authOptions);
-    const role = session?.user?.role as 'player' | 'club' | undefined;
-
     return (
         <html
             lang="en"
@@ -57,7 +54,7 @@ export default async function RootLayout({
             <body className="min-h-full flex flex-col selection:bg-lime-200/80">
                 <AppProviders>
                     <NextAbstractWalletProvider>
-                        <MainNavbar role={role} />
+                        <MainNavbar />
                         {children}
                     </NextAbstractWalletProvider>
                 </AppProviders>
