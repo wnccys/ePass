@@ -104,6 +104,40 @@ O protocolo é composto por três contratos principais, implantados na **Sepolia
 
 
 
+## Fluxo em mermaid (caso não apareça em ASCII)
+
+## Fluxo off-chain
+
+```mermaid
+flowchart LR
+    A[Contrato em PDF] -->|hash| B[IPFS]
+    B -->|URI| C[tokenURI do NFT]
+    D[Jogador] --> E[Assinatura EIP-712]
+    F[Clube] --> E
+    G[Advogado] --> E
+```
+
+## Fluxo on-chain
+
+```mermaid
+flowchart TD
+    A[Frontend / App monta MintAgreement] --> B[RightsMinter.executeMint()]
+    B --> C[Verifica deadline]
+    C --> D[Verifica nonce]
+    D --> E[Valida assinatura do jogador]
+    E --> F[Valida assinatura do clube]
+    F --> G[Valida assinatura do advogado]
+    G --> H[PlayerRightsMaster.mintRights]
+    H --> I[NFT mestre mintado para o clube]
+    I --> J[Clube aprova o tokenId para o RightsVault]
+    J --> K[RightsVault.fractionalize]
+    K --> L[Confere ownerOf(tokenId)]
+    L --> M[Transfere NFT para o cofre]
+    M --> N[Marca NFT como locked]
+    N --> O[Minta tokens ERC-20 fracionários]
+    O --> P[Tokens P_IMAGE enviados ao clube]
+```
+
 ***
 
 ## Papel de Cada Contrato
