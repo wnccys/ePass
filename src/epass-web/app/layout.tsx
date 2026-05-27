@@ -5,9 +5,6 @@ import { Merriweather, Noto_Serif } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { AppProviders } from "@/components/providers";
 import { MainNavbar } from "@/components/main-navbar";
-import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]/route";
-import { NextAbstractWalletProvider } from "@/components/agw-provider";
 
 const notoSerifHeading = Noto_Serif({subsets:['latin'],variable:'--font-heading'});
 
@@ -53,10 +50,8 @@ export default async function RootLayout({
         >
             <body className="min-h-full flex flex-col selection:bg-lime-200/80">
                 <AppProviders>
-                    <NextAbstractWalletProvider>
                         <MainNavbar />
                         {children}
-                    </NextAbstractWalletProvider>
                 </AppProviders>
             </body>
         </html>
