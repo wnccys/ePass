@@ -15,7 +15,7 @@ export const authOptions: NextAuthOptions = {
         strategy: "jwt",
     },
     callbacks: {
-        // Saves data securelly into browser cookie
+        // Saves data securelly into encrypted browser cookie
         async jwt({ token, user, account }) {
             if (account && user?.email) {
                 await dbConnect();
