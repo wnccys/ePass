@@ -208,6 +208,7 @@
   .glass-input {
     background: linear-gradient(-75deg, oklch(from var(--card) l c h / 5%), oklch(from var(--card) l c h / 15%), oklch(from var(--card) l c h / 5%));
     border: 1px solid transparent;
+    border-color: oklch(from var(--foreground) l c h / 10%);
     transition: all 0.3s ease;
   }
 
