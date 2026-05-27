@@ -4,7 +4,6 @@ import { completeOnboarding } from "@/app/actions/onboarding";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from '@tanstack/react-form';
-import { z } from 'zod';
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Loader, ArrowRight, User as UserIcon, Building2, AlertCircle, Camera } from "lucide-react";
