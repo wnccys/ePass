@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { SessionData } from "@/app/api/auth/nonce/route";
 import { getIronOptions, SiweConfigurationError } from "@/config/auth";
 import { chain } from "@/config/chain";
-import { AuthUser } from "./types";
+import { AuthUser } from "@/types/siwe-auth";
 
 /**
  * Server-side authentication utilities for SIWE (Sign-in with Ethereum).
