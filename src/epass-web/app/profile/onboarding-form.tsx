@@ -9,7 +9,7 @@ import { Loader, ArrowRight, User as UserIcon, Building2, AlertCircle, Camera } 
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 
-import { SiweButton } from "@/components/siwe-button";
+import SiweButton from "@/components/siwe-sign";
 
 import { onboardingSchema } from "@/lib/validations";
 import { FadeIn } from "@/components/ui/fade-in";
