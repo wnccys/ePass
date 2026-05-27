@@ -14,7 +14,7 @@ export async function MainNavbar() {
         <div className="fixed top-8 left-0 right-0 flex justify-center z-50">
             <LiquidGlassNavbar>
                 <div className="flex items-center gap-8">
-                    <div className="flex items-center select-none cursor-pointer gap-1.5">
+                    <Link href="/home" className="flex items-center select-none cursor-pointer gap-1.5">
                         <Image
                             src="/favicon.png"
                             alt="Icon"
@@ -22,8 +22,8 @@ export async function MainNavbar() {
                             height={20}
                             priority
                         />
-                        <Link href="/home" className='font-light text-xl text-foreground dark:text-white'>ePass</Link>
-                    </div>
+                        <span className='font-light text-xl text-foreground dark:text-white'>ePass</span>
+                    </Link>
                     <div className='flex items-center gap-6 text-sm [&_a]:cursor-default [&_a]:select-none text-muted-foreground dark:text-zinc-300'>
                         {role === 'player' && (
                             <>
