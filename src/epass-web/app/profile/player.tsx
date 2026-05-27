@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Loader, User as UserIcon, Building2, AlertCircle, Camera, CheckCircle2, Save, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
-import { SiweButton } from "@/components/siwe-button";
+import SiweButton from "@/components/siwe-sign";
 
 import { profileSchema } from "@/lib/validations";
 import { LogoutButton } from "../home/logout-button";
