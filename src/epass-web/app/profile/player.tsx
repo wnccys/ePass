@@ -1,10 +1,9 @@
 'use client';
 
-import { updateProfile } from "@/app/actions/profile";
+import { ProfilePayload, updateProfile } from "@/app/actions/profile";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from '@tanstack/react-form';
-import { z } from 'zod';
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Loader, User as UserIcon, Building2, AlertCircle, Camera, CheckCircle2, Save, Mail } from "lucide-react";
@@ -12,12 +11,7 @@ import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { SiweButton } from "@/components/siwe-button";
 
-const profileSchema = z.object({
-  name: z.string().min(5, 'Name must be at least 5 characters long'),
-  bio: z.string().max(160, 'Bio must be under 160 characters').optional(),
-  role: z.enum(['player', 'club']),
-  avatar: z.any().optional(),
-});
+import { profileSchema } from "@/lib/validations";
 
 export function PlayerProfile({
   user
@@ -35,26 +29,20 @@ export function PlayerProfile({
       name: user?.name || '',
       bio: user?.bio || '',
       role: user?.role || 'player',
-      avatar: null as File | null,
+      avatar: undefined as File | undefined,
     },
-    validators: { onChange: profileSchema },
+    validators: { onChange: profileSchema as any },
     onSubmit: async ({ value }) => {
       setIsSubmitting(true);
       setSubmitMessage(null);
 
       try {
-        const formData = new FormData();
-        formData.append('name', value.name);
-        formData.append('bio', value.bio || '');
-        formData.append('role', value.role);
-        if (value.avatar) formData.append('avatar', value.avatar);
-
-        const result = await updateProfile(formData);
+        const result = await updateProfile(value as unknown as ProfilePayload);
 
         if (result.success) {
           await update({
             ...session,
-            user: { ...session?.user, name: value.name, role: value.role }
+            user: { ...session?.user, name: value.name, role: value.role, image: result.imageUrl || session?.user?.image }
           });
           setSubmitMessage({ type: 'success', text: 'Profile updated successfully!' });
           router.refresh();

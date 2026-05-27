@@ -14,11 +14,7 @@ import { Switch } from "@/components/ui/switch";
 // Assuming you have the Abstract SIWE button available locally
 import { SiweButton } from "@/components/siwe-button";
 
-const onboardingSchema = z.object({
-  name: z.string().min(5, 'Name must be at least 5 characters long'),
-  role: z.enum(['player', 'club']),
-  avatar: z.any().optional(), // Using z.any() to handle the client-side File object
-});
+import { onboardingSchema } from "@/lib/validations";
 
 export function OnBoardingForm({
   user
@@ -35,24 +31,16 @@ export function OnBoardingForm({
     defaultValues: {
       name: user.name || '',
       role: 'player' as 'player' | 'club',
-      avatar: null as File | null,
+      avatar: undefined as File | undefined,
     },
     validators: {
-      onChange: onboardingSchema,
+      onChange: onboardingSchema as any,
     },
     onSubmit: async ({ value }) => {
       setIsSubmitting(true);
       setSubmitError(null);
 
       try {
-        // Because we now have an image file, you will likely need to send FormData
-        // to your server action instead of a standard JSON object.
-        const formData = new FormData();
-        formData.append('name', value.name);
-        formData.append('role', value.role);
-        if (value.avatar) formData.append('avatar', value.avatar);
-
-        // Replace with await completeOnboarding(formData) if updated
         const result = await completeOnboarding(value);
 
         if (result.success) {
@@ -63,8 +51,7 @@ export function OnBoardingForm({
               onboardingComplete: true,
               role: value.role,
               name: value.name,
-              // If your server action returns the uploaded image URL, apply it here
-              // image: result.imageUrl
+              image: result.imageUrl || session?.user?.image
             }
           });
 
