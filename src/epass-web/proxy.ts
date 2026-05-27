@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 export default async function proxy(req: NextRequest) {
     const token = await getToken({ req });
     const isAuth = !!token;
-    const isLanding = req.nextUrl.pathname.startsWith("/");
+    const isLanding = req.nextUrl.pathname === "/";
     const isLoginPage = req.nextUrl.pathname.startsWith("/login");
     const isHome = req.nextUrl.pathname.startsWith("/home");
     const isProfile = req.nextUrl.pathname.startsWith("/profile");
@@ -32,5 +32,5 @@ export default async function proxy(req: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/home", "/login", "/profile"],
+    matcher: ["/home", "/login", "/profile", "/"],
 }
