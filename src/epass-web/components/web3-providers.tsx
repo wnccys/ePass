@@ -13,7 +13,7 @@ export function Web3Providers({ children }: { children: React.ReactNode }) {
 
     const config = getDefaultConfig({
         appName: 'Football Transfer Portal',
-        projectId: 'YOUR_WALLETCONNECT_PROJECT_ID',
+        projectId: 'ba9cdaa4859ae0262a0ecdc00bd534f1',
         chains: [mainnet, hardhat],
         ssr: true, // TWEAK 2: You MUST add this for Next.js App Router
         transports: {
