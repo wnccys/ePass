@@ -6,13 +6,17 @@ export default async function Profile() {
     const user = await getCurrentUser();
 
     if (!user) return <div>No user data available</div>
-    if (!user.onboardingComplete) return <OnBoardingForm user={user} />
+
+    // Serialize user object to remove non-plain values like MongoDB ObjectId buffer
+    const serializedUser = JSON.parse(JSON.stringify(user));
+
+    if (!serializedUser.onboardingComplete) return <OnBoardingForm user={serializedUser} />
 
     return (
         <div>
-            {user.role === "player" ?
+            {serializedUser.role === "player" ?
                 (
-                    <PlayerProfile user={user} />
+                    <PlayerProfile user={serializedUser} />
                 ) : (
                     <div>club</div>
                 )
