@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { SiweButton } from "@/components/siwe-button";
 
 import { profileSchema } from "@/lib/validations";
+import { LogoutButton } from "../home/logout-button";
 
 export function PlayerProfile({
   user
@@ -241,23 +242,27 @@ export function PlayerProfile({
                 )}
               </AnimatePresence>
 
-              <form.Subscribe
-                selector={(state) => [state.canSubmit, state.isSubmitting]}
-                children={([canSubmit, isFormSubmitting]) => (
-                  <button
-                    type="submit"
-                    disabled={!canSubmit || isSubmitting || isFormSubmitting}
-                    className="w-full sm:w-auto ml-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-8 rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {isSubmitting || isFormSubmitting ? (
-                      <Loader className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <Save className="w-5 h-5" />
-                    )}
-                    Save Changes
-                  </button>
-                )}
-              />
+                <div className="flex items-center gap-5 px-2">
+                    <form.Subscribe
+                        selector={(state) => [state.canSubmit, state.isSubmitting]}
+                        children={([canSubmit, isFormSubmitting]) => (
+                        <button
+                            type="submit"
+                            disabled={!canSubmit || isSubmitting || isFormSubmitting}
+                            className="w-full sm:w-auto ml-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-8 rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                            {isSubmitting || isFormSubmitting ? (
+                                <Loader className="w-5 h-5 animate-spin" />
+                            ) : (
+                                <Save className="w-5 h-5" />
+                            )}
+                            Save Changes
+                        </button>
+                        )}
+                    />
+
+                    <LogoutButton />
+                </div>
             </div>
           </div>
         </form>
