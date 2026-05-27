@@ -1,15 +1,12 @@
-'use client';
-
 import Image from "next/image";
 import Link from "next/link";
 import { LiquidGlassNavbar } from "./ui/liquid-glass-navbar";
 import { AnimatedThemeToggler } from "./ui/animated-theme-toggler";
+import { getCurrentUser } from "@/services/user";
 
-interface MainNavbarProps {
-    role?: 'player' | 'club' | null;
-}
+export async function MainNavbar() {
+    const role = (await getCurrentUser())?.role;
 
-export function MainNavbar({ role }: MainNavbarProps) {
     // Just renders when logged
     if (!role) return;
 
