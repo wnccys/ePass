@@ -1,0 +1,12 @@
+Este teste inseriu uma requisição de uma carteira invalida (que não era do devido usuário) para validar a segurança das assinaturas do contrato.
+
+[⠊] Compiling...
+[⠢] Compiling 1 files with Solc 0.8.24
+[⠆] Solc 0.8.24 finished in 5.09s
+Compiler run successful!
+
+Ran 1 test for test/RightsMinter.t.sol:RightsMinterTest
+[PASS] testExecuteMintRevertsWithInvalidClubSignature() (gas: 63449)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 14.44ms (4.85ms CPU time)
+
+Ran 1 test suite in 76.20ms (14.44ms CPU time): 1 tests passed, 0 failed, 0 skipped (1 total tests)

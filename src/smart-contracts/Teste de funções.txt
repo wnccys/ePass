@@ -1,0 +1,43 @@
+⠔] Compiling...
+[⠔] Compiling 61 files with Solc 0.8.24
+[⠢] Solc 0.8.24 finished in 10.92s
+Compiler run successful with warnings:
+Warning (2018): Function state mutability can be restricted to view
+   --> test/RightsVault.t.sol:140:5:
+    |
+140 |     function testTimeRemainingReturnsZeroWhenInactive() public {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning (2018): Function state mutability can be restricted to view
+   --> test/RightsVault.t.sol:144:5:
+    |
+144 |     function testIsBeforeHalfTimeReturnsFalseWhenInactive() public {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Ran 4 tests for test/PlayerRightsMaster.t.sol:PlayerRightsMasterTest
+[PASS] testAuthorizedMinterCanMintRights() (gas: 137853)
+[PASS] testNonAuthorizedMinterCannotMintRights() (gas: 13849)
+[PASS] testNonOwnerCannotSetAuthorizedMinter() (gas: 13447)
+[PASS] testOwnerCanSetAuthorizedMinter() (gas: 38466)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 11.56ms (2.20ms CPU time)
+
+Ran 9 tests for test/RightsVault.t.sol:RightsVaultTest
+[PASS] testClubCanRescindBeforeHalfTime() (gas: 134870)
+[PASS] testDepositCautionWorks() (gas: 109612)
+[PASS] testExpireContractWorks() (gas: 110596)
+[PASS] testFractionalizeWorks() (gas: 135855)
+[PASS] testIsBeforeHalfTimeReturnsFalseWhenInactive() (gas: 8376)
+[PASS] testOnlyClubCanDepositCaution() (gas: 18930)
+[PASS] testOnlyClubCanFractionalize() (gas: 52006)
+[PASS] testPlayerCanRescindBeforeHalfTime() (gas: 134915)
+[PASS] testTimeRemainingReturnsZeroWhenInactive() (gas: 8430)
+Suite result: ok. 9 passed; 0 failed; 0 skipped; finished in 11.77ms (2.72ms CPU time)
+
+Ran 3 tests for test/RightsMinter.t.sol:RightsMinterTest
+[PASS] testExecuteMintRevertsIfExpired() (gas: 22055)
+[PASS] testExecuteMintWorksWithValidSignatures() (gas: 177400)
+[PASS] testOwnerCanSetMasterNftAddress() (gas: 18265)
+Suite result: ok. 3 passed; 0 failed; 0 skipped; finished in 18.94ms (9.23ms CPU time)
+
+Ran 3 test suites in 102.43ms (42.27ms CPU time): 16 tests passed, 0 failed, 0 skipped (16 total tests)

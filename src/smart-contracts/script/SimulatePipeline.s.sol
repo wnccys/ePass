@@ -5,6 +5,7 @@ import {Script, console2} from "forge-std/Script.sol";
 import {RightsMinter} from "../src/RightsMinter.sol";
 import {PlayerRightsMaster} from "../src/PlayerRightsMaster.sol";
 import {RightsVault} from "../src/RightsVault.sol";
+import {MockUSDC} from "../src/MockUSDC.sol";
 
 contract SimulatePipeline is Script {
     // 1. Setup the Actors (Private Keys)
@@ -26,9 +27,16 @@ contract SimulatePipeline is Script {
         /* -------------------------------------------------------------------------- */
         vm.startBroadcast(adminPk);
 
+        MockUSDC usdc = new MockUSDC();
         RightsMinter gateway = new RightsMinter(admin);
         PlayerRightsMaster masterNft = new PlayerRightsMaster(admin);
-        RightsVault vault = new RightsVault(address(masterNft), admin);
+        RightsVault vault = new RightsVault(
+            address(masterNft),
+            address(usdc),      // endenreço do _stablecoinAddress
+            player,
+            clubSpv,
+            admin
+        );
 
         // Link the architecture
         gateway.setMasterNftAddress(address(masterNft));

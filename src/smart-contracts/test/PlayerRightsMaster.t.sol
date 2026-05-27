@@ -1,49 +1,48 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {Test} from "forge-std/Test.sol";
+import {PlayerRightsMaster} from "../src/PlayerRightsMaster.sol";
 
-contract PlayerRightsMaster is ERC721URIStorage, Ownable {
-    uint256 private _nextTokenId;
+contract PlayerRightsMasterTest is Test {
+    PlayerRightsMaster master;
 
+    address owner = address(1);
+    address minter = address(2);
+    address recipient = address(3);
 
-    address public authorizedMinter;
-
-    error CallerNotAuthorized();
-    error ZeroAddress();
-
-    event RightsMinted(
-        uint256 indexed tokenId,
-        address indexed recipient,
-        string tokenURI
-    );
-
-    constructor(
-        address initialOwner
-    ) ERC721("Player Rights Master", "PRM") Ownable(initialOwner) {}
-
-
-    function setAuthorizedMinter(address _minter) external onlyOwner {
-        if (_minter == address(0)) revert ZeroAddress();
-        authorizedMinter = _minter;
+    function setUp() public {
+        vm.prank(owner);
+        master = new PlayerRightsMaster(owner);
     }
 
-    
-    function mintRights(
-        address recipient,
-        string calldata uri
-    ) external returns (uint256) {
-        if (msg.sender != authorizedMinter) revert CallerNotAuthorized();
+    function testOwnerCanSetAuthorizedMinter() public {
+        vm.prank(owner);
+        master.setAuthorizedMinter(minter);
 
-        uint256 tokenId = ++_nextTokenId;
+        assertEq(master.authorizedMinter(), minter);
+    }
 
-        _safeMint(recipient, tokenId);
-        _setTokenURI(tokenId, uri);
+    function testNonOwnerCannotSetAuthorizedMinter() public {
+        vm.prank(minter);
+        vm.expectRevert();
+        master.setAuthorizedMinter(minter);
+    }
 
-        emit RightsMinted(tokenId, recipient, uri);
+    function testAuthorizedMinterCanMintRights() public {
+        vm.prank(owner);
+        master.setAuthorizedMinter(minter);
 
-        return tokenId;
+        vm.prank(minter);
+        uint256 tokenId = master.mintRights(recipient, "ipfs://token-metadata");
+
+        assertEq(tokenId, 1);
+        assertEq(master.ownerOf(tokenId), recipient);
+    }
+
+    function testNonAuthorizedMinterCannotMintRights() public {
+        vm.prank(recipient);
+        vm.expectRevert(PlayerRightsMaster.CallerNotAuthorized.selector);
+        master.mintRights(recipient, "ipfs://token-metadata");
     }
 }

@@ -1,224 +1,161 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {Test} from "forge-std/Test.sol";
+import {RightsVault} from "../src/RightsVault.sol";
+import {PlayerRightsMaster} from "../src/PlayerRightsMaster.sol";
+import {MockUSDC} from "../src/MockUSDC.sol";
 
-contract RightsVault is ERC20, IERC721Receiver, Ownable, ReentrancyGuard {
+contract RightsVaultTest is Test {
+    RightsVault vault;
+    PlayerRightsMaster master;
+    MockUSDC usdc;
 
-    using SafeERC20 for IERC20;
+    address owner = address(1);
+    address player = address(2);
+    address club = address(3);
+    address other = address(4);
 
-    uint256 public constant CONTRACT_DURATION = 365 days;
-    uint256 public constant HALF_TIME         = CONTRACT_DURATION / 2;
-    uint256 public constant TIMESTAMP_BUFFER  = 1 days;
-    uint256 public constant PENALTY_BPS       = 6500;  // 65%
-    uint256 public constant BPS_BASE          = 10000; // 100%
+    function setUp() public {
+        vm.prank(owner);
+        master = new PlayerRightsMaster(owner);
 
-    // TIPOS ENUM
+        usdc = new MockUSDC();
 
-    enum ContractStatus {
-        PENDING,    // NFT travado, aguardando deposito
-        ACTIVE,     // Caução depositado - contrato em vigor
-        RESCINDED,  // Rescisão executada por jogador ou clube
-        EXPIRED     // 12 meses enrrando vigência do contrato
+        vm.prank(owner);
+        vault = new RightsVault(
+            address(master),
+            address(usdc),
+            player,
+            club,
+            owner
+        );
+
+        vm.prank(owner);
+        master.setAuthorizedMinter(owner);
+
+        vm.prank(owner);
+        master.mintRights(club, "ipfs://player-rights");
+
+        usdc.mint(club, 1_000_000 ether);
     }
 
+    function testFractionalizeWorks() public {
+        vm.prank(club);
+        master.approve(address(vault), 1);
 
+        vm.prank(club);
+        vault.fractionalize(1, 1_000_000 ether);
 
-    IERC721 public immutable masterNft;
-    IERC20  public immutable stablecoin;
-
-    uint256        public lockedTokenId;
-    ContractStatus public status;
-
-    address public player;
-    address public club;
-
-    uint256 public cautionAmount;
-    uint256 public contractStart;
-
-
-    event Fractionalized(uint256 indexed tokenId, uint256 totalShares, address indexed depositor);
-    event ContractActivated(address indexed club, uint256 cautionAmount, uint256 contractStart);
-    event ContractRescindedByPlayer(uint256 toClub, uint256 toPlayer, bool penaltyApplied);
-    event ContractRescindedByClub(uint256 toPlayer, uint256 toClub, bool penaltyApplied);
-    event ContractExpired(uint256 cautionReturned, address indexed returnedTo);
-
-
-    error VaultAlreadyInitialized();
-    error NotNFTOwner();
-    error NotAuthorized();
-    error ContractNotActive();
-    error ContractNotPending();
-    error WrongCautionAmount();
-    error ContractStillActive();
-
-    constructor(
-        address _masterNftAddress,
-        address _stablecoinAddress,
-        address _player,
-        address _club,
-        address initialOwner
-    ) ERC20("Player Image Rights", "P_IMAGE") Ownable(initialOwner) {
-        masterNft  = IERC721(_masterNftAddress);
-        stablecoin = IERC20(_stablecoinAddress);
-        player     = _player;
-        club       = _club;
-        status     = ContractStatus.PENDING;
+        assertEq(master.ownerOf(1), address(vault));
+        assertEq(vault.balanceOf(club), 1_000_000 ether);
+        assertEq(vault.lockedTokenId(), 1);
     }
 
+    function testOnlyClubCanFractionalize() public {
+        vm.prank(club);
+        master.approve(address(vault), 1);
 
-    /// @notice Trava o NFT master e minta tokens P_IMAGE.
-    /// @dev    O clube deve chamar approve() no PlayerRightsMaster antes.
-    function fractionalize(uint256 _tokenId, uint256 _supply) external {
-        if (status != ContractStatus.PENDING || lockedTokenId != 0)
-            revert VaultAlreadyInitialized();
-
-        if (msg.sender != club) revert NotAuthorized();
-
-        if (masterNft.ownerOf(_tokenId) != msg.sender) revert NotNFTOwner();
-
-        lockedTokenId = _tokenId;
-        // @notice safeTransferFrom para caso algum token retorne erro "false" ele refaça sem quebrar.
-        masterNft.safeTransferFrom(msg.sender, address(this), _tokenId); 
-
-        _mint(msg.sender, _supply);
-
-        emit Fractionalized(_tokenId, _supply, msg.sender);
+        vm.prank(other);
+        vm.expectRevert(RightsVault.NotAuthorized.selector);
+        vault.fractionalize(1, 1_000_000 ether);
     }
 
-    // ATIVAÇÃO (PENDING → ACTIVE)
-    /// @notice Clube deposita a caução em stablecoin — ativa o contrato.
-    /// @dev    O clube deve chamar approve() na stablecoin antes.
-    /// @dev aplicando nonReentrant em todas as entradas de valores
-    function depositCaution(uint256 _amount) external nonReentrant {
-        if (msg.sender != club)                        revert NotAuthorized();
-        if (status != ContractStatus.PENDING)          revert ContractNotPending();
-        if (_amount == 0)                              revert WrongCautionAmount();
+    function testDepositCautionWorks() public {
+        vm.prank(club);
+        usdc.approve(address(vault), 1000 ether);
 
-        cautionAmount = _amount;
-        contractStart = block.timestamp;
-        status        = ContractStatus.ACTIVE;
+        vm.prank(club);
+        vault.depositCaution(1000 ether);
 
-        stablecoin.safeTransferFrom(msg.sender, address(this), _amount);
-
-        emit ContractActivated(msg.sender, _amount, contractStart);
+        assertEq(uint256(vault.status()), uint256(RightsVault.ContractStatus.ACTIVE));
+        assertEq(vault.cautionAmount(), 1000 ether);
     }
 
-    // RESCISÃO PELO JOGADOR (ACTIVE → RESCINDED)
-    // Antes de 6 meses: 65% vai pro clube, 35% pro jogador
-    // Depois de 6 meses: caução volta integralmente pro clube
-    /// @notice Jogador inicia a rescisão do contrato.
-    function rescindByPlayer() external nonReentrant {
-        if (msg.sender != player)                revert NotAuthorized();
-        if (status != ContractStatus.ACTIVE)     revert ContractNotActive();
-
-        status = ContractStatus.RESCINDED;
-
-        bool beforeHalfTime = block.timestamp < contractStart + HALF_TIME + TIMESTAMP_BUFFER;
-
-        _applyRescission(beforeHalfTime, club, player);
+    function testOnlyClubCanDepositCaution() public {
+        vm.prank(other);
+        vm.expectRevert(RightsVault.NotAuthorized.selector);
+        vault.depositCaution(1000 ether);
     }
 
+    function testPlayerCanRescindBeforeHalfTime() public {
+        vm.prank(club);
+        usdc.approve(address(vault), 1000 ether);
 
-    // RESCISÃO PELO CLUBE (ACTIVE → RESCINDED)
-    // Antes de 6 meses: 65% vai pro jogador, 35% pro clube
-    // Depois de 6 meses: caução volta integralmente pro clube
-    /// @notice Clube inicia a rescisão do contrato.
-    function rescindByClub() external nonReentrant {
-        if (msg.sender != club)              revert NotAuthorized();
-        if (status != ContractStatus.ACTIVE) revert ContractNotActive();
+        vm.prank(club);
+        vault.depositCaution(1000 ether);
 
-        status = ContractStatus.RESCINDED;
+        uint256 clubBefore = usdc.balanceOf(club);
+        uint256 playerBefore = usdc.balanceOf(player);
 
-        bool beforeHalfTime = block.timestamp < contractStart + HALF_TIME + TIMESTAMP_BUFFER;
+        vm.prank(player);
+        vault.rescindByPlayer();
 
-        _applyRescission(beforeHalfTime, player, club);
+        uint256 penalty = (1000 ether * 6500) / 10000;
+        uint256 remainder = 1000 ether - penalty;
+
+        assertEq(uint256(vault.status()), uint256(RightsVault.ContractStatus.RESCINDED));
+        assertEq(usdc.balanceOf(club), clubBefore + penalty);
+        assertEq(usdc.balanceOf(player), playerBefore + remainder);
     }
 
+    function testClubCanRescindBeforeHalfTime() public {
+        vm.prank(club);
+        usdc.approve(address(vault), 1000 ether);
 
-    // EXPIRAÇÃO (ACTIVE → EXPIRED)
-    /// @notice Qualquer parte pode chamar após 12 meses.
-    /// Deposito Caução volta integralmente ao clube.
-    function expireContract() external nonReentrant {
-        if (status != ContractStatus.ACTIVE) revert ContractNotActive();
+        vm.prank(club);
+        vault.depositCaution(1000 ether);
 
-        if (block.timestamp < contractStart + CONTRACT_DURATION + TIMESTAMP_BUFFER)
-            revert ContractStillActive();
+        uint256 clubBefore = usdc.balanceOf(club);
+        uint256 playerBefore = usdc.balanceOf(player);
 
-        status = ContractStatus.EXPIRED;
+        vm.prank(club);
+        vault.rescindByClub();
 
-        uint256 amount = cautionAmount;
-        cautionAmount  = 0;
+        uint256 penalty = (1000 ether * 6500) / 10000;
+        uint256 remainder = 1000 ether - penalty;
 
-        stablecoin.safeTransfer(club, amount);
-
-        emit ContractExpired(amount, club);
+        assertEq(uint256(vault.status()), uint256(RightsVault.ContractStatus.RESCINDED));
+        assertEq(usdc.balanceOf(player), playerBefore + penalty);
+        assertEq(usdc.balanceOf(club), clubBefore + remainder);
     }
 
-    // LÓGICA DE RESCISÃO
-    /// @dev Calcula e distribui a caução conforme a penalidade.
-    /// @param _penaltyApplied  true se antes dos 6 meses
-    /// @param _penaltyReceiver quem recebe os 65%
-    /// @param _remainder       quem recebe os 35%
-    function _applyRescission(
-        bool    _penaltyApplied,
-        address _penaltyReceiver,
-        address _remainder
-    ) internal {
-        uint256 amount = cautionAmount;
-        cautionAmount  = 0; // zera antes de transferir — impedir CEI (reentrancia)
+    function testExpireContractWorks() public {
+        vm.prank(club);
+        usdc.approve(address(vault), 1000 ether);
 
-        if (_penaltyApplied) {
-            uint256 penalty   = (amount * PENALTY_BPS) / BPS_BASE; // 65%
-            uint256 remaining = amount - penalty;                   // 35%
+        vm.prank(club);
+        vault.depositCaution(1000 ether);
 
-            stablecoin.safeTransfer(_penaltyReceiver, penalty);
-            stablecoin.safeTransfer(_remainder, remaining);
+        vm.warp(block.timestamp + 366 days + 1 days);
 
-            if (_penaltyReceiver == club) {
-                emit ContractRescindedByPlayer(penalty, remaining, true);
-            } else {
-                emit ContractRescindedByClub(penalty, remaining, true);
-            }
-        } else {
-            stablecoin.safeTransfer(club, amount);
+        uint256 clubBefore = usdc.balanceOf(club);
 
-            if (_penaltyReceiver == club) {
-                emit ContractRescindedByPlayer(amount, 0, false);
-            } else {
-                emit ContractRescindedByClub(amount, 0, false);
-            }
-        }
+        vault.expireContract();
+
+        assertEq(uint256(vault.status()), uint256(RightsVault.ContractStatus.EXPIRED));
+        assertEq(usdc.balanceOf(club), clubBefore + 1000 ether);
     }
 
-    // utilitários para painel dashboard
-    /// @notice Retorna segundos restantes até o fim do contrato. 0 se inativo.
-    function timeRemaining() external view returns (uint256) {
-        if (status != ContractStatus.ACTIVE) return 0;
-        uint256 end = contractStart + CONTRACT_DURATION;
-        if (block.timestamp >= end) return 0;
-        return end - block.timestamp;
+    function testTimeRemainingReturnsZeroWhenInactive() public {
+        assertEq(vault.timeRemaining(), 0);
     }
 
-    /// @notice Retorna true se ainda estamos no primeiro semestre do contrato.
-    function isBeforeHalfTime() external view returns (bool) {
-        if (status != ContractStatus.ACTIVE) return false;
-        return block.timestamp < contractStart + HALF_TIME + TIMESTAMP_BUFFER;
+    function testIsBeforeHalfTimeReturnsFalseWhenInactive() public {
+        assertEq(vault.isBeforeHalfTime(), false);
     }
+    function testDepositCautionRevertsWhenAmountIsZero() public {
+    vm.prank(club);
+    vm.expectRevert(RightsVault.WrongCautionAmount.selector);
+    vault.depositCaution(0);
+    }
+    
+    function testFractionalizeRevertsWhenClubIsNotTokenOwner() public {
+    vm.prank(owner);
+    master.mintRights(other, "ipfs://other-player-rights");
 
-    /// @notice Interface obrigatória para aceitar NFTs via safeTransferFrom.
-    function onERC721Received(
-        address /*operator*/,
-        address /*from*/,
-        uint256 /*tokenId*/,
-        bytes calldata /*data*/
-    ) external pure override returns (bytes4) {
-        return this.onERC721Received.selector;
+    vm.prank(club);
+    vm.expectRevert(RightsVault.NotNFTOwner.selector);
+    vault.fractionalize(2, 1_000_000 ether);
     }
 }
