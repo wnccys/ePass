@@ -14,6 +14,8 @@ import { Switch } from "@/components/ui/switch";
 import { SiweButton } from "@/components/siwe-button";
 
 import { onboardingSchema } from "@/lib/validations";
+import { FadeIn } from "@/components/ui/fade-in";
+import { Card } from "@/components/ui/card";
 
 export function OnBoardingForm({
   user
@@ -67,17 +69,17 @@ export function OnBoardingForm({
   });
 
   return (
-    <div className="flex w-full flex-1 min-h-screen items-center justify-center bg-background py-12 relative overflow-hidden">
+    <Card className="flex w-full flex-1 min-h-screen items-center justify-center border-none rounded-none shadow-none py-12 relative overflow-hidden px-4">
       <style>{`
         .glass-panel {
           backdrop-filter: blur(12px);
-          background: linear-gradient(135deg, oklch(from var(--background) l c h / 10%), oklch(from var(--background) l c h / 40%));
-          box-shadow: 0 8px 32px 0 oklch(from var(--foreground) l c h / 10%), inset 0 1px 1px 0 oklch(from var(--background) l c h / 50%);
+          background: linear-gradient(135deg, oklch(from var(--card) l c h / 10%), oklch(from var(--card) l c h / 40%));
+          box-shadow: 0 8px 32px 0 oklch(from var(--foreground) l c h / 10%), inset 0 1px 1px 0 oklch(from var(--card) l c h / 50%);
           border: 1px solid oklch(from var(--foreground) l c h / 10%);
         }
         .glass-input-local {
-          background: linear-gradient(-75deg, oklch(from var(--background) l c h / 5%), oklch(from var(--background) l c h / 20%), oklch(from var(--background) l c h / 5%));
-          box-shadow: inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%), inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 50%), 0 0.1em 0.25em inset oklch(from var(--background) l c h / 20%);
+          background: linear-gradient(-75deg, oklch(from var(--card) l c h / 5%), oklch(from var(--card) l c h / 20%), oklch(from var(--card) l c h / 5%));
+          box-shadow: inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%), inset 0 -0.125em 0.125em oklch(from var(--card) l c h / 50%), 0 0.1em 0.25em inset oklch(from var(--card) l c h / 20%);
           border: 1px solid transparent;
           transition: all 0.3s ease;
         }
@@ -86,11 +88,7 @@ export function OnBoardingForm({
         }
       `}</style>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="glass-panel p-8 rounded-3xl w-full max-w-md z-10 mx-4 flex flex-col gap-6"
-      >
+      <FadeIn className="glass-panel p-8 rounded-3xl w-full max-w-md z-10 mx-4 flex flex-col gap-6">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-serif font-light text-foreground">You're almost there!</h1>
           <p className="text-sm text-muted-foreground">Let's finish your account setup.</p>
@@ -268,7 +266,7 @@ export function OnBoardingForm({
             )}
           />
         </form>
-      </motion.div>
-    </div>
+      </FadeIn>
+    </Card>
   );
 }

@@ -1,6 +1,8 @@
 import { User as UserIcon, Mail, ShieldCheck } from "lucide-react";
 import { FadeIn } from "@/components/ui/fade-in";
 import { getCurrentUser } from "@/services/user";
+import { Card } from "@/components/ui/card";
+import { LogoutButton } from "./logout-button";
 
 export default async function Home() {
     const user = await getCurrentUser();
@@ -8,22 +10,22 @@ export default async function Home() {
     if (!user) return <div>Invalid user data</div>
 
     return (
-        <div className="flex w-full flex-1 min-h-screen items-center justify-center bg-background py-12 relative overflow-hidden px-4">
+        <Card className="flex w-full flex-1 min-h-screen items-center justify-center border-none rounded-none shadow-none py-12 relative overflow-hidden px-4">
             <style>{`
                 .glass-panel {
                     backdrop-filter: blur(12px);
-                    background: linear-gradient(135deg, oklch(from var(--background) l c h / 10%), oklch(from var(--background) l c h / 40%));
-                    box-shadow: 0 8px 32px 0 oklch(from var(--foreground) l c h / 10%), inset 0 1px 1px 0 oklch(from var(--background) l c h / 50%);
+                    background: linear-gradient(135deg, oklch(from var(--card) l c h / 10%), oklch(from var(--card) l c h / 40%));
+                    box-shadow: 0 8px 32px 0 oklch(from var(--foreground) l c h / 10%), inset 0 1px 1px 0 oklch(from var(--card) l c h / 50%);
                     border: 1px solid oklch(from var(--foreground) l c h / 10%);
                 }
                 .glass-card-local {
-                    background: linear-gradient(-75deg, oklch(from var(--background) l c h / 5%), oklch(from var(--background) l c h / 20%), oklch(from var(--background) l c h / 5%));
-                    box-shadow: inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%), inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 50%), 0 0.1em 0.25em inset oklch(from var(--background) l c h / 20%);
+                    background: linear-gradient(-75deg, oklch(from var(--card) l c h / 5%), oklch(from var(--card) l c h / 20%), oklch(from var(--card) l c h / 5%));
+                    box-shadow: inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%), inset 0 -0.125em 0.125em oklch(from var(--card) l c h / 50%), 0 0.1em 0.25em inset oklch(from var(--card) l c h / 20%);
                     border: 1px solid transparent;
                 }
             `}</style>
 
-            <FadeIn>
+            <FadeIn className="glass-panel p-8 md:p-12 rounded-3xl w-full max-w-2xl flex flex-col gap-8">
                 <div className="flex flex-col md:flex-row items-center gap-8 border-b border-foreground/10 pb-8">
                     <div className="relative w-24 h-24 rounded-full overflow-hidden glass-card-local flex items-center justify-center border-2 border-primary/20">
                         {user?.image ? (
@@ -68,8 +70,9 @@ export default async function Home() {
                             <span className="text-[10px] font-bold uppercase tracking-tighter text-green-500/80">Secure Connection</span>
                         </div>
                     </div>
+                    <LogoutButton />
                 </div>
             </FadeIn>
-        </div>
+        </Card>
     )
 }

@@ -13,6 +13,8 @@ import { SiweButton } from "@/components/siwe-button";
 
 import { profileSchema } from "@/lib/validations";
 import { LogoutButton } from "../home/logout-button";
+import { FadeIn } from "@/components/ui/fade-in";
+import { Card } from "@/components/ui/card";
 
 export function PlayerProfile({
   user
@@ -61,18 +63,18 @@ export function PlayerProfile({
   });
 
   return (
-    <div className="flex w-full flex-1 min-h-screen items-center justify-center bg-background py-12 relative overflow-hidden px-[8em]">
+    <Card className="flex w-full flex-1 min-h-screen items-center justify-center border-none rounded-none shadow-none py-12 relative overflow-hidden px-[8em]">
       <style>{`
         /* Keeping the existing glass styles */
         .glass-panel {
           backdrop-filter: blur(12px);
-          background: linear-gradient(135deg, oklch(from var(--background) l c h / 10%), oklch(from var(--background) l c h / 40%));
-          box-shadow: 0 8px 32px 0 oklch(from var(--foreground) l c h / 10%), inset 0 1px 1px 0 oklch(from var(--background) l c h / 50%);
+          background: linear-gradient(135deg, oklch(from var(--card) l c h / 10%), oklch(from var(--card) l c h / 40%));
+          box-shadow: 0 8px 32px 0 oklch(from var(--foreground) l c h / 10%), inset 0 1px 1px 0 oklch(from var(--card) l c h / 50%);
           border: 1px solid oklch(from var(--foreground) l c h / 10%);
         }
         .glass-input-local {
-          background: linear-gradient(-75deg, oklch(from var(--background) l c h / 5%), oklch(from var(--background) l c h / 20%), oklch(from var(--background) l c h / 5%));
-          box-shadow: inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%), inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 50%), 0 0.1em 0.25em inset oklch(from var(--background) l c h / 20%);
+          background: linear-gradient(-75deg, oklch(from var(--card) l c h / 5%), oklch(from var(--card) l c h / 20%), oklch(from var(--card) l c h / 5%));
+          box-shadow: inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%), inset 0 -0.125em 0.125em oklch(from var(--card) l c h / 50%), 0 0.1em 0.25em inset oklch(from var(--card) l c h / 20%);
           border: 1px solid transparent;
           transition: all 0.3s ease;
         }
@@ -81,11 +83,7 @@ export function PlayerProfile({
         }
       `}</style>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="glass-panel p-8 md:p-12 rounded-3xl w-full flex flex-col md:flex-row gap-12"
-      >
+      <FadeIn className="glass-panel p-8 md:p-12 rounded-3xl w-full flex flex-col md:flex-row gap-12">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -266,7 +264,7 @@ export function PlayerProfile({
             </div>
           </div>
         </form>
-      </motion.div>
-    </div>
+      </FadeIn>
+    </Card>
   );
 }
