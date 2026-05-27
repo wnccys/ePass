@@ -34,9 +34,9 @@ export async function MainNavbar() {
                         )}
                         {role === 'club' && (
                             <>
-                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Dashboard</Link>
-                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Scouting</Link>
-                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Management</Link>
+                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>My Teamates</Link>
+                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Propose Contract</Link>
+                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Club Profile</Link>
                             </>
                         )}
                     </div>
