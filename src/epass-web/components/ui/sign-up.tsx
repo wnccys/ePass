@@ -9,7 +9,6 @@ import { ArrowRight, Mail, Lock, Eye, EyeOff, ArrowLeft, X, AlertCircle, PartyPo
 // Importing animation components from framer-motion
 import { AnimatePresence, motion, useInView, Variants, Transition } from "framer-motion";
 import { signIn } from "next-auth/react";
-import { useTheme } from "next-themes";
 
 // --- TEXT LOOP ANIMATION COMPONENT ---
 type TextLoopProps = { children: React.ReactNode[]; className?: string; interval?: number; transition?: Transition; variants?: Variants; onIndexChange?: (index: number) => void; stopOnEnd?: boolean; };
@@ -91,11 +90,7 @@ GlassButton.displayName = "GlassButton";
 
 // --- THEME-AWARE SVG GRADIENT BACKGROUND WITH SUBTLE ANIMATION ---
 const GradientBackground = () => {
-    const { theme, systemTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
-    useEffect(() => setMounted(true), []);
-    const currentTheme = theme === 'system' ? systemTheme : theme;
-    const bgFill = mounted && currentTheme === 'light' ? '#ffffff' : '#000000';
+    const bgFill = '#ffffff';
 
     return (
     <>
