@@ -14,7 +14,7 @@ export function MainNavbar() {
     if (status !== "authenticated") return null;
 
     return (
-        <div className="fixed top-8 left-0 right-0 flex justify-center z-50">
+        <div className="fixed top-4 left-0 right-0 flex justify-center z-50">
             <LiquidGlassNavbar>
                 <div className="flex items-center gap-8">
                     <Link href="/home" className="flex items-center select-none cursor-pointer gap-1.5">
@@ -30,15 +30,15 @@ export function MainNavbar() {
                     <div className='flex items-center gap-6 text-sm [&_a]:cursor-default [&_a]:select-none text-muted-foreground dark:text-zinc-300'>
                         {role === 'player' && (
                             <>
-                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Contracts</Link>
+                                <Link href="/contracts" className='transition-colors hover:text-foreground dark:hover:text-white'>Contracts</Link>
                                 <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Find Clubs</Link>
                                 <Link href="/profile" className='transition-colors hover:text-foreground dark:hover:text-white'>My Profile</Link>
                             </>
                         )}
                         {role === 'club' && (
                             <>
-                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>My Teamates</Link>
-                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Propose Contract</Link>
+                                <Link href="/contracts" className='transition-colors hover:text-foreground dark:hover:text-white'>Contracts</Link>
+                                <Link href="/contracts/new" className='transition-colors hover:text-foreground dark:hover:text-white'>Propose Contract</Link>
                                 <Link href="/profile" className='transition-colors hover:text-foreground dark:hover:text-white'>Club Profile</Link>
                             </>
                         )}
