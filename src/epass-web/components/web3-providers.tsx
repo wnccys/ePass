@@ -25,7 +25,7 @@ export function Web3Providers({ children }: { children: React.ReactNode }) {
                 wallets: [injectedWallet],
             },
         ],
-        ssr: true, // TWEAK 2: You MUST add this for Next.js App Router
+        ssr: true,
         transports: {
             [foundry.id]: http(foundryRpcUrl),
         },
