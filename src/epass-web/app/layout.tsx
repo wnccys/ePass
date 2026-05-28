@@ -52,8 +52,8 @@ export default async function RootLayout({
             <body className="min-h-full flex flex-col selection:bg-lime-200/80">
                 <Web3Providers>
                     <AppProviders>
-                            <MainNavbar />
-                            {children}
+                        <MainNavbar />
+                        {children}
                     </AppProviders>
                 </Web3Providers>
             </body>
