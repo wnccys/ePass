@@ -50,9 +50,7 @@ export const authOptions: NextAuthOptions = {
                     token.role = dbUser.role;
                     token.walletAddress = dbUser.walletAddress;
                 } catch (error) {
-                    // This will tell you immediately if MongoDB is the culprit
-                    console.error("🔥 Database error during OAuth callback:", error);
-                    // Throwing the error here will stop the login process cleanly
+                    console.error("Database error during OAuth callback:", error);
                     throw new Error("Database connection failed during login");
                 }
             }
