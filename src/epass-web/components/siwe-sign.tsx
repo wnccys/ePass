@@ -101,7 +101,7 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
         <p>Network target: Foundry (chainId: {foundry.id})</p>
         {chainId && <p>Current chainId: {chainId}</p>}
         {foundryStatus === 'checking' && <p>Checking local Foundry RPC...</p>}
-        {foundryStatus === 'ok' && <p className="text-emerald-500">Foundry RPC is reachable.</p>}
+        {foundryStatus === 'ok' && <p className="text-emerald-500">Connected to Foundry RPC.</p>}
         {foundryStatus === 'error' && (
           <p className="text-destructive">
             Foundry RPC is currently unreachable.
