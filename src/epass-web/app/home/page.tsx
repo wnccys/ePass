@@ -3,11 +3,14 @@ import { FadeIn } from "@/components/ui/fade-in";
 import { getCurrentUser } from "@/services/user";
 import { Card } from "@/components/ui/card";
 import { LogoutButton } from "./logout-button";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
     const user = await getCurrentUser();
 
     if (!user) return <div>Invalid user data</div>
+    // Bounces to onboarding
+    if (!user.onboardingComplete) redirect("/profile");
 
     return (
         <Card className="flex w-full flex-1 min-h-screen items-center justify-center border-none rounded-none shadow-none py-12 relative overflow-hidden px-4">
