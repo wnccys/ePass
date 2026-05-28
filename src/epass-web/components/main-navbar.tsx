@@ -27,9 +27,9 @@ export async function MainNavbar() {
                     <div className='flex items-center gap-6 text-sm [&_a]:cursor-default [&_a]:select-none text-muted-foreground dark:text-zinc-300'>
                         {role === 'player' && (
                             <>
-                                <Link href="/profile" className='transition-colors hover:text-foreground dark:hover:text-white'>My Profile</Link>
-                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Find Clubs</Link>
                                 <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Contracts</Link>
+                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Find Clubs</Link>
+                                <Link href="/profile" className='transition-colors hover:text-foreground dark:hover:text-white'>My Profile</Link>
                             </>
                         )}
                         {role === 'club' && (
