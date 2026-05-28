@@ -23,6 +23,7 @@ const UserSchema = new Schema<IUser>({
   authProvider: { type: String, required: true },
   authProviderId: { type: String, required: true },
   role: { type: String, enum: ["player", "club"], required: true, default: "player" },
+  walletAddress: { type: String },
   onboardingComplete: { type: Boolean, default: false }
 }, {
   timestamps: true // Automatically adds createdAt and updatedAt
