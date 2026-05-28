@@ -8,6 +8,7 @@
   "start": "set NODE_OPTIONS=--max-old-space-size=8192 && next start"
   },
   "dependencies": {
+    "@metamask/connect-evm": "^1.4.0",
     "@paper-design/shaders-react": "^0.0.76",
     "@rainbow-me/rainbowkit": "^2.2.11",
     "@tanstack/react-form": "^1.32.0",
