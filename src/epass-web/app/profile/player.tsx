@@ -194,7 +194,7 @@ export function PlayerProfile({
                         </div>
                         <span className="text-sm font-semibold">Player</span>
                       </div>
-                      <Switch checked={field.state.value === 'club'} onCheckedChange={(checked) => field.handleChange(checked ? 'club' : 'player')} />
+                      <Switch className="data-[state=checked]:bg-stone-200"  checked={field.state.value === 'club'} onCheckedChange={(checked) => field.handleChange(checked ? 'club' : 'player')} />
                       <div className="flex items-center gap-3 cursor-pointer group" onClick={() => field.handleChange('club')}>
                         <span className="text-sm font-semibold">Club</span>
                         <div className={cn("p-2 rounded-full", field.state.value === 'club' ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground")}>
