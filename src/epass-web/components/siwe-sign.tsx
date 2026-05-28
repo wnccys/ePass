@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useConnect, useConnection, useConnectors, useDisconnect, usePublicClient, useSwitchChain } from 'wagmi';
 import { foundry } from 'wagmi/chains';
@@ -18,6 +19,7 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
   const foundryClient = usePublicClient({ chainId: foundry.id });
   const [foundryStatus, setFoundryStatus] = useState<'idle' | 'checking' | 'ok' | 'error'>('idle');
   const [selectedConnectorName, setSelectedConnectorName] = useState<string | null>(null);
+  const [showAddress, setShowAddress] = useState(false);
   const injectedConnector = useMemo(
     () =>
       connectors.find((connector) => connector.id === 'injected' || connector.name.toLowerCase().includes('injected')) ??
@@ -90,7 +92,25 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
 
       {isConnected && isOnFoundry && (
         <div className="flex flex-col gap-2">
-          <div className="text-xs text-muted-foreground font-mono px-1 break-all">{address}</div>
+          <div className="flex items-center gap-1 rounded-md border border-border bg-muted/40 px-2 py-1">
+            <span className="flex-1 text-xs font-mono text-muted-foreground break-all select-all">
+              {showAddress
+                ? address
+                : address
+                  ? `${address.slice(0, 6)}${'•'.repeat(28)}${address.slice(-4)}`
+                  : '—'}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground"
+              onClick={() => setShowAddress((v) => !v)}
+              aria-label={showAddress ? 'Hide address' : 'Reveal address'}
+            >
+              {showAddress ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+            </Button>
+          </div>
           <Button className="w-full" type="button" variant="secondary" onClick={() => disconnectMutate()}>
             Disconnect Wallet
           </Button>
