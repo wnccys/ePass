@@ -5,9 +5,7 @@ import { Merriweather, Noto_Serif } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { AppProviders } from "@/components/providers";
 import { MainNavbar } from "@/components/main-navbar";
-import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]/route";
-import { NextAbstractWalletProvider } from "@/components/agw-provider";
+import { Web3Providers } from "@/components/web3-providers";
 
 const notoSerifHeading = Noto_Serif({subsets:['latin'],variable:'--font-heading'});
 
@@ -45,9 +43,6 @@ export default async function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const session = await getServerSession(authOptions);
-    const role = session?.user?.role as 'player' | 'club' | undefined;
-
     return (
         <html
             lang="en"
@@ -55,12 +50,12 @@ export default async function RootLayout({
             suppressHydrationWarning
         >
             <body className="min-h-full flex flex-col selection:bg-lime-200/80">
-                <AppProviders>
-                    <NextAbstractWalletProvider>
-                        <MainNavbar role={role} />
-                        {children}
-                    </NextAbstractWalletProvider>
-                </AppProviders>
+                <Web3Providers>
+                    <AppProviders>
+                            <MainNavbar />
+                            {children}
+                    </AppProviders>
+                </Web3Providers>
             </body>
         </html>
     );

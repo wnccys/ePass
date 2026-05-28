@@ -1,23 +1,19 @@
 'use client';
 
-import { updateProfile } from "@/app/actions/profile";
-import { useSession } from "next-auth/react";
+import { ProfilePayload, updateProfile } from "@/app/actions/profile";
 import { useRouter } from "next/navigation";
 import { useForm } from '@tanstack/react-form';
-import { z } from 'zod';
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Loader, User as UserIcon, Building2, AlertCircle, Camera, CheckCircle2, Save, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
-import { SiweButton } from "@/components/siwe-button";
+import SiweButton from "@/components/siwe-sign";
 
-const profileSchema = z.object({
-  name: z.string().min(5, 'Name must be at least 5 characters long'),
-  bio: z.string().max(160, 'Bio must be under 160 characters').optional(),
-  role: z.enum(['player', 'club']),
-  avatar: z.any().optional(),
-});
+import { profileSchema } from "@/lib/validations";
+import { LogoutButton } from "../home/logout-button";
+import { FadeIn } from "@/components/ui/fade-in";
+import { Card } from "@/components/ui/card";
 
 export function PlayerProfile({
   user
@@ -25,7 +21,6 @@ export function PlayerProfile({
   user: { name?: string | null; email?: string | null; image?: string | null; bio?: string | null; role?: 'player' | 'club' }
 }) {
   const router = useRouter();
-  const { data: session, update } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.image || null);
@@ -35,27 +30,17 @@ export function PlayerProfile({
       name: user?.name || '',
       bio: user?.bio || '',
       role: user?.role || 'player',
-      avatar: null as File | null,
+      avatar: undefined as File | undefined,
     },
-    validators: { onChange: profileSchema },
+    validators: { onChange: profileSchema as any },
     onSubmit: async ({ value }) => {
       setIsSubmitting(true);
       setSubmitMessage(null);
 
       try {
-        const formData = new FormData();
-        formData.append('name', value.name);
-        formData.append('bio', value.bio || '');
-        formData.append('role', value.role);
-        if (value.avatar) formData.append('avatar', value.avatar);
-
-        const result = await updateProfile(formData);
+        const result = await updateProfile(value as unknown as ProfilePayload);
 
         if (result.success) {
-          await update({
-            ...session,
-            user: { ...session?.user, name: value.name, role: value.role }
-          });
           setSubmitMessage({ type: 'success', text: 'Profile updated successfully!' });
           router.refresh();
         } else {
@@ -72,31 +57,8 @@ export function PlayerProfile({
   });
 
   return (
-    <div className="flex w-full flex-1 min-h-screen items-center justify-center bg-background py-12 relative overflow-hidden px-[8em]">
-      <style>{`
-        /* Keeping the existing glass styles */
-        .glass-panel {
-          backdrop-filter: blur(12px);
-          background: linear-gradient(135deg, oklch(from var(--background) l c h / 10%), oklch(from var(--background) l c h / 40%));
-          box-shadow: 0 8px 32px 0 oklch(from var(--foreground) l c h / 10%), inset 0 1px 1px 0 oklch(from var(--background) l c h / 50%);
-          border: 1px solid oklch(from var(--foreground) l c h / 10%);
-        }
-        .glass-input-local {
-          background: linear-gradient(-75deg, oklch(from var(--background) l c h / 5%), oklch(from var(--background) l c h / 20%), oklch(from var(--background) l c h / 5%));
-          box-shadow: inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%), inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 50%), 0 0.1em 0.25em inset oklch(from var(--background) l c h / 20%);
-          border: 1px solid transparent;
-          transition: all 0.3s ease;
-        }
-        .glass-input-local:focus-within, .glass-input-local:hover {
-          border-color: oklch(from var(--foreground) l c h / 20%);
-        }
-      `}</style>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="glass-panel p-8 md:p-12 rounded-3xl w-full flex flex-col md:flex-row gap-12"
-      >
+    <Card className="flex w-full flex-1 min-h-screen items-center justify-center border-none rounded-none shadow-none py-12 relative overflow-hidden px-[8em]">
+      <FadeIn className="glass-panel p-8 md:p-12 rounded-3xl w-full flex flex-col md:flex-row gap-12">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -111,7 +73,7 @@ export function PlayerProfile({
             <form.Field name="avatar">
               {(field) => (
                 <div className="flex flex-col items-center gap-4">
-                  <div className="relative w-32 h-32 rounded-full overflow-hidden glass-input-local flex items-center justify-center group cursor-pointer border-2 border-transparent hover:border-primary/50 transition-all">
+                  <div className="relative w-32 h-32 rounded-full overflow-hidden glass-input flex items-center justify-center group cursor-pointer border-2 border-transparent hover:border-primary/50 transition-all">
                     {avatarPreview ? (
                       <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
@@ -144,7 +106,7 @@ export function PlayerProfile({
             <div className="space-y-4">
               <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">Connected Accounts</h4>
 
-              <div className="glass-input-local rounded-xl p-3 flex items-center gap-3 opacity-60">
+              <div className="glass-input rounded-xl p-3 flex items-center gap-3 opacity-60">
                 <div className="p-2 bg-muted rounded-lg">
                   <Mail className="w-4 h-4 text-muted-foreground" />
                 </div>
@@ -154,7 +116,7 @@ export function PlayerProfile({
                 </div>
               </div>
 
-              <div className="glass-input-local rounded-xl p-3 flex flex-col gap-3">
+              <div className="glass-input rounded-xl p-3 flex flex-col gap-3">
                 <div className="flex flex-col">
                   <span className="text-xs font-medium text-foreground">Web3 Wallet</span>
                   <span className="text-[10px] text-muted-foreground">Required for on-chain actions</span>
@@ -176,7 +138,7 @@ export function PlayerProfile({
                 {(field) => (
                   <div className="space-y-2">
                     <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Full Name</label>
-                    <div className="glass-input-local rounded-2xl px-4 py-3 flex items-center gap-3">
+                    <div className="glass-input rounded-2xl px-4 py-3 flex items-center gap-3">
                       <input
                         id={field.name}
                         value={field.state.value}
@@ -196,7 +158,7 @@ export function PlayerProfile({
                 {(field) => (
                   <div className="space-y-2">
                     <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Bio</label>
-                    <div className="glass-input-local rounded-2xl px-4 py-3 flex items-center gap-3">
+                    <div className="glass-input rounded-2xl px-4 py-3 flex items-center gap-3">
                       <textarea
                         id={field.name}
                         rows={3}
@@ -215,7 +177,7 @@ export function PlayerProfile({
                 {(field) => (
                   <div className="space-y-3">
                     <label className="text-sm font-medium text-foreground ml-1 block">Account Type</label>
-                    <div className="flex items-center justify-between glass-input-local rounded-2xl p-4 max-w-sm">
+                    <div className="flex items-center justify-between glass-input rounded-2xl p-4 max-w-sm">
                       <div className="flex items-center gap-3 cursor-pointer group" onClick={() => field.handleChange('player')}>
                         <div className={cn("p-2 rounded-full", field.state.value === 'player' ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground")}>
                           <UserIcon className="w-5 h-5" />
@@ -253,27 +215,31 @@ export function PlayerProfile({
                 )}
               </AnimatePresence>
 
-              <form.Subscribe
-                selector={(state) => [state.canSubmit, state.isSubmitting]}
-                children={([canSubmit, isFormSubmitting]) => (
-                  <button
-                    type="submit"
-                    disabled={!canSubmit || isSubmitting || isFormSubmitting}
-                    className="w-full sm:w-auto ml-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-8 rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {isSubmitting || isFormSubmitting ? (
-                      <Loader className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <Save className="w-5 h-5" />
-                    )}
-                    Save Changes
-                  </button>
-                )}
-              />
+                <div className="flex items-center gap-5 px-2">
+                    <form.Subscribe
+                        selector={(state) => [state.canSubmit, state.isSubmitting]}
+                        children={([canSubmit, isFormSubmitting]) => (
+                        <button
+                            type="submit"
+                            disabled={!canSubmit || isSubmitting || isFormSubmitting}
+                            className="w-full sm:w-auto ml-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-8 rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                            {isSubmitting || isFormSubmitting ? (
+                                <Loader className="w-5 h-5 animate-spin" />
+                            ) : (
+                                <Save className="w-5 h-5" />
+                            )}
+                            Save Changes
+                        </button>
+                        )}
+                    />
+
+                    <LogoutButton />
+                </div>
             </div>
           </div>
         </form>
-      </motion.div>
-    </div>
+      </FadeIn>
+    </Card>
   );
 }

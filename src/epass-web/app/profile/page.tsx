@@ -1,16 +1,22 @@
-import { getServerSession } from "next-auth/next";
+import { getCurrentUser } from "@/services/user";
 import { OnBoardingForm } from "./onboarding-form";
-import { authOptions } from "../api/auth/[...nextauth]/route";
 import { PlayerProfile } from "./player";
 
 export default async function Profile() {
-    const session = await getServerSession(authOptions);
-    if (!session!.user.onboardingComplete) return <OnBoardingForm user={session!.user} />
+    const user = await getCurrentUser();
+
+    if (!user) return <div>No user data available</div>
+
+    // Serialize user object to remove non-plain values like MongoDB ObjectId buffer
+    const serializedUser = JSON.parse(JSON.stringify(user));
+
+    if (!serializedUser.onboardingComplete) return <OnBoardingForm user={serializedUser} />
 
     return (
         <div>
-            {session!.user.role === "player" ? (
-                <PlayerProfile user={session!.user} />
+            {serializedUser.role === "player" ?
+                (
+                    <PlayerProfile user={serializedUser} />
                 ) : (
                     <div>club</div>
                 )
