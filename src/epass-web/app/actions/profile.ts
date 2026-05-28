@@ -30,10 +30,23 @@ export async function updateProfile(data: ProfilePayload) {
     await dbConnect();
 
     try {
+        const normalizedWalletAddress = walletAddress?.toLowerCase();
         const updateData: any = { name, role };
         if (bio !== undefined) updateData.bio = bio;
         if (imageUrl) updateData.image = imageUrl;
-        if (walletAddress !== undefined) updateData.walletAddress = walletAddress;
+        if (normalizedWalletAddress !== undefined) {
+            const existingWalletOwner = await User.findOne({
+                walletAddress: normalizedWalletAddress,
+                _id: { $ne: session.user.id },
+            }).select("_id");
+
+            if (existingWalletOwner) {
+                return { success: false, error: "This wallet is already linked to another account." };
+            }
+
+            updateData.walletAddress = normalizedWalletAddress;
+            updateData.walletLinkedAt = normalizedWalletAddress ? new Date() : null;
+        }
 
         await User.findByIdAndUpdate(session.user.id, updateData);
 

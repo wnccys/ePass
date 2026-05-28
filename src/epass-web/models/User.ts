@@ -8,7 +8,9 @@ export interface IUser extends Document {
     authProvider: string;
     authProviderId: string;
     role: "player" | "club";
-    walletAddress: string;
+    walletAddress?: string;
+    walletLinkedAt?: Date;
+    walletVerified?: boolean;
     // Prevent replay attacks on SIWE
     nonce: string;
     onboardingComplete: boolean;
@@ -23,7 +25,9 @@ const UserSchema = new Schema<IUser>({
   authProvider: { type: String, required: true },
   authProviderId: { type: String, required: true },
   role: { type: String, enum: ["player", "club"], required: true, default: "player" },
-  walletAddress: { type: String },
+  walletAddress: { type: String, unique: true, sparse: true, lowercase: true, trim: true },
+  walletLinkedAt: { type: Date },
+  walletVerified: { type: Boolean, default: false },
   onboardingComplete: { type: Boolean, default: false }
 }, {
   timestamps: true // Automatically adds createdAt and updatedAt

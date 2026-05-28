@@ -2,6 +2,7 @@
 
 import { completeOnboarding } from "@/app/actions/onboarding";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useForm } from '@tanstack/react-form';
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
@@ -21,9 +22,14 @@ export function OnBoardingForm({
   user: { name?: string | null; email?: string | null; image?: string | null }
 }) {
   const router = useRouter();
+  const { data: session, update } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.image || null);
+  const [walletAddress, setWalletAddress] = useState<string | undefined>(undefined);
+  const linkedWalletAddress = session?.user?.walletAddress?.toLowerCase();
+  const connectedWalletAddress = walletAddress?.toLowerCase();
+  const hasWalletMismatch = !!linkedWalletAddress && !!connectedWalletAddress && linkedWalletAddress !== connectedWalletAddress;
 
   const form = useForm({
     defaultValues: {
@@ -39,12 +45,20 @@ export function OnBoardingForm({
       setSubmitError(null);
 
       try {
-        const result = await completeOnboarding(value);
+        if (hasWalletMismatch) {
+          setSubmitError(`Switch wallet to linked account: ${linkedWalletAddress}`);
+          setIsSubmitting(false);
+          return;
+        }
+
+        const result = await completeOnboarding({ ...value, walletAddress });
 
         if (result.success) {
+          await update();
           router.refresh();
           router.push('/home');
         } else {
+          if (result.error) setSubmitError(result.error);
           setIsSubmitting(false);
         }
       } catch (err) {
@@ -192,8 +206,13 @@ export function OnBoardingForm({
                 <span className="text-sm font-semibold text-foreground">Link Wallet</span>
                 <span className="text-xs text-muted-foreground">Sign in with Ethereum</span>
               </div>
-              <SiweButton />
+              <SiweButton onAddressChange={setWalletAddress} />
             </div>
+            {hasWalletMismatch && (
+              <p className="text-xs text-destructive px-1">
+                Connected wallet does not match linked account wallet ({linkedWalletAddress}).
+              </p>
+            )}
           </div>
 
           <AnimatePresence>
@@ -215,7 +234,7 @@ export function OnBoardingForm({
             children={([canSubmit, isFormSubmitting]) => (
               <button
                 type="submit"
-                disabled={!canSubmit || isSubmitting || isFormSubmitting}
+                disabled={!canSubmit || isSubmitting || isFormSubmitting || hasWalletMismatch}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-6 rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group shadow-lg shadow-primary/20"
               >
                 {isSubmitting || isFormSubmitting ? (

@@ -1,14 +1,17 @@
+ 'use client';
+
 import Image from "next/image";
 import Link from "next/link";
 import { LiquidGlassNavbar } from "./ui/liquid-glass-navbar";
 import { AnimatedThemeToggler } from "./ui/animated-theme-toggler";
-import { getCurrentUser } from "@/services/user";
+import { useSession } from "next-auth/react";
 
-export async function MainNavbar() {
-    const role = (await getCurrentUser())?.role;
+export function MainNavbar() {
+    const { data: session, status } = useSession();
+    const role = session?.user?.role;
 
     // Just renders when logged
-    if (!role) return;
+    if (status !== "authenticated") return null;
 
     return (
         <div className="fixed top-8 left-0 right-0 flex justify-center z-50">

@@ -2,6 +2,7 @@
 
 import { ProfilePayload, updateProfile } from "@/app/actions/profile";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useForm } from '@tanstack/react-form';
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
@@ -21,10 +22,14 @@ export function ClubProfile({
   user: { name?: string | null; email?: string | null; image?: string | null; bio?: string | null; role?: 'player' | 'club', walletAddress?: string | null }
 }) {
   const router = useRouter();
+  const { data: session, update } = useSession();
   const [walletAddress, setWalletAddress] = useState<string | undefined>(user?.walletAddress || undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.image || null);
+  const linkedWalletAddress = session?.user?.walletAddress?.toLowerCase();
+  const connectedWalletAddress = walletAddress?.toLowerCase();
+  const hasWalletMismatch = !!linkedWalletAddress && !!connectedWalletAddress && linkedWalletAddress !== connectedWalletAddress;
 
   const form = useForm({
     defaultValues: {
@@ -39,6 +44,12 @@ export function ClubProfile({
       setSubmitMessage(null);
 
       try {
+        if (hasWalletMismatch) {
+          setSubmitMessage({ type: 'error', text: `Switch wallet to linked account: ${linkedWalletAddress}` });
+          setIsSubmitting(false);
+          return;
+        }
+
         const payload: ProfilePayload = {
           ...(value as any),
           walletAddress,
@@ -46,6 +57,7 @@ export function ClubProfile({
         const result = await updateProfile(payload);
 
         if (result.success) {
+          await update();
           setSubmitMessage({ type: 'success', text: 'Profile updated successfully!' });
           router.refresh();
         } else {
@@ -130,6 +142,11 @@ export function ClubProfile({
                 {walletAddress && (
                   <p className="text-[11px] text-muted-foreground font-mono break-all">
                     Linked: {walletAddress}
+                  </p>
+                )}
+                {hasWalletMismatch && (
+                  <p className="text-[11px] text-destructive font-mono break-all">
+                    Switch wallet to linked account: {linkedWalletAddress}
                   </p>
                 )}
               </div>
@@ -231,7 +248,7 @@ export function ClubProfile({
                         children={([canSubmit, isFormSubmitting]) => (
                         <button
                             type="submit"
-                            disabled={!canSubmit || isSubmitting || isFormSubmitting}
+                            disabled={!canSubmit || isSubmitting || isFormSubmitting || hasWalletMismatch}
                             className="w-full sm:w-auto ml-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-8 rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             {isSubmitting || isFormSubmitting ? (

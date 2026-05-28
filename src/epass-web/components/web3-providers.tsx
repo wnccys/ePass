@@ -8,12 +8,17 @@ import {
 } from "@rainbow-me/rainbowkit";
 import { injectedWallet } from '@rainbow-me/rainbowkit/wallets';
 import { foundry } from "wagmi/chains";
-import { WagmiProvider, http } from "wagmi";
+import { WagmiProvider, createStorage, http, noopStorage } from "wagmi";
 
 export function Web3Providers({ children }: { children: React.ReactNode }) {
     // Instantiate inside the component to prevent SSR data leaks!
     const [queryClient] = useState(() => new QueryClient());
     const foundryRpcUrl = "http://127.0.0.1:8545";
+
+    const storage = createStorage({
+        key: "epass-wagmi",
+        storage: typeof window !== "undefined" ? window.localStorage : noopStorage,
+    });
 
     const config = getDefaultConfig({
         appName: 'Football Transfer Portal',
@@ -26,6 +31,7 @@ export function Web3Providers({ children }: { children: React.ReactNode }) {
             },
         ],
         ssr: true,
+        storage,
         transports: {
             [foundry.id]: http(foundryRpcUrl),
         },

@@ -9,13 +9,14 @@ export type OnboardingPayload = {
     name: string;
     role: string;
     avatar?: File | null;
+    walletAddress?: string;
 };
 
 export async function completeOnboarding(data: OnboardingPayload) {
     const session = await getServerSession(authOptions);
     if (!session?.user) throw new Error("Unauthorized");
 
-    const { name, role, avatar } = data;
+    const { name, role, avatar, walletAddress } = data;
 
     let imageUrl = undefined;
     if (avatar && avatar.size > 0) {
@@ -35,6 +36,21 @@ export async function completeOnboarding(data: OnboardingPayload) {
 
     if (imageUrl) {
         updateData.image = imageUrl;
+    }
+
+    const normalizedWalletAddress = walletAddress?.toLowerCase();
+    if (normalizedWalletAddress) {
+        const existingWalletOwner = await User.findOne({
+            walletAddress: normalizedWalletAddress,
+            _id: { $ne: session.user.id },
+        }).select("_id");
+
+        if (existingWalletOwner) {
+            return { success: false, error: "This wallet is already linked to another account." };
+        }
+
+        updateData.walletAddress = normalizedWalletAddress;
+        updateData.walletLinkedAt = new Date();
     }
 
     await User.findByIdAndUpdate(session.user.id, updateData);
