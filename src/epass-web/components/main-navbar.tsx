@@ -36,7 +36,7 @@ export async function MainNavbar() {
                             <>
                                 <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>My Teamates</Link>
                                 <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Propose Contract</Link>
-                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Club Profile</Link>
+                                <Link href="/profile" className='transition-colors hover:text-foreground dark:hover:text-white'>Club Profile</Link>
                             </>
                         )}
                     </div>
