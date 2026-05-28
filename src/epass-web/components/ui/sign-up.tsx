@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from "@/lib/utils";
-import React, { useRef } from "react";
+import React, { SVGProps, useRef } from "react";
 // Importing class-variance-authority for the built-in button component
 import { cva, type VariantProps } from "class-variance-authority";
 // Importing animation components from framer-motion
@@ -99,47 +99,6 @@ const GradientBackground = () => {
 // --- CHILD COMPONENTS ---
 const GitHubIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" className="w-6 h-6"> <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/> </svg> );
 
-// MetaMask official fox SVG icon
-const MetaMaskIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 212 189" className="w-6 h-6">
-    <g fillRule="nonzero" fill="none">
-      <polygon fill="#E17726" stroke="#E17726" strokeWidth="0.25" points="60.75,173.25 88.5,180.75 88.5,171 90.75,168.75 107.25,168.75 107.25,180 107.25,187.5 89.25,187.5 67.5,178.5"/>
-      <polygon fill="#E17726" stroke="#E17726" strokeWidth="0.25" points="151.5,173.25 124.5,180.75 124.5,171 122.25,168.75 105.75,168.75 105.75,180 105.75,187.5 123.75,187.5 145.5,178.5"/>
-      <polygon fill="#E27625" stroke="#E27625" strokeWidth="0.25" points="90.75,152.25 88.5,171 91.5,168.75 120.75,168.75 124.5,171 122.25,152.25 118.5,149.25 93.75,149.25"/>
-      <polygon fill="#E27625" stroke="#E27625" strokeWidth="0.25" points="75.75,27.75 88.5,58.5 94.5,149.25 118.5,149.25 124.5,58.5 136.5,27.75"/>
-      <polygon fill="#D5BFB2" stroke="#D5BFB2" strokeWidth="0.25" points="75.75,27.75 40.5,132.75 70.5,131.25 90.75,131.25 90.75,118.5 89.25,75.75 82.5,55.5"/>
-      <polygon fill="#D5BFB2" stroke="#D5BFB2" strokeWidth="0.25" points="136.5,27.75 129.75,55.5 123,75.75 121.5,118.5 121.5,131.25 141.75,131.25 171.75,132.75"/>
-      <polygon fill="#233447" stroke="#233447" strokeWidth="0.25" points="89.25,75.75 82.5,55.5 97.5,59.25 97.5,75.75"/>
-      <polygon fill="#233447" stroke="#233447" strokeWidth="0.25" points="123,75.75 114.75,59.25 129.75,55.5 123,75.75"/>
-      <polygon fill="#CC6228" stroke="#CC6228" strokeWidth="0.25" points="82.5,55.5 89.25,75.75 82.5,94.5 69,89.25 82.5,55.5"/>
-      <polygon fill="#CC6228" stroke="#CC6228" strokeWidth="0.25" points="129.75,55.5 143.25,89.25 129.75,94.5 123,75.75"/>
-      <polygon fill="#E27525" stroke="#E27525" strokeWidth="0.25" points="82.5,94.5 89.25,75.75 97.5,75.75 97.5,101.25 82.5,94.5"/>
-      <polygon fill="#E27525" stroke="#E27525" strokeWidth="0.25" points="129.75,94.5 114.75,101.25 114.75,75.75 123,75.75"/>
-      <polygon fill="#E27525" stroke="#E27525" strokeWidth="0.25" points="82.5,94.5 97.5,101.25 93.75,116.25 89.25,118.5 75.75,110.25"/>
-      <polygon fill="#E27525" stroke="#E27525" strokeWidth="0.25" points="129.75,94.5 136.5,110.25 123,118.5 118.5,116.25 114.75,101.25"/>
-      <polygon fill="#F5841F" stroke="#F5841F" strokeWidth="0.25" points="93.75,116.25 97.5,101.25 114.75,101.25 118.5,116.25 106.5,123.75"/>
-      <polygon fill="#C0AC9D" stroke="#C0AC9D" strokeWidth="0.25" points="89.25,118.5 93.75,116.25 106.5,123.75 118.5,116.25 123,118.5 121.5,131.25 90.75,131.25"/>
-      <polygon fill="#161616" stroke="#161616" strokeWidth="0.25" points="88.5,180.75 90.75,168.75 89.25,168 123,168 122.25,168.75 124.5,180.75 107.25,180.75"/>
-      <polygon fill="#763E1A" stroke="#763E1A" strokeWidth="0.25" points="75.75,110.25 89.25,118.5 90.75,131.25 88.5,131.25 69,131.25"/>
-      <polygon fill="#763E1A" stroke="#763E1A" strokeWidth="0.25" points="136.5,110.25 143.25,131.25 123,131.25 121.5,131.25 123,118.5"/>
-      <polygon fill="#F5841F" stroke="#F5841F" strokeWidth="0.25" points="69,89.25 82.5,94.5 75.75,110.25 69,131.25 40.5,132.75"/>
-      <polygon fill="#F5841F" stroke="#F5841F" strokeWidth="0.25" points="143.25,89.25 171.75,132.75 143.25,131.25 136.5,110.25 129.75,94.5"/>
-      <polygon fill="#E27625" stroke="#E27625" strokeWidth="0.25" points="40.5,132.75 69,131.25 75.75,149.25 60.75,149.25 46.5,141"/>
-      <polygon fill="#E27625" stroke="#E27625" strokeWidth="0.25" points="171.75,132.75 165.75,141 151.5,149.25 136.5,149.25 143.25,131.25"/>
-      <polygon fill="#E27625" stroke="#E27625" strokeWidth="0.25" points="60.75,149.25 75.75,149.25 70.5,165.75 46.5,159.75"/>
-      <polygon fill="#E27625" stroke="#E27625" strokeWidth="0.25" points="151.5,149.25 165.75,159.75 141.75,165.75 136.5,149.25"/>
-      <polygon fill="#E27625" stroke="#E27625" strokeWidth="0.25" points="46.5,159.75 70.5,165.75 67.5,178.5 60.75,173.25 42,162.75"/>
-      <polygon fill="#E27625" stroke="#E27625" strokeWidth="0.25" points="165.75,159.75 170.25,162.75 151.5,173.25 145.5,178.5 141.75,165.75"/>
-      <polygon fill="#E27625" stroke="#E27625" strokeWidth="0.25" points="67.5,178.5 70.5,165.75 88.5,171 88.5,180.75"/>
-      <polygon fill="#E27625" stroke="#E27625" strokeWidth="0.25" points="145.5,178.5 124.5,180.75 124.5,171 141.75,165.75"/>
-      <polygon fill="#763E1A" stroke="#763E1A" strokeWidth="0.25" points="88.5,171 70.5,165.75 75.75,149.25 90.75,152.25 90.75,168.75 88.5,171"/>
-      <polygon fill="#763E1A" stroke="#763E1A" strokeWidth="0.25" points="124.5,171 122.25,168.75 122.25,152.25 136.5,149.25 141.75,165.75"/>
-      <polygon fill="#233447" stroke="#233447" strokeWidth="0.25" points="97.5,59.25 89.25,75.75 97.5,75.75"/>
-      <polygon fill="#233447" stroke="#233447" strokeWidth="0.25" points="114.75,59.25 114.75,75.75 123,75.75"/>
-    </g>
-  </svg>
-);
-
 // --- CHILD COMPONENTS ---
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="w-6 h-6"> <g fillRule="evenodd" fill="none"> <g fillRule="nonzero" transform="translate(3, 2)"> <path fill="#4285F4" d="M57.8123233,30.1515267 C57.8123233,27.7263183 57.6155321,25.9565533 57.1896408,24.1212666 L29.4960833,24.1212666 L29.4960833,35.0674653 L45.7515771,35.0674653 C45.4239683,37.7877475 43.6542033,41.8844383 39.7213169,44.6372555 L39.6661883,45.0037254 L48.4223791,51.7870338 L49.0290201,51.8475849 C54.6004021,46.7020943 57.8123233,39.1313952 57.8123233,30.1515267"></path> <path fill="#34A853" d="M29.4960833,58.9921667 C37.4599129,58.9921667 44.1456164,56.3701671 49.0290201,51.8475849 L39.7213169,44.6372555 C37.2305867,46.3742596 33.887622,47.5868638 29.4960833,47.5868638 C21.6960582,47.5868638 15.0758763,42.4415991 12.7159637,35.3297782 L12.3700541,35.3591501 L3.26524241,42.4054492 L3.14617358,42.736447 C7.9965904,52.3717589 17.959737,58.9921667 29.4960833,58.9921667"></path> <path fill="#FBBC05" d="M12.7159637,35.3297782 C12.0932812,33.4944915 11.7329116,31.5279353 11.7329116,29.4960833 C11.7329116,27.4640054 12.0932812,25.4976752 12.6832029,23.6623884 L12.6667095,23.2715173 L3.44779955,16.1120237 L3.14617358,16.2554937 C1.14708246,20.2539019 0,24.7439491 0,29.4960833 C0,34.2482175 1.14708246,38.7380388 3.14617358,42.736447 L12.7159637,35.3297782"></path> <path fill="#EB4335" d="M29.4960833,11.4050769 C35.0347044,11.4050769 38.7707997,13.7975244 40.9011602,15.7968415 L49.2255853,7.66898166 C44.1130815,2.91684746 37.4599129,0 29.4960833,0 C17.959737,0 7.9965904,6.62018183 3.14617358,16.2554937 L12.6832029,23.6623884 C15.0758763,16.5505675 21.6960582,11.4050769 29.4960833,11.4050769"></path> </g> </g></svg> );
 
@@ -163,7 +122,6 @@ export const AuthComponent = () => {
                         <BlurFade delay={0.25 * 3}><div className="flex items-center justify-center gap-4 w-full">
                             {/* Google button — active */}
                             <GlassButton onClick={() => signIn("google", { callbackUrl: "/home" })} contentClassName="flex items-center justify-center gap-2" size="sm"><GoogleIcon /><span className="font-semibold text-foreground">Google</span></GlassButton>
-
                             {/* GitHub button — disabled, tooltip */}
                             <TooltipProvider>
                               <Tooltip>
@@ -183,7 +141,10 @@ export const AuthComponent = () => {
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <span tabIndex={0} className="inline-flex">
-                                    <GlassButton disabled contentClassName="flex items-center justify-center gap-2" size="sm"><MetaMaskIcon /><span className="font-semibold text-foreground">Enter with MetaMask</span></GlassButton>
+                                    <GlassButton disabled contentClassName="flex items-center justify-center gap-2" size="sm">
+                                        <MetamaskSVG size={32} />
+                                        <span className="font-semibold text-foreground">Enter with MetaMask</span>
+                                    </GlassButton>
                                   </span>
                                 </TooltipTrigger>
                                 <TooltipContent side="bottom"><p>Work in progress</p></TooltipContent>
@@ -197,3 +158,29 @@ export const AuthComponent = () => {
     </div>
   );
 };
+
+export default function MetamaskSVG({ size = 64, color = "currentColor", className = "", ...props }) {
+  return (
+   <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      aria-hidden="true"
+      role="img"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      className={className}
+      {...props}
+    >
+      <g fill="none">
+        <path fill="#ff5c16" d="m19.821 19.918l-3.877-1.131l-2.924 1.712h-2.04l-2.926-1.712l-3.875 1.13L3 16.02l1.179-4.327L3 8.034L4.179 3.5l6.056 3.544h3.53L19.821 3.5L21 8.034l-1.179 3.658L21 16.02z" />
+        <path fill="#ff5c16" d="m4.18 3.5l6.055 3.547l-.24 2.434zm3.875 12.52l2.665 1.99l-2.665.777zm2.452-3.286l-.512-3.251l-3.278 2.21h-.002v.001l.01 2.275l1.33-1.235zM19.82 3.5l-6.056 3.547l.24 2.434zm-3.875 12.52l-2.665 1.99l2.665.777zm1.339-4.326v-.002zl-3.279-2.21l-.512 3.25h2.451l1.33 1.236z" />
+        <path fill="#e34807" d="m8.054 18.787l-3.875 1.13L3 16.022h5.054zm2.452-6.054l.74 4.7l-1.026-2.614l-3.497-.85l1.33-1.236zm5.44 6.054l3.875 1.13L21 16.022h-5.055zm-2.452-6.054l-.74 4.7l1.026-2.614l3.497-.85l-1.331-1.236z" />
+        <path fill="#ff8d5d" d="m3 16.02l1.179-4.328h2.535l.01 2.276l3.496.85l1.026 2.613l-.527.576l-2.665-1.989H3zm18 0l-1.179-4.328h-2.535l-.01 2.276l-3.496.85l-1.026 2.613l.527.576l2.665-1.989H21zm-7.235-8.976h-3.53l-.24 2.435l1.251 7.95h1.508l1.252-7.95z" />
+        <path fill="#661800" d="M4.179 3.5L3 8.034l1.179 3.658h2.535l3.28-2.211zm5.594 10.177H8.625l-.626.6l2.222.54zM19.821 3.5L21 8.034l-1.179 3.658h-2.535l-3.28-2.211zm-5.593 10.177h1.15l.626.6l-2.224.541zm-1.209 5.271l.262-.94l-.527-.575h-1.509l-.527.575l.262.94" />
+        <path fill="#c0c4cd" d="M13.02 18.948V20.5h-2.04v-1.552z" />
+        <path fill="#e7ebf6" d="m8.055 18.785l2.927 1.714v-1.552l-.262-.94zm7.89 0L13.02 20.5v-1.552l.262-.94z" />
+      </g>
+    </svg>
+  );
+}
