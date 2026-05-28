@@ -1,3 +1,11 @@
+allowBuilds:
+  '@reown/appkit': true
+  bufferutil: true
+  keccak: true
+  msw: true
+  secp256k1: true
+  sharp: true
+  utf-8-validate: true
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
