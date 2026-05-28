@@ -182,7 +182,7 @@ export function OnBoardingForm({
             )}
           />
 
-          {/* Abstract SIWE Wallet Connection */}
+          {/* SIWE Wallet Connection */}
           <div className="space-y-3">
             <label className="text-sm font-medium text-foreground ml-1 block">
               Web3 Connection (Optional)
@@ -192,7 +192,6 @@ export function OnBoardingForm({
                 <span className="text-sm font-semibold text-foreground">Link Wallet</span>
                 <span className="text-xs text-muted-foreground">Sign in with Ethereum</span>
               </div>
-              {/* Insert the SIWE button provided by Abstract here */}
               <SiweButton />
             </div>
           </div>
