@@ -104,7 +104,7 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
         {foundryStatus === 'ok' && <p className="text-emerald-500">Foundry RPC is reachable.</p>}
         {foundryStatus === 'error' && (
           <p className="text-destructive">
-            Foundry RPC is unreachable. Start `anvil` (correct command) or set `NEXT_PUBLIC_FOUNDRY_RPC_URL`.
+            Foundry RPC is currently unreachable.
           </p>
         )}
         {connectError && <p className="text-destructive">Wallet connect failed: {connectError.message}</p>}
