@@ -139,11 +139,6 @@ export function PlayerProfile({
                   <span className="text-[10px] text-muted-foreground">Required for on-chain actions</span>
                 </div>
                 <SiweButton onAddressChange={setWalletAddress} />
-                {walletAddress && (
-                  <p className="text-[11px] text-muted-foreground font-mono break-all">
-                    Linked: {walletAddress}
-                  </p>
-                )}
                 {hasWalletMismatch && (
                   <p className="text-[11px] text-destructive font-mono break-all">
                     Switch wallet to linked account: {linkedWalletAddress}
