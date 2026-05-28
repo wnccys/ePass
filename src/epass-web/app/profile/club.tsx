@@ -15,7 +15,7 @@ import { LogoutButton } from "../home/logout-button";
 import { FadeIn } from "@/components/ui/fade-in";
 import { Card } from "@/components/ui/card";
 
-export function PlayerProfile({
+export function ClubProfile({
   user
 }: {
   user: { name?: string | null; email?: string | null; image?: string | null; bio?: string | null; role?: 'player' | 'club', walletAddress?: string | null }
@@ -30,7 +30,7 @@ export function PlayerProfile({
     defaultValues: {
       name: user?.name || '',
       bio: user?.bio || '',
-      role: user?.role || 'player',
+      role: user?.role || 'club',
       avatar: undefined as File | undefined,
     },
     validators: { onChange: profileSchema as any },
@@ -101,7 +101,7 @@ export function PlayerProfile({
                     />
                   </div>
                   <div className="text-center">
-                    <h3 className="font-semibold text-foreground">{user?.name || 'User Profile'}</h3>
+                    <h3 className="font-semibold text-foreground">{user?.name || 'Club Profile'}</h3>
                     <p className="text-xs text-muted-foreground">Click image to upload new avatar</p>
                   </div>
                 </div>
@@ -116,7 +116,7 @@ export function PlayerProfile({
                   <Mail className="w-4 h-4 text-muted-foreground" />
                 </div>
                 <div className="flex flex-col overflow-hidden">
-                  <span className="text-xs font-medium text-foreground">Email</span>
+                  <span className="text-xs font-medium text-foreground">Enterprise Email</span>
                   <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
                 </div>
               </div>
@@ -147,7 +147,7 @@ export function PlayerProfile({
               <form.Field name="name">
                 {(field) => (
                   <div className="space-y-2">
-                    <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Full Name</label>
+                    <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Club Name</label>
                     <div className="glass-input rounded-2xl px-4 py-3 flex items-center gap-3">
                       <input
                         id={field.name}
@@ -175,7 +175,7 @@ export function PlayerProfile({
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="Tell the community about yourself..."
+                        placeholder="Tell the community about your club..."
                         className="bg-transparent flex-1 outline-none text-foreground placeholder:text-foreground/50 resize-none"
                       />
                     </div>
