@@ -18,9 +18,10 @@ import { Card } from "@/components/ui/card";
 export function PlayerProfile({
   user
 }: {
-  user: { name?: string | null; email?: string | null; image?: string | null; bio?: string | null; role?: 'player' | 'club' }
+  user: { name?: string | null; email?: string | null; image?: string | null; bio?: string | null; role?: 'player' | 'club', walletAddress?: string | null }
 }) {
   const router = useRouter();
+  const [walletAddress, setWalletAddress] = useState<string | undefined>(user?.walletAddress || undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.image || null);
@@ -38,7 +39,11 @@ export function PlayerProfile({
       setSubmitMessage(null);
 
       try {
-        const result = await updateProfile(value as unknown as ProfilePayload);
+        const payload: ProfilePayload = {
+          ...(value as any),
+          walletAddress,
+        };
+        const result = await updateProfile(payload);
 
         if (result.success) {
           setSubmitMessage({ type: 'success', text: 'Profile updated successfully!' });
@@ -121,7 +126,12 @@ export function PlayerProfile({
                   <span className="text-xs font-medium text-foreground">Web3 Wallet</span>
                   <span className="text-[10px] text-muted-foreground">Required for on-chain actions</span>
                 </div>
-                <SiweButton />
+                <SiweButton onAddressChange={setWalletAddress} />
+                {walletAddress && (
+                  <p className="text-[11px] text-muted-foreground font-mono break-all">
+                    Linked: {walletAddress}
+                  </p>
+                )}
               </div>
             </div>
           </div>

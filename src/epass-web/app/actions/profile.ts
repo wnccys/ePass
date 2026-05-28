@@ -10,13 +10,14 @@ export type ProfilePayload = {
     role: string;
     bio?: string;
     avatar?: File | null;
+    walletAddress?: string;
 };
 
 export async function updateProfile(data: ProfilePayload) {
     const session = await getServerSession(authOptions);
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
-    const { name, role, bio, avatar } = data;
+    const { name, role, bio, avatar, walletAddress } = data;
 
     let imageUrl = undefined;
     if (avatar && avatar.size > 0) {
@@ -32,6 +33,7 @@ export async function updateProfile(data: ProfilePayload) {
         const updateData: any = { name, role };
         if (bio !== undefined) updateData.bio = bio;
         if (imageUrl) updateData.image = imageUrl;
+        if (walletAddress !== undefined) updateData.walletAddress = walletAddress;
 
         await User.findByIdAndUpdate(session.user.id, updateData);
 

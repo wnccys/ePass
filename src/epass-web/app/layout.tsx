@@ -50,12 +50,12 @@ export default async function RootLayout({
             suppressHydrationWarning
         >
             <body className="min-h-full flex flex-col selection:bg-lime-200/80">
-                <Web3Providers>
-                    <AppProviders>
+                <AppProviders>
+                    <Web3Providers>
                         <MainNavbar />
                         {children}
-                    </AppProviders>
-                </Web3Providers>
+                    </Web3Providers>
+                </AppProviders>
             </body>
         </html>
     );
