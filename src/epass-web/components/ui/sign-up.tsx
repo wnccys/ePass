@@ -1,18 +1,19 @@
 'use client';
 
 import { cn } from "@/lib/utils";
-import React, { SVGProps, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 // Importing class-variance-authority for the built-in button component
 import { cva, type VariantProps } from "class-variance-authority";
 // Importing animation components from framer-motion
 import { AnimatePresence, motion, useInView, Variants } from "framer-motion";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useRouter } from "next/navigation";
 
 // --- BUILT-IN BLUR FADE ANIMATION COMPONENT ---
 interface BlurFadeProps { children: React.ReactNode; className?: string; variant?: { hidden: { y: number }; visible: { y: number } }; duration?: number; delay?: number; yOffset?: number; inView?: boolean; inViewMargin?: string; blur?: string; }
@@ -104,6 +105,15 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg {...props} x
 
 // --- MAIN COMPONENT ---
 export const AuthComponent = () => {
+  const { status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/home");
+    }
+  }, [status, router]);
+
   return (
     <div className="bg-background min-h-screen w-screen flex flex-col">
         <style>{`
