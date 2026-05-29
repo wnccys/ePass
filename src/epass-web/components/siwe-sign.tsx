@@ -13,12 +13,16 @@ type WalletConnectProps = {
 export default function SiweButton({ onAddressChange }: WalletConnectProps) {
     const connection = useConnection();
     const { mutateAsync: connectMutateAsync, status: connectStatus, error: connectError } = useConnect();
+
     const connectors = useConnectors();
     const { mutate: disconnectMutate } = useDisconnect();
     const { mutateAsync: switchChainMutateAsync, isPending: isSwitchPending, error: switchError } = useSwitchChain();
+
+    // We are use Foundry by default and testing purpose
     const foundryClient = usePublicClient({ chainId: foundry.id });
     const [foundryStatus, setFoundryStatus] = useState<'idle' | 'checking' | 'ok' | 'error'>('idle');
     const [selectedConnectorName, setSelectedConnectorName] = useState<string | null>(null);
+
     const [showAddress, setShowAddress] = useState(false);
     const injectedConnector = useMemo(
         () =>
@@ -31,6 +35,7 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
     const isOnFoundry = chainId === foundry.id;
     const isConnectPending = connectStatus === 'pending';
 
+    // Update Foundry health status
     useEffect(() => {
         let active = true;
 
@@ -55,11 +60,13 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
         };
     }, [foundryClient]);
 
+    // Update address on parent component
     useEffect(() => {
         onAddressChange?.(address);
     }, [address, onAddressChange]);
 
     return (
+        /** Connect wallet button */
         <div className="w-full space-y-2">
             {!isConnected && (
                 <Button
@@ -72,24 +79,26 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
                 }}
                 disabled={isConnectPending || !injectedConnector}
                 >
-                {isConnectPending ? `Confirm in ${selectedConnectorName ?? 'wallet'}...` : 'Connect Wallet'}
+                    {isConnectPending ? `Confirm in ${selectedConnectorName ?? 'wallet'}...` : 'Connect Wallet'}
                 </Button>
             )}
 
+            {/* Switch to foundry btn */}
             {isConnected && !isOnFoundry && (
                 <Button
-                className="w-full"
-                type="button"
-                variant="destructive"
-                onClick={async () => {
-                    await switchChainMutateAsync({ chainId: foundry.id });
-                }}
-                disabled={isSwitchPending}
+                    className="w-full"
+                    type="button"
+                    variant="destructive"
+                    onClick={async () => {
+                        await switchChainMutateAsync({ chainId: foundry.id });
+                    }}
+                    disabled={isSwitchPending}
                 >
-                {isSwitchPending ? 'Switching network...' : 'Switch to Foundry'}
+                    {isSwitchPending ? 'Switching network...' : 'Switch to Foundry'}
                 </Button>
             )}
 
+            {/*  Show address component */}
             {isConnected && isOnFoundry && (
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-1 rounded-md border border-border bg-muted/40 px-2 py-1">
@@ -117,6 +126,7 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
                     </div>
                 )}
 
+                {/* Wallet / Network information block */}
                 <div className="text-[11px] text-muted-foreground px-1 space-y-1">
                     <p>Network target: Foundry (chainId: {foundry.id})</p>
                     {chainId && <p>Current chainId: {chainId}</p>}
