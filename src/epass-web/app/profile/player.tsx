@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useForm } from '@tanstack/react-form';
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader, User as UserIcon, Building2, AlertCircle, Camera, CheckCircle2, Save, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
@@ -15,21 +15,29 @@ import { profileSchema } from "@/lib/validations";
 import { LogoutButton } from "../home/logout-button";
 import { FadeIn } from "@/components/ui/fade-in";
 import { Card } from "@/components/ui/card";
+import { ActionCard } from "@/components/web3/action-card";
+import { useContractAction } from "@/hooks/use-contract-action";
+import { MOCK_USDC } from "@/lib/web3/contracts";
 
 export function PlayerProfile({
   user
 }: {
-  user: { name?: string | null; email?: string | null; image?: string | null; bio?: string | null; role?: 'player' | 'club', walletAddress?: string | null }
+  user: { name?: string | null; email?: string | null; image?: string | null; bio?: string | null; role?: 'player' | 'club' }
 }) {
   const router = useRouter();
   const { data: session, update } = useSession();
-  const [walletAddress, setWalletAddress] = useState<string | undefined>(user?.walletAddress || undefined);
+  const [walletAddress, setWalletAddress] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (session?.user?.walletAddress && !walletAddress) {
+      setWalletAddress(session.user.walletAddress as string);
+    }
+  }, [session?.user?.walletAddress]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.image || null);
-  const linkedWalletAddress = session?.user?.walletAddress?.toLowerCase();
-  const connectedWalletAddress = walletAddress?.toLowerCase();
-  const hasWalletMismatch = !!linkedWalletAddress && !!connectedWalletAddress && linkedWalletAddress !== connectedWalletAddress;
+
+  const { execute: executeApprove, status: approveStatus, errorMsg: approveError, txHash: approveHash } = useContractAction(MOCK_USDC);
 
   const form = useForm({
     defaultValues: {
@@ -44,20 +52,17 @@ export function PlayerProfile({
       setSubmitMessage(null);
 
       try {
-        if (hasWalletMismatch) {
-          setSubmitMessage({ type: 'error', text: `Switch wallet to linked account: ${linkedWalletAddress}` });
-          setIsSubmitting(false);
-          return;
-        }
-
         const payload: ProfilePayload = {
           ...(value as any),
-          walletAddress,
         };
         const result = await updateProfile(payload);
 
         if (result.success) {
-          await update();
+          if (walletAddress) {
+            await update({ walletAddress });
+          } else {
+            await update();
+          }
           setSubmitMessage({ type: 'success', text: 'Profile updated successfully!' });
           router.refresh();
         } else {
@@ -139,11 +144,6 @@ export function PlayerProfile({
                   <span className="text-[10px] text-muted-foreground">Required for on-chain actions</span>
                 </div>
                 <SiweButton onAddressChange={setWalletAddress} />
-                {hasWalletMismatch && (
-                  <p className="text-[11px] text-destructive font-mono break-all">
-                    Switch wallet to linked account: {linkedWalletAddress}
-                  </p>
-                )}
               </div>
             </div>
           </div>
@@ -243,7 +243,7 @@ export function PlayerProfile({
                         children={([canSubmit, isFormSubmitting]) => (
                         <button
                             type="submit"
-                            disabled={!canSubmit || isSubmitting || isFormSubmitting || hasWalletMismatch}
+                            disabled={!canSubmit || isSubmitting || isFormSubmitting}
                             className="w-full sm:w-auto ml-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-8 rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             {isSubmitting || isFormSubmitting ? (
@@ -258,6 +258,31 @@ export function PlayerProfile({
 
                     <LogoutButton />
                 </div>
+            </div>
+
+            {/* MVP TEST AREA */}
+            <div className="mt-8 pt-8 border-t border-foreground/10">
+              <h3 className="text-lg font-semibold mb-4">Web3 Test Area</h3>
+              <ActionCard
+                title="Approve USDC"
+                description="Test the transaction lifecycle with a harmless token approval."
+                actionName="Approve"
+                status={approveStatus}
+                errorMsg={approveError}
+                txHash={approveHash}
+                onAction={async () => {
+                  if(!walletAddress) return;
+                  await executeApprove(
+                    MOCK_USDC.address,
+                    MOCK_USDC.abi,
+                    "approve",
+                    [walletAddress, 0], // approve to self 0 for testing
+                    "approve_token",
+                    31337,
+                    walletAddress
+                  );
+                }}
+              />
             </div>
           </div>
         </form>
