@@ -7,129 +7,129 @@ import { useConnect, useConnection, useConnectors, useDisconnect, usePublicClien
 import { foundry } from 'wagmi/chains';
 
 type WalletConnectProps = {
-  onAddressChange?: (address?: string) => void;
+    onAddressChange?: (address?: string) => void;
 };
 
 export default function SiweButton({ onAddressChange }: WalletConnectProps) {
-  const connection = useConnection();
-  const { mutateAsync: connectMutateAsync, status: connectStatus, error: connectError } = useConnect();
-  const connectors = useConnectors();
-  const { mutate: disconnectMutate } = useDisconnect();
-  const { mutateAsync: switchChainMutateAsync, isPending: isSwitchPending, error: switchError } = useSwitchChain();
-  const foundryClient = usePublicClient({ chainId: foundry.id });
-  const [foundryStatus, setFoundryStatus] = useState<'idle' | 'checking' | 'ok' | 'error'>('idle');
-  const [selectedConnectorName, setSelectedConnectorName] = useState<string | null>(null);
-  const [showAddress, setShowAddress] = useState(false);
-  const injectedConnector = useMemo(
-    () =>
-      connectors.find((connector) => connector.id === 'injected' || connector.name.toLowerCase().includes('injected')) ??
-      connectors[0],
-    [connectors]
-  );
-  const { address, chainId } = connection;
-  const isConnected = connection.status === 'connected';
-  const isOnFoundry = chainId === foundry.id;
-  const isConnectPending = connectStatus === 'pending';
+    const connection = useConnection();
+    const { mutateAsync: connectMutateAsync, status: connectStatus, error: connectError } = useConnect();
+    const connectors = useConnectors();
+    const { mutate: disconnectMutate } = useDisconnect();
+    const { mutateAsync: switchChainMutateAsync, isPending: isSwitchPending, error: switchError } = useSwitchChain();
+    const foundryClient = usePublicClient({ chainId: foundry.id });
+    const [foundryStatus, setFoundryStatus] = useState<'idle' | 'checking' | 'ok' | 'error'>('idle');
+    const [selectedConnectorName, setSelectedConnectorName] = useState<string | null>(null);
+    const [showAddress, setShowAddress] = useState(false);
+    const injectedConnector = useMemo(
+        () =>
+            connectors.find((connector) => connector.id === 'injected' || connector.name.toLowerCase().includes('injected')) ??
+        connectors[0],
+        [connectors]
+    );
+    const { address, chainId } = connection;
+    const isConnected = connection.status === 'connected';
+    const isOnFoundry = chainId === foundry.id;
+    const isConnectPending = connectStatus === 'pending';
 
-  useEffect(() => {
-    let active = true;
+    useEffect(() => {
+        let active = true;
 
-    async function checkFoundryHealth() {
-      if (!foundryClient) {
-        return;
-      }
+        async function checkFoundryHealth() {
+            if (!foundryClient) {
+                return;
+            }
 
-      setFoundryStatus('checking');
+            setFoundryStatus('checking');
 
-      try {
-        await foundryClient.getBlockNumber();
-        if (active) setFoundryStatus('ok');
-      } catch {
-        if (active) setFoundryStatus('error');
-      }
+            try {
+                await foundryClient.getBlockNumber();
+                if (active) setFoundryStatus('ok');
+            } catch {
+                if (active) setFoundryStatus('error');
+            }
+        }
+
+        checkFoundryHealth();
+        return () => {
+            active = false;
+        };
+    }, [foundryClient]);
+
+    useEffect(() => {
+        onAddressChange?.(address);
+    }, [address, onAddressChange]);
+
+    return (
+        <div className="w-full space-y-2">
+            {!isConnected && (
+                <Button
+                className="w-full"
+                type="button"
+                onClick={async () => {
+                    if (!injectedConnector) return;
+                    setSelectedConnectorName(injectedConnector.name);
+                    await connectMutateAsync({ connector: injectedConnector });
+                }}
+                disabled={isConnectPending || !injectedConnector}
+                >
+                {isConnectPending ? `Confirm in ${selectedConnectorName ?? 'wallet'}...` : 'Connect Wallet'}
+                </Button>
+            )}
+
+            {isConnected && !isOnFoundry && (
+                <Button
+                className="w-full"
+                type="button"
+                variant="destructive"
+                onClick={async () => {
+                    await switchChainMutateAsync({ chainId: foundry.id });
+                }}
+                disabled={isSwitchPending}
+                >
+                {isSwitchPending ? 'Switching network...' : 'Switch to Foundry'}
+                </Button>
+            )}
+
+            {isConnected && isOnFoundry && (
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-1 rounded-md border border-border bg-muted/40 px-2 py-1">
+                        <span className="flex-1 text-xs font-mono text-muted-foreground break-all select-all">
+                            {showAddress
+                                ? address
+                                : address
+                                ? `${address.slice(0, 6)}${'•'.repeat(28)}${address.slice(-4)}`
+                                : '—'}
+                        </span>
+                            <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground"
+                            onClick={() => setShowAddress((v) => !v)}
+                            aria-label={showAddress ? 'Hide address' : 'Reveal address'}
+                            >
+                                {showAddress ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                            </Button>
+                        </div>
+                        <Button className="w-full" type="button" variant="secondary" onClick={() => disconnectMutate()}>
+                            Disconnect Wallet
+                        </Button>
+                    </div>
+                )}
+
+                <div className="text-[11px] text-muted-foreground px-1 space-y-1">
+                    <p>Network target: Foundry (chainId: {foundry.id})</p>
+                    {chainId && <p>Current chainId: {chainId}</p>}
+                    {foundryStatus === 'checking' && <p>Checking local Foundry RPC...</p>}
+                    {foundryStatus === 'ok' && <p className="text-emerald-500">Connected to Foundry RPC.</p>}
+                    {foundryStatus === 'error' && (
+                        <p className="text-destructive">
+                        Foundry RPC is currently unreachable.
+                        </p>
+                    )}
+                    {connectError && <p className="text-destructive">Wallet connect failed: {connectError.message}</p>}
+                    {switchError && <p className="text-destructive">Network switch failed: {switchError.message}</p>}
+                </div>
+            </div>
+        );
     }
-
-    checkFoundryHealth();
-    return () => {
-      active = false;
-    };
-  }, [foundryClient]);
-
-  useEffect(() => {
-    onAddressChange?.(address);
-  }, [address, onAddressChange]);
-
-  return (
-    <div className="w-full space-y-2">
-      {!isConnected && (
-        <Button
-          className="w-full"
-          type="button"
-          onClick={async () => {
-            if (!injectedConnector) return;
-            setSelectedConnectorName(injectedConnector.name);
-            await connectMutateAsync({ connector: injectedConnector });
-          }}
-          disabled={isConnectPending || !injectedConnector}
-        >
-          {isConnectPending ? `Confirm in ${selectedConnectorName ?? 'wallet'}...` : 'Connect Wallet'}
-        </Button>
-      )}
-
-      {isConnected && !isOnFoundry && (
-        <Button
-          className="w-full"
-          type="button"
-          variant="destructive"
-          onClick={async () => {
-            await switchChainMutateAsync({ chainId: foundry.id });
-          }}
-          disabled={isSwitchPending}
-        >
-          {isSwitchPending ? 'Switching network...' : 'Switch to Foundry'}
-        </Button>
-      )}
-
-      {isConnected && isOnFoundry && (
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-1 rounded-md border border-border bg-muted/40 px-2 py-1">
-            <span className="flex-1 text-xs font-mono text-muted-foreground break-all select-all">
-              {showAddress
-                ? address
-                : address
-                  ? `${address.slice(0, 6)}${'•'.repeat(28)}${address.slice(-4)}`
-                  : '—'}
-            </span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground"
-              onClick={() => setShowAddress((v) => !v)}
-              aria-label={showAddress ? 'Hide address' : 'Reveal address'}
-            >
-              {showAddress ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-            </Button>
-          </div>
-          <Button className="w-full" type="button" variant="secondary" onClick={() => disconnectMutate()}>
-            Disconnect Wallet
-          </Button>
-        </div>
-      )}
-
-      <div className="text-[11px] text-muted-foreground px-1 space-y-1">
-        <p>Network target: Foundry (chainId: {foundry.id})</p>
-        {chainId && <p>Current chainId: {chainId}</p>}
-        {foundryStatus === 'checking' && <p>Checking local Foundry RPC...</p>}
-        {foundryStatus === 'ok' && <p className="text-emerald-500">Connected to Foundry RPC.</p>}
-        {foundryStatus === 'error' && (
-          <p className="text-destructive">
-            Foundry RPC is currently unreachable.
-          </p>
-        )}
-        {connectError && <p className="text-destructive">Wallet connect failed: {connectError.message}</p>}
-        {switchError && <p className="text-destructive">Network switch failed: {switchError.message}</p>}
-      </div>
-    </div>
-  );
-}
