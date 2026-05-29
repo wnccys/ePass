@@ -56,7 +56,8 @@ export function OnBoardingForm({
           } else {
             await update();
           }
-          router.refresh();
+          setSubmitError(null);
+          form.reset(value as any);
           router.push('/home');
         } else {
           if (result.error) setSubmitError(result.error);
@@ -226,11 +227,11 @@ export function OnBoardingForm({
           </AnimatePresence>
 
           <form.Subscribe
-            selector={(state) => [state.canSubmit, state.isSubmitting]}
-            children={([canSubmit, isFormSubmitting]) => (
+            selector={(state) => [state.canSubmit, state.isSubmitting, state.isDirty]}
+            children={([canSubmit, isFormSubmitting, isDirty]) => (
               <button
                 type="submit"
-                disabled={!canSubmit || isSubmitting || isFormSubmitting}
+                disabled={!canSubmit || isSubmitting || isFormSubmitting || !isDirty}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-6 rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group shadow-lg shadow-primary/20"
               >
                 {isSubmitting || isFormSubmitting ? (

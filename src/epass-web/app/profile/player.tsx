@@ -64,6 +64,7 @@ export function PlayerProfile({
             await update();
           }
           setSubmitMessage({ type: 'success', text: 'Profile updated successfully!' });
+          form.reset(value as any);
           router.refresh();
         } else {
           setSubmitMessage({ type: 'error', text: result.error || 'Failed to save changes.' });
@@ -239,11 +240,11 @@ export function PlayerProfile({
 
                 <div className="flex items-center gap-5 px-2">
                     <form.Subscribe
-                        selector={(state) => [state.canSubmit, state.isSubmitting]}
-                        children={([canSubmit, isFormSubmitting]) => (
+                        selector={(state) => [state.canSubmit, state.isSubmitting, state.isDirty]}
+                        children={([canSubmit, isFormSubmitting, isDirty]) => (
                         <button
                             type="submit"
-                            disabled={!canSubmit || isSubmitting || isFormSubmitting}
+                            disabled={!canSubmit || isSubmitting || isFormSubmitting || !isDirty}
                             className="w-full sm:w-auto ml-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-8 rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             {isSubmitting || isFormSubmitting ? (
