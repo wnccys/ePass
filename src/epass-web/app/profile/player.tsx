@@ -28,11 +28,13 @@ export function PlayerProfile({
   const { data: session, update } = useSession();
   const [walletAddress, setWalletAddress] = useState<string | undefined>(undefined);
 
+  // Set wallet address if present on session and not in react state yet
   useEffect(() => {
     if (session?.user?.walletAddress && !walletAddress) {
       setWalletAddress(session.user.walletAddress as string);
     }
   }, [session?.user?.walletAddress]);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.image || null);
