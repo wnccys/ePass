@@ -11,7 +11,7 @@ export function MainNavbar() {
     const role = session?.user?.role;
 
     // Just renders when logged
-    if (status !== "authenticated") return null;
+    if (!session?.user) return null;
 
     return (
         <div className="fixed top-4 left-0 right-0 flex justify-center z-50">
