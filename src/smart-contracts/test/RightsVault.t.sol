@@ -12,9 +12,17 @@ contract RightsVaultTest is Test {
     MockUSDC usdc;
 
     address owner = address(1);
-    address player = address(2);
-    address club = address(3);
-    address other = address(4);
+    address minter = address(2);
+    address operator = address(3);
+    address player = address(4);
+    address club = address(5);
+    address attorney = address(6);
+    address newClub = address(7);
+    address other = address(8);
+
+    uint256 constant PLAYER_BPS = 3000;
+    uint256 constant CLUB_BPS = 6000;
+    uint256 constant ATTORNEY_BPS = 1000;
 
     function setUp() public {
         vm.prank(owner);
@@ -28,19 +36,25 @@ contract RightsVaultTest is Test {
             address(usdc),
             player,
             club,
+            attorney,
+            PLAYER_BPS,
+            CLUB_BPS,
+            ATTORNEY_BPS,
             owner
         );
 
-        vm.prank(owner);
-        master.setAuthorizedMinter(owner);
+        vm.startPrank(owner);
+        master.setAuthorizedMinter(minter);
+        master.setAuthorizedOperator(address(vault), true);
+        vm.stopPrank();
 
-        vm.prank(owner);
+        vm.prank(minter);
         master.mintRights(club, "ipfs://player-rights");
 
         usdc.mint(club, 1_000_000 ether);
     }
 
-    function testFractionalizeWorks() public {
+    function testFractionalizeWorksAndSplitsByBasisPoints() public {
         vm.prank(club);
         master.approve(address(vault), 1);
 
@@ -48,8 +62,10 @@ contract RightsVaultTest is Test {
         vault.fractionalize(1, 1_000_000 ether);
 
         assertEq(master.ownerOf(1), address(vault));
-        assertEq(vault.balanceOf(club), 1_000_000 ether);
         assertEq(vault.lockedTokenId(), 1);
+        assertEq(vault.balanceOf(player), 300_000 ether);
+        assertEq(vault.balanceOf(club), 600_000 ether);
+        assertEq(vault.balanceOf(attorney), 100_000 ether);
     }
 
     function testOnlyClubCanFractionalize() public {
@@ -61,7 +77,18 @@ contract RightsVaultTest is Test {
         vault.fractionalize(1, 1_000_000 ether);
     }
 
-    function testDepositCautionWorks() public {
+    function testDepositCautionRequiresFractionalizationFirst() public {
+        vm.prank(club);
+        usdc.approve(address(vault), 1000 ether);
+
+        vm.prank(club);
+        vm.expectRevert(RightsVault.FractionalizationRequired.selector);
+        vault.depositCaution(1000 ether);
+    }
+
+    function testDepositCautionWorksAfterFractionalization() public {
+        _fractionalizeDefault();
+
         vm.prank(club);
         usdc.approve(address(vault), 1000 ether);
 
@@ -72,18 +99,8 @@ contract RightsVaultTest is Test {
         assertEq(vault.cautionAmount(), 1000 ether);
     }
 
-    function testOnlyClubCanDepositCaution() public {
-        vm.prank(other);
-        vm.expectRevert(RightsVault.NotAuthorized.selector);
-        vault.depositCaution(1000 ether);
-    }
-
     function testPlayerCanRescindBeforeHalfTime() public {
-        vm.prank(club);
-        usdc.approve(address(vault), 1000 ether);
-
-        vm.prank(club);
-        vault.depositCaution(1000 ether);
+        _activateContract();
 
         uint256 clubBefore = usdc.balanceOf(club);
         uint256 playerBefore = usdc.balanceOf(player);
@@ -100,11 +117,7 @@ contract RightsVaultTest is Test {
     }
 
     function testClubCanRescindBeforeHalfTime() public {
-        vm.prank(club);
-        usdc.approve(address(vault), 1000 ether);
-
-        vm.prank(club);
-        vault.depositCaution(1000 ether);
+        _activateContract();
 
         uint256 clubBefore = usdc.balanceOf(club);
         uint256 playerBefore = usdc.balanceOf(player);
@@ -121,20 +134,26 @@ contract RightsVaultTest is Test {
     }
 
     function testExpireContractWorks() public {
-        vm.prank(club);
-        usdc.approve(address(vault), 1000 ether);
-
-        vm.prank(club);
-        vault.depositCaution(1000 ether);
+        _activateContract();
 
         vm.warp(block.timestamp + 366 days + 1 days);
 
         uint256 clubBefore = usdc.balanceOf(club);
-
         vault.expireContract();
 
         assertEq(uint256(vault.status()), uint256(RightsVault.ContractStatus.EXPIRED));
         assertEq(usdc.balanceOf(club), clubBefore + 1000 ether);
+    }
+
+    function testTransferClubMovesClubBalanceAndUpdatesClub() public {
+        _fractionalizeDefault();
+
+        vm.prank(club);
+        vault.transferClub(newClub);
+
+        assertEq(vault.club(), newClub);
+        assertEq(vault.balanceOf(club), 0);
+        assertEq(vault.balanceOf(newClub), 600_000 ether);
     }
 
     function testTimeRemainingReturnsZeroWhenInactive() public {
@@ -144,18 +163,39 @@ contract RightsVaultTest is Test {
     function testIsBeforeHalfTimeReturnsFalseWhenInactive() public {
         assertEq(vault.isBeforeHalfTime(), false);
     }
-    function testDepositCautionRevertsWhenAmountIsZero() public {
-    vm.prank(club);
-    vm.expectRevert(RightsVault.WrongCautionAmount.selector);
-    vault.depositCaution(0);
-    }
-    
-    function testFractionalizeRevertsWhenClubIsNotTokenOwner() public {
-    vm.prank(owner);
-    master.mintRights(other, "ipfs://other-player-rights");
 
-    vm.prank(club);
-    vm.expectRevert(RightsVault.NotNFTOwner.selector);
-    vault.fractionalize(2, 1_000_000 ether);
+    function testDepositCautionRevertsWhenAmountIsZero() public {
+        _fractionalizeDefault();
+
+        vm.prank(club);
+        vm.expectRevert(RightsVault.WrongCautionAmount.selector);
+        vault.depositCaution(0);
+    }
+
+    function testFractionalizeRevertsWhenClubIsNotTokenOwner() public {
+        vm.prank(minter);
+        master.mintRights(other, "ipfs://other-player-rights");
+
+        vm.prank(club);
+        vm.expectRevert(RightsVault.NotNFTOwner.selector);
+        vault.fractionalize(2, 1_000_000 ether);
+    }
+
+    function _fractionalizeDefault() internal {
+        vm.prank(club);
+        master.approve(address(vault), 1);
+
+        vm.prank(club);
+        vault.fractionalize(1, 1_000_000 ether);
+    }
+
+    function _activateContract() internal {
+        _fractionalizeDefault();
+
+        vm.prank(club);
+        usdc.approve(address(vault), 1000 ether);
+
+        vm.prank(club);
+        vault.depositCaution(1000 ether);
     }
 }

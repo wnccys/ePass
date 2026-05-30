@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/services/user";
 import { OnBoardingForm } from "./onboarding-form";
 import { PlayerProfile } from "./player";
+import { ClubProfile } from "./club";
 
 export default async function Profile() {
     const user = await getCurrentUser();
@@ -18,7 +19,7 @@ export default async function Profile() {
                 (
                     <PlayerProfile user={serializedUser} />
                 ) : (
-                    <div>club</div>
+                    <ClubProfile user={serializedUser} />
                 )
             }
         </div>

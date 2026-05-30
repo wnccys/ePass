@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS='--max-old-space-size=8192 --dns-result-order=ipv4first' next dev -H 0.0.0.0",
-    "build": "NODE_OPTIONS='--max-old-space-size=8192' next build",
-    "start": "NODE_OPTIONS='--max-old-space-size=8192' next start"
+  "dev": "set NODE_OPTIONS=--max-old-space-size=8192 && next dev",
+  "build": "set NODE_OPTIONS=--max-old-space-size=8192 && next build",
+  "start": "set NODE_OPTIONS=--max-old-space-size=8192 && next start"
   },
   "dependencies": {
+    "@metamask/connect-evm": "^1.4.0",
     "@paper-design/shaders-react": "^0.0.76",
     "@rainbow-me/rainbowkit": "^2.2.11",
     "@tanstack/react-form": "^1.32.0",

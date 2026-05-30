@@ -25,7 +25,7 @@ export const authOptions: NextAuthOptions = {
     },
     callbacks: {
         // Saves data securelly into encrypted browser cookie
-        async jwt({ token, user, account }) {
+        async jwt({ token, user, account, trigger, session }) {
             // Only true after Provider Login (Google in our case)
             if (account && user?.email) {
                 try {
@@ -47,11 +47,24 @@ export const authOptions: NextAuthOptions = {
 
                     token.email = dbUser.email;
                     token.id = dbUser._id.toString();
+                    token.role = dbUser.role;
                 } catch (error) {
-                    // This will tell you immediately if MongoDB is the culprit
-                    console.error("🔥 Database error during OAuth callback:", error);
-                    // Throwing the error here will stop the login process cleanly
+                    console.error("Database error during OAuth callback:", error);
                     throw new Error("Database connection failed during login");
+                }
+            }
+
+            if (trigger === "update" && session && "walletAddress" in session) {
+                token.walletAddress = session.walletAddress;
+            }
+
+            if (token.id && trigger === "update") {
+                await dbConnect();
+                const userDoc = await User.findById(token.id).select("role email").lean();
+
+                if (userDoc) {
+                    token.email = userDoc.email;
+                    token.role = userDoc.role;
                 }
             }
             return token;
@@ -62,6 +75,8 @@ export const authOptions: NextAuthOptions = {
             if (session.user) {
                 session.user.id = token.id as string;
                 session.user.email = token.email as string;
+                session.user.role = token.role as "player" | "club" | undefined;
+                session.user.walletAddress = token.walletAddress as string | undefined;
             }
 
             return session;

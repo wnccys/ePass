@@ -2,9 +2,10 @@
 
 import { completeOnboarding } from "@/app/actions/onboarding";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useForm } from '@tanstack/react-form';
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader, ArrowRight, User as UserIcon, Building2, AlertCircle, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
@@ -21,9 +22,17 @@ export function OnBoardingForm({
   user: { name?: string | null; email?: string | null; image?: string | null }
 }) {
   const router = useRouter();
+  const { data: session, update } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.image || null);
+  const [walletAddress, setWalletAddress] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (session?.user?.walletAddress && !walletAddress) {
+      setWalletAddress(session.user.walletAddress);
+    }
+  }, [session?.user?.walletAddress]);
 
   const form = useForm({
     defaultValues: {
@@ -39,12 +48,19 @@ export function OnBoardingForm({
       setSubmitError(null);
 
       try {
-        const result = await completeOnboarding(value);
+        const result = await completeOnboarding({ ...value });
 
         if (result.success) {
-          router.refresh();
+          if (walletAddress) {
+            await update({ walletAddress });
+          } else {
+            await update();
+          }
+          setSubmitError(null);
+          form.reset(value as any);
           router.push('/home');
         } else {
+          if (result.error) setSubmitError(result.error);
           setIsSubmitting(false);
         }
       } catch (err) {
@@ -192,7 +208,7 @@ export function OnBoardingForm({
                 <span className="text-sm font-semibold text-foreground">Link Wallet</span>
                 <span className="text-xs text-muted-foreground">Sign in with Ethereum</span>
               </div>
-              <SiweButton />
+              <SiweButton onAddressChange={setWalletAddress} />
             </div>
           </div>
 
@@ -211,11 +227,11 @@ export function OnBoardingForm({
           </AnimatePresence>
 
           <form.Subscribe
-            selector={(state) => [state.canSubmit, state.isSubmitting]}
-            children={([canSubmit, isFormSubmitting]) => (
+            selector={(state) => [state.canSubmit, state.isSubmitting, state.isDirty]}
+            children={([canSubmit, isFormSubmitting, isDirty]) => (
               <button
                 type="submit"
-                disabled={!canSubmit || isSubmitting || isFormSubmitting}
+                disabled={!canSubmit || isSubmitting || isFormSubmitting || !isDirty}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-6 rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group shadow-lg shadow-primary/20"
               >
                 {isSubmitting || isFormSubmitting ? (

@@ -8,9 +8,6 @@ export interface IUser extends Document {
     authProvider: string;
     authProviderId: string;
     role: "player" | "club";
-    walletAddress: string;
-    // Prevent replay attacks on SIWE
-    nonce: string;
     onboardingComplete: boolean;
 }
 

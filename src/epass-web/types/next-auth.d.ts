@@ -9,6 +9,8 @@ declare module "next-auth" {
       /** The user's database unique Mongoose _id. */
       id: string;
       email: string;
+      role?: "player" | "club";
+      walletAddress?: string;
     }
   }
 }
@@ -18,5 +20,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     /** The user's database unique Mongoose _id. */
     id?: string;
+    role?: "player" | "club";
+    walletAddress?: string;
   }
 }
