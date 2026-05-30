@@ -49,7 +49,7 @@ export default async function RootLayout({
             className={cn("h-full", "antialiased", rodinProB.variable, "font-serif", merriweather.variable, notoSerifHeading.variable)}
             suppressHydrationWarning
         >
-            <body className="min-h-full flex flex-col selection:bg-lime-200/80 pt-[2em]">
+            <body className="min-h-full flex flex-col selection:bg-lime-200/80">
                 <AppProviders>
                     <Web3Providers>
                         <MainNavbar />
