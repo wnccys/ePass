@@ -1,0 +1,9 @@
+{
+  "title": "ePass Documentation",
+  "description": "Web3 platform for accessibility and compliance between football players and clubs.",
+  "root": "./docs",
+  "theme": "default",
+  "variables": {
+    "theme": "dark"
+  }
+}
