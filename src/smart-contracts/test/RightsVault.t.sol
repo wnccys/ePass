@@ -2,12 +2,13 @@
 pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
-import {RightsVault} from "../src/RightsVault.sol";
+import {RightsVaultImpl} from "../src/RightsVaultImpl.sol";
 import {PlayerRightsMaster} from "../src/PlayerRightsMaster.sol";
 import {MockUSDC} from "../src/MockUSDC.sol";
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
-contract RightsVaultTest is Test {
-    RightsVault vault;
+contract RightsVaultImplTest is Test {
+    RightsVaultImpl vault;
     PlayerRightsMaster master;
     MockUSDC usdc;
 
@@ -30,8 +31,11 @@ contract RightsVaultTest is Test {
 
         usdc = new MockUSDC();
 
-        vm.prank(owner);
-        vault = new RightsVault(
+        RightsVaultImpl implementation = new RightsVaultImpl();
+            address clone = Clones.clone(address(implementation));
+            vault = RightsVaultImpl(clone);
+
+        vault.initialize(
             address(master),
             address(usdc),
             player,
@@ -73,7 +77,7 @@ contract RightsVaultTest is Test {
         master.approve(address(vault), 1);
 
         vm.prank(other);
-        vm.expectRevert(RightsVault.NotAuthorized.selector);
+        vm.expectRevert(RightsVaultImpl.NotAuthorized.selector);
         vault.fractionalize(1, 1_000_000 ether);
     }
 
@@ -82,12 +86,12 @@ contract RightsVaultTest is Test {
         usdc.approve(address(vault), 1000 ether);
 
         vm.prank(club);
-        vm.expectRevert(RightsVault.FractionalizationRequired.selector);
+        vm.expectRevert(RightsVaultImpl.FractionalizationRequired.selector);
         vault.depositCaution(1000 ether);
     }
 
     function testDepositCautionWorksAfterFractionalization() public {
-        _fractionalizeDefault();
+        fractionalizeDefault();
 
         vm.prank(club);
         usdc.approve(address(vault), 1000 ether);
@@ -95,12 +99,12 @@ contract RightsVaultTest is Test {
         vm.prank(club);
         vault.depositCaution(1000 ether);
 
-        assertEq(uint256(vault.status()), uint256(RightsVault.ContractStatus.ACTIVE));
+        assertEq(uint256(vault.status()), uint256(RightsVaultImpl.ContractStatus.ACTIVE));
         assertEq(vault.cautionAmount(), 1000 ether);
     }
 
     function testPlayerCanRescindBeforeHalfTime() public {
-        _activateContract();
+        activateContract();
 
         uint256 clubBefore = usdc.balanceOf(club);
         uint256 playerBefore = usdc.balanceOf(player);
@@ -111,13 +115,13 @@ contract RightsVaultTest is Test {
         uint256 penalty = (1000 ether * 6500) / 10000;
         uint256 remainder = 1000 ether - penalty;
 
-        assertEq(uint256(vault.status()), uint256(RightsVault.ContractStatus.RESCINDED));
+        assertEq(uint256(vault.status()), uint256(RightsVaultImpl.ContractStatus.RESCINDED));
         assertEq(usdc.balanceOf(club), clubBefore + penalty);
         assertEq(usdc.balanceOf(player), playerBefore + remainder);
     }
 
     function testClubCanRescindBeforeHalfTime() public {
-        _activateContract();
+        activateContract();
 
         uint256 clubBefore = usdc.balanceOf(club);
         uint256 playerBefore = usdc.balanceOf(player);
@@ -128,25 +132,25 @@ contract RightsVaultTest is Test {
         uint256 penalty = (1000 ether * 6500) / 10000;
         uint256 remainder = 1000 ether - penalty;
 
-        assertEq(uint256(vault.status()), uint256(RightsVault.ContractStatus.RESCINDED));
+        assertEq(uint256(vault.status()), uint256(RightsVaultImpl.ContractStatus.RESCINDED));
         assertEq(usdc.balanceOf(player), playerBefore + penalty);
         assertEq(usdc.balanceOf(club), clubBefore + remainder);
     }
 
     function testExpireContractWorks() public {
-        _activateContract();
+        activateContract();
 
         vm.warp(block.timestamp + 366 days + 1 days);
 
         uint256 clubBefore = usdc.balanceOf(club);
         vault.expireContract();
 
-        assertEq(uint256(vault.status()), uint256(RightsVault.ContractStatus.EXPIRED));
+        assertEq(uint256(vault.status()), uint256(RightsVaultImpl.ContractStatus.EXPIRED));
         assertEq(usdc.balanceOf(club), clubBefore + 1000 ether);
     }
 
     function testTransferClubMovesClubBalanceAndUpdatesClub() public {
-        _fractionalizeDefault();
+        fractionalizeDefault();
 
         vm.prank(club);
         vault.transferClub(newClub);
@@ -165,10 +169,10 @@ contract RightsVaultTest is Test {
     }
 
     function testDepositCautionRevertsWhenAmountIsZero() public {
-        _fractionalizeDefault();
+        fractionalizeDefault();
 
         vm.prank(club);
-        vm.expectRevert(RightsVault.WrongCautionAmount.selector);
+        vm.expectRevert(RightsVaultImpl.WrongCautionAmount.selector);
         vault.depositCaution(0);
     }
 
@@ -177,11 +181,11 @@ contract RightsVaultTest is Test {
         master.mintRights(other, "ipfs://other-player-rights");
 
         vm.prank(club);
-        vm.expectRevert(RightsVault.NotNFTOwner.selector);
+        vm.expectRevert(RightsVaultImpl.NotNFTOwner.selector);
         vault.fractionalize(2, 1_000_000 ether);
     }
 
-    function _fractionalizeDefault() internal {
+    function fractionalizeDefault() internal {
         vm.prank(club);
         master.approve(address(vault), 1);
 
@@ -189,8 +193,8 @@ contract RightsVaultTest is Test {
         vault.fractionalize(1, 1_000_000 ether);
     }
 
-    function _activateContract() internal {
-        _fractionalizeDefault();
+    function activateContract() internal {
+        fractionalizeDefault();
 
         vm.prank(club);
         usdc.approve(address(vault), 1000 ether);

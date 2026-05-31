@@ -4,11 +4,11 @@ pragma solidity ^0.8.24;
 import {Script, console2} from "forge-std/Script.sol";
 import {RightsMinter} from "../src/RightsMinter.sol";
 import {PlayerRightsMaster} from "../src/PlayerRightsMaster.sol";
-import {RightsVault} from "../src/RightsVault.sol";
+import {RightsVaultImpl} from "../src/RightsVaultImpl.sol";
 import {MockUSDC} from "../src/MockUSDC.sol";
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 contract SimulatePipeline is Script {
-    // 1. Setup the Actors (Private Keys)
     uint256 adminPk = 0x101;
     uint256 playerPk = 0x202;
     uint256 clubSpvPk = 0x303;
@@ -19,47 +19,52 @@ contract SimulatePipeline is Script {
     address clubSpv = vm.addr(clubSpvPk);
     address attorney = vm.addr(attorneyPk);
 
+    uint256 constant PLAYER_BPS = 3000;
+    uint256 constant CLUB_BPS = 6000;
+    uint256 constant ATTORNEY_BPS = 1000;
+
     function run() public {
         console2.log("=== STARTING RWA TOKENIZATION PIPELINE ===");
 
-        /* -------------------------------------------------------------------------- */
-        /* PHASE 1: DEPLOYMENT & LINKING (Admin)                                      */
-        /* -------------------------------------------------------------------------- */
         vm.startBroadcast(adminPk);
 
         MockUSDC usdc = new MockUSDC();
         RightsMinter gateway = new RightsMinter(admin);
         PlayerRightsMaster masterNft = new PlayerRightsMaster(admin);
-        RightsVault vault = new RightsVault(
-            address(masterNft),
-            address(usdc),      // endenreço do _stablecoinAddress
-            player,
-            clubSpv,
-            admin
-        );
 
-        // Link the architecture
+        RightsVaultImpl implementation = new RightsVaultImpl();
+        address clone = Clones.clone(address(implementation));
+        RightsVaultImpl vault = RightsVaultImpl(clone);
+
+        vault.initialize(
+        address(masterNft),
+        address(usdc),
+        player,
+        clubSpv,
+        attorney,
+        PLAYER_BPS,
+        CLUB_BPS,
+        ATTORNEY_BPS,
+        admin
+    );
+
         gateway.setMasterNftAddress(address(masterNft));
         masterNft.setAuthorizedMinter(address(gateway));
+        masterNft.setAuthorizedOperator(address(vault), true);
 
         vm.stopBroadcast();
+
         console2.log("1. Architecture Deployed and Linked Securely.");
 
-        /* -------------------------------------------------------------------------- */
-        /* PHASE 2: OFF-CHAIN SIGNATURES (The Meatspace Agreement)                    */
-        /* -------------------------------------------------------------------------- */
-        // Create the agreement payload
-        RightsMinter.MintAgreement memory agreement = RightsMinter
-            .MintAgreement({
-                player: player,
-                club: clubSpv,
-                attorney: attorney,
-                tokenURI: "ipfs://QmSignedLegalDocs123",
-                nonce: 0,
-                deadline: block.timestamp + 1 hours
-            });
+        RightsMinter.MintAgreement memory agreement = RightsMinter.MintAgreement({
+            player: player,
+            club: clubSpv,
+            attorney: attorney,
+            tokenURI: "ipfs://QmSignedLegalDocs123",
+            nonce: 0,
+            deadline: block.timestamp + 1 hours
+        });
 
-        // Reconstruct EIP-712 Digest
         bytes32 domainSeparator = keccak256(
             abi.encode(
                 keccak256(
@@ -83,60 +88,41 @@ contract SimulatePipeline is Script {
                 agreement.deadline
             )
         );
-        bytes32 digest = keccak256(
-            abi.encodePacked("\x19\x01", domainSeparator, structHash)
-        );
 
-        // Actors sign using their private wallets (MetaMask simulation)
-        bytes memory playerSig = _sign(playerPk, digest);
-        bytes memory clubSig = _sign(clubSpvPk, digest);
-        bytes memory attorneySig = _sign(attorneyPk, digest);
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
+
+        bytes memory playerSig = sign(playerPk, digest);
+        bytes memory clubSig = sign(clubSpvPk, digest);
+        bytes memory attorneySig = sign(attorneyPk, digest);
+
         console2.log("2. Off-chain EIP-712 Signatures Collected.");
 
-        /* -------------------------------------------------------------------------- */
-        /* PHASE 3: ON-CHAIN EXECUTION (Minting the Master NFT)                       */
-        /* -------------------------------------------------------------------------- */
-        // Anyone can broadcast this, but we'll use the Admin as a relayer
         vm.startBroadcast(adminPk);
         gateway.executeMint(agreement, playerSig, clubSig, attorneySig);
         vm.stopBroadcast();
 
         uint256 tokenId = 1;
-        console2.log(
-            "3. Master ERC-721 Minted to SPV (checks if club is owner of tokenId):",
-            masterNft.ownerOf(tokenId) == clubSpv
-        );
 
-        /* -------------------------------------------------------------------------- */
-        /* PHASE 4: DEFI FRACTIONALIZATION (Locking in the Vault)                     */
-        /* -------------------------------------------------------------------------- */
-        vm.startBroadcast(clubSpvPk); // The SPV executes this
+        console2.log("3. Master ERC-721 Minted.");
+        console2.log("   Owner of tokenId 1: %s", masterNft.ownerOf(tokenId));
 
-        // Approve the vault
+        vm.startBroadcast(clubSpvPk);
+
         masterNft.approve(address(vault), tokenId);
 
-        // Deposit NFT and mint 1 Million $P_IMAGE tokens
-        uint256 supply = 1_000_000 * 10 ** 18;
+        uint256 supply = 1_000_000 ether;
         vault.fractionalize(tokenId, supply);
 
         vm.stopBroadcast();
 
-        console2.log(
-            "4. NFT Locked in Vault:",
-            masterNft.ownerOf(tokenId) == address(vault)
-        );
-        console2.log(
-            "5. SPV $P_IMAGE ERC-20 Balance:",
-            vault.balanceOf(clubSpv) / 10 ** 18
-        );
+        console2.log("4. NFT Locked in Vault: %s", masterNft.ownerOf(tokenId));
+        console2.log("5. Player balance: %s", vault.balanceOf(player) / 1e18);
+        console2.log("6. Club balance: %s", vault.balanceOf(clubSpv) / 1e18);
+        console2.log("7. Attorney balance: %s", vault.balanceOf(attorney) / 1e18);
         console2.log("=== PIPELINE COMPLETE ===");
     }
 
-    // Helper to pack ECDSA signatures
-    function _sign(
-        uint256 pk,
-        bytes32 digest
-    ) internal pure returns (bytes memory) {
+    function sign(uint256 pk, bytes32 digest) internal view returns (bytes memory) {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(pk, digest);
         return abi.encodePacked(r, s, v);
     }
