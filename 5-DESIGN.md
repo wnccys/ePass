@@ -3,11 +3,17 @@
 
 ## Components
 
+### Core Tools
+
 * V0: https://v0.app/
 * Preset: https://ui.shadcn.com/create?preset=b5D92K6mXo
 
+### Registries
+
 https://shadcnspace.com/
 https://21st.dev/
+
+### Components
 
 * Pixel Logo Grid: https://21st.dev/community/components/smammar100/pixel-logo-grid/default
 * Liquid Glass Nav: https://21st.dev/community/components/easemize/apple-tahoe-liquid-glass-button/default

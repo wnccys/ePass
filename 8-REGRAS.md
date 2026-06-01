@@ -8,6 +8,8 @@ The architecture focus on simplicity and concepts application.
 
 ## Project Structure
 
+The project uses ```pnpm``` as its package manager.
+
 ## Database
 
 ## Libs
@@ -24,7 +26,7 @@ The architecture focus on simplicity and concepts application.
 
 ### Code Formatting
 
-It uses Biome as linter
+It uses Biome as linter (run throught Github Actions, no need to run manually)
 
 ### Project Image
 
