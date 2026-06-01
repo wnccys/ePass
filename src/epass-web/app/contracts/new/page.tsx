@@ -8,7 +8,7 @@ import { useForm } from "@tanstack/react-form";
 import { createAgreement } from "@/app/actions/agreements";
 import { uploadToIPFS } from "@/app/actions/ipfs";
 import { parseUnits } from "viem";
-import { Loader, AlertCircle, UploadCloud, CheckCircle2, Trash2, Copy, Check, ExternalLink } from "lucide-react";
+import { Loader, AlertCircle, UploadCloud, CheckCircle2, Trash2, Copy, Check, ExternalLink, HelpCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { FadeIn } from "@/components/ui/fade-in";
 import { contractSchema } from "@/lib/validations";
@@ -306,7 +306,7 @@ export default function NewContractPage() {
                             </div>
 
                             {/* Right Column: IPFS Upload Section */}
-                            <div className="space-y-6">
+                            <div className="space-y-6 relative z-30">
                                 <form.Field
                                     name="tokenURI"
                                     validators={{
@@ -318,9 +318,19 @@ export default function NewContractPage() {
                                     children={(field) => (
                                         <div className="space-y-2 flex flex-col h-full justify-between">
                                             <div>
-                                                <label className="text-sm font-medium text-foreground ml-1 block mb-2">
-                                                    Contract Document (IPFS)
-                                                </label>
+                                                <div className="flex items-center gap-1.5 mb-2 select-none">
+                                                    <label className="text-sm font-medium text-foreground ml-1 block">
+                                                        Contract Document (PDF)
+                                                    </label>
+                                                    <div className="relative inline-block group z-40">
+                                                        <HelpCircle className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground transition-colors cursor-help" />
+                                                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 p-3.5 rounded-2xl bg-card/95 backdrop-blur-md border border-foreground/10 text-[11px] text-muted-foreground shadow-2xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 origin-top z-[9999] leading-relaxed text-center">
+                                                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-card/95" />
+                                                            <span className="font-semibold text-foreground block mb-1 text-xs">Decentralized IPFS Storage</span>
+                                                            Your contract PDF is cryptographically hashed and uploaded to Pinata IPFS, ensuring tamper-proof, permanent, and decentralized hosting.
+                                                        </div>
+                                                    </div>
+                                                </div>
 
                                                 <input
                                                     type="file"

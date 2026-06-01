@@ -1,5 +1,4 @@
 import { useChainId, useConnection } from "wagmi";
-import { Card } from "@/components/ui/card";
 import { Loader, AlertCircle, CheckCircle2, Link as LinkIcon } from "lucide-react";
 import SiweButton from "@/components/siwe-sign";
 
@@ -31,7 +30,7 @@ export function ActionCard({
   const isBusy = status !== 'idle' && status !== 'error' && status !== 'success';
 
   return (
-    <Card className="glass-panel p-6 flex flex-col gap-4">
+    <div className="glass-panel p-6 rounded-xl flex flex-col gap-4">
       <div>
         <h3 className="font-semibold">{title}</h3>
         <p className="text-sm text-muted-foreground">{description}</p>
@@ -109,6 +108,6 @@ export function ActionCard({
           )}
         </div>
       )}
-    </Card>
+    </div>
   );
 }

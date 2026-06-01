@@ -185,3 +185,19 @@ export async function updateAgreementOnChain(id: string, data: { mintTxHash?: st
         return { success: false, error: "Failed to update agreement on-chain data" };
     }
 }
+
+export async function excludeAgreementFromAccount(agreementId: string) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) return { success: false, error: "Unauthorized" };
+
+    await dbConnect();
+    try {
+        await User.findByIdAndUpdate(session.user.id, {
+            $pull: { contracts: agreementId }
+        });
+        return { success: true };
+    } catch (err) {
+        console.error(err);
+        return { success: false, error: "Failed to exclude agreement from account." };
+    }
+}

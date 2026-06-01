@@ -1,20 +1,20 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { getAgreement, submitSignature, updateAgreementOnChain } from "@/app/actions/agreements";
+import { useParams, useRouter } from "next/navigation";
+import { getAgreement, submitSignature, updateAgreementOnChain, excludeAgreementFromAccount } from "@/app/actions/agreements";
 import { useConnection, useChainId } from "wagmi";
 import { useEip712Signing } from "@/hooks/use-eip712-signing";
 import { useContractAction } from "@/hooks/use-contract-action";
-import { RIGHTS_MINTER, VAULT_FACTORY, PLAYER_RIGHTS_MASTER, MOCK_USDC, RIGHTS_VAULT_ABI } from "@/lib/web3/contracts";
-import { Card } from "@/components/ui/card";
+import { RIGHTS_MINTER, VAULT_FACTORY, PLAYER_RIGHTS_MASTER, MOCK_USDC } from "@/lib/web3/contracts";
 import { Badge } from "@/components/ui/badge";
-import { Loader, CheckCircle2, Clock } from "lucide-react";
+import { Loader, CheckCircle2, Clock, Trash2, Copy, Check, ExternalLink, FileText } from "lucide-react";
 import { formatUnits } from "viem";
 import { ActionCard } from "@/components/web3/action-card";
 
 export default function ContractDetailPage() {
     const params = useParams();
+    const router = useRouter();
     const id = params.id as string;
 
     const { address } = useConnection();
@@ -22,6 +22,8 @@ export default function ContractDetailPage() {
 
     const [agreement, setAgreement] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [isCopied, setIsCopied] = useState(false);
+    const [isExcluding, setIsExcluding] = useState(false);
 
     // Signature hook
     const { signAgreement, status: signStatus, errorMsg: signError } = useEip712Signing(chainId);
@@ -137,6 +139,23 @@ export default function ContractDetailPage() {
         }
     };
 
+    const handleExclude = async () => {
+        if (!confirm("Are you sure you want to exclude this contract from your account? This won't delete the contract on-chain or for other signers, but it will hide it from your dashboard.")) return;
+        setIsExcluding(true);
+        try {
+            const res = await excludeAgreementFromAccount(id);
+            if (res.success) {
+                router.push("/contracts");
+            } else {
+                alert(res.error || "Failed to exclude agreement.");
+            }
+        } catch (err: any) {
+            alert(err.message || "Failed to exclude agreement.");
+        } finally {
+            setIsExcluding(false);
+        }
+    };
+
     if (loading) return <div className="p-24 flex justify-center"><Loader className="animate-spin" /></div>;
     if (!agreement) return <div className="p-24 text-center">Agreement not found.</div>;
 
@@ -156,14 +175,24 @@ export default function ContractDetailPage() {
                     <h1 className="text-4xl font-serif font-light tracking-tight">Contract Details</h1>
                     <p className="text-muted-foreground mt-2 font-mono text-sm">ID: {agreement._id}</p>
                 </div>
-                <Badge variant="outline" className="px-4 py-2 text-sm">
-                    {agreement.status.replace('_', ' ').toUpperCase()}
-                </Badge>
+                <div className="flex items-center gap-3">
+                    <Badge variant="outline" className="px-4 py-2 text-sm">
+                        {agreement.status.replace('_', ' ').toUpperCase()}
+                    </Badge>
+                    <button
+                        onClick={handleExclude}
+                        disabled={isExcluding}
+                        className="p-2.5 rounded-xl glass-input border border-destructive/20 text-destructive hover:bg-destructive/10 hover:border-destructive/30 hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center shrink-0"
+                        title="Exclude Contract from My Account"
+                    >
+                        {isExcluding ? <Loader className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                    </button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 space-y-6">
-                    <Card className="glass-panel p-6">
+                    <div className="glass-panel p-6 rounded-xl hover:border-primary/30 transition-all duration-300">
                         <h3 className="font-semibold mb-4">Agreement Information</h3>
                         <div className="space-y-4">
                             <div>
@@ -180,7 +209,7 @@ export default function ContractDetailPage() {
                             </div>
                             <div>
                                 <p className="text-xs text-muted-foreground uppercase">Token URI</p>
-                                <a href={agreement.tokenURI} target="_blank" rel="noreferrer" className="text-primary hover:underline break-all">
+                                <a href={agreement.tokenURI} target="_blank" rel="noreferrer" className="text-primary hover:underline break-all text-sm font-mono">
                                     {agreement.tokenURI}
                                 </a>
                             </div>
@@ -188,8 +217,58 @@ export default function ContractDetailPage() {
                                 <p className="text-xs text-muted-foreground uppercase">Caution Amount</p>
                                 <p className="font-semibold">{formatUnits(BigInt(agreement.cautionAmount), 6)} USDC</p>
                             </div>
+                            <div>
+                                <p className="text-xs text-muted-foreground uppercase">Deadline</p>
+                                <p className="font-semibold text-sm">{new Date(agreement.deadline).toLocaleString()}</p>
+                            </div>
                         </div>
-                    </Card>
+                    </div>
+
+                    {/* Decentralized Storage IPFS Inspection Section */}
+                    <div className="glass-panel p-6 rounded-xl hover:border-primary/30 transition-all duration-300">
+                        <h3 className="font-semibold mb-4 flex items-center gap-2 text-foreground">
+                            <FileText className="w-5 h-5 text-primary animate-pulse" />
+                            Decentralized Storage (IPFS)
+                        </h3>
+                        <div className="space-y-4">
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                                This legally binding contract document is cryptographically secured on the decentralized IPFS network via Pinata storage.
+                            </p>
+                            <div className="glass-input rounded-xl p-3 flex items-center justify-between gap-3 text-left w-full">
+                                <span className="text-xs font-mono text-muted-foreground truncate flex-1 select-all">
+                                    {agreement.tokenURI}
+                                </span>
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigator.clipboard.writeText(agreement.tokenURI);
+                                            setIsCopied(true);
+                                            setTimeout(() => setIsCopied(false), 2000);
+                                        }}
+                                        className="p-1.5 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center"
+                                        title="Copy IPFS URI"
+                                    >
+                                        {isCopied ? (
+                                            <Check className="w-4 h-4 text-green-500 animate-pulse" />
+                                        ) : (
+                                            <Copy className="w-4 h-4" />
+                                        )}
+                                    </button>
+                                    <a
+                                        href={agreement.tokenURI.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="p-1.5 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center"
+                                        title="View on Pinata Gateway"
+                                    >
+                                        <ExternalLink className="w-4 h-4" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     {/* Action Panels based on status */}
                     {agreement.status === 'ready' && (
@@ -220,7 +299,7 @@ export default function ContractDetailPage() {
                 </div>
 
                 <div className="space-y-6">
-                    <Card className="glass-panel p-6">
+                    <div className="glass-panel p-6 rounded-xl hover:border-primary/30 transition-all duration-300">
                         <h3 className="font-semibold mb-4">Signatures</h3>
 
                         <div className="space-y-4">
@@ -243,7 +322,7 @@ export default function ContractDetailPage() {
                                 <button
                                     onClick={handleSign}
                                     disabled={signStatus === 'awaiting_wallet'}
-                                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+                                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
                                 >
                                     {signStatus === 'awaiting_wallet' ? <Loader className="w-4 h-4 animate-spin" /> : null}
                                     Sign Agreement
@@ -251,7 +330,7 @@ export default function ContractDetailPage() {
                                 {signError && <p className="text-xs text-destructive mt-2">{signError}</p>}
                             </div>
                         )}
-                    </Card>
+                    </div>
                 </div>
             </div>
         </div>
