@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { LiquidGlassNavbar } from "./ui/liquid-glass-navbar";
 import { useSession } from "next-auth/react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 interface PublicNavbarProps {
     forceLight?: boolean;
@@ -33,16 +33,17 @@ export function PublicNavbar({ forceLight = false }: PublicNavbarProps) {
                         <Link href="/" className={`font-light ${textColor} text-xl`}>ePass</Link>
                     </div>
                     <div className="flex items-center gap-6">
-                        <a 
-                            href="https://epass.gitbook.io/epass-docs/" 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className={`transition-colors text-sm font-medium ${hoverColor} cursor-pointer`}
+                        <a
+                            href="https://epass.gitbook.io/epass-docs/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`group inline-flex items-center gap-1 text-sm font-medium ${hoverColor} cursor-pointer transition-all duration-300`}
                         >
                             Documentation
+                            <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-300 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                         </a>
-                        <Link 
-                            href="/login" 
+                        <Link
+                            href="/login"
                             className={`group inline-flex items-center justify-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer glass-input ${textColor} border border-foreground/10 hover:border-foreground/20`}
                         >
                             Enter App
