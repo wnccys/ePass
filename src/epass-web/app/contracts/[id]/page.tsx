@@ -229,6 +229,11 @@ export default function ContractDetailPage() {
                             <div>
                                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                                     <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Club</p>
+                                    {agreement.clubEmail && (
+                                        <span className="text-[11px] font-mono text-primary/80 bg-primary/5 px-2.5 py-0.5 rounded-full border border-primary/10">
+                                            {agreement.clubEmail}
+                                        </span>
+                                    )}
                                 </div>
                                 <p className="font-mono text-sm break-all text-foreground pl-1">{agreement.clubWalletAddress}</p>
                             </div>

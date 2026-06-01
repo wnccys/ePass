@@ -49,7 +49,19 @@ export function ContractCard({ agreement, userRole }: { agreement: any, userRole
           </div>
 
           <div className="pt-2 border-t border-border">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">{targetRole}</p>
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{targetRole}</p>
+              {targetRole === 'Player' && agreement.playerEmail && (
+                <span className="text-[10px] font-mono text-primary/80 bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10">
+                  {agreement.playerEmail}
+                </span>
+              )}
+              {targetRole === 'Club' && agreement.clubEmail && (
+                <span className="text-[10px] font-mono text-primary/80 bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10">
+                  {agreement.clubEmail}
+                </span>
+              )}
+            </div>
             <p className="font-mono text-sm break-all text-foreground mt-1">
               {targetWallet.slice(0, 8)}...{targetWallet.slice(-6)}
             </p>

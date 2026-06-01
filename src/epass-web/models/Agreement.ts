@@ -6,6 +6,7 @@ export interface IAgreement extends Document {
   playerWalletAddress: string;
   playerEmail: string;
   clubWalletAddress: string;
+  clubEmail: string;
   attorneyWalletAddress: string;
   attorneyEmail: string;
   
@@ -41,6 +42,7 @@ const AgreementSchema = new Schema<IAgreement>({
   playerWalletAddress: { type: String, required: true, lowercase: true, trim: true, index: true },
   playerEmail: { type: String, required: true, trim: true, lowercase: true },
   clubWalletAddress: { type: String, required: true, lowercase: true, trim: true, index: true },
+  clubEmail: { type: String, required: true, trim: true, lowercase: true },
   attorneyWalletAddress: { type: String, required: true, lowercase: true, trim: true },
   attorneyEmail: { type: String, required: true, trim: true, lowercase: true },
   

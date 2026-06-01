@@ -59,6 +59,7 @@ export async function createAgreement(data: CreateAgreementPayload) {
         const agreement = await Agreement.create({
             clubUserId: session.user.id,
             clubWalletAddress: clubWalletAddress.toLowerCase(),
+            clubEmail: clubUser.email.toLowerCase(),
             playerWalletAddress: playerWalletAddress.toLowerCase(),
             playerEmail: playerEmail.toLowerCase(),
             attorneyWalletAddress: attorneyWalletAddress.toLowerCase(),
@@ -144,12 +145,8 @@ export async function getAgreement(id: string) {
         const agreement = await Agreement.findById(id).lean();
         if (!agreement) return { success: false, error: "Agreement not found" };
 
-        // Fetch club user's email since it's not stored in the agreement document directly
-        const clubUser = await User.findById(agreement.clubUserId).select("email").lean();
-        const clubEmail = clubUser ? clubUser.email : "";
-
         // Serialize object ids
-        const serialized = JSON.parse(JSON.stringify({ ...agreement, clubEmail }));
+        const serialized = JSON.parse(JSON.stringify(agreement));
         return { success: true, agreement: serialized };
     } catch (err) {
         console.error(err);
