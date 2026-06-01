@@ -1,15 +1,16 @@
 'use client';
 
-import { isAddress } from 'viem';
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useConnection } from "wagmi";
+import { useForm } from "@tanstack/react-form";
 import { createAgreement } from "@/app/actions/agreements";
 import { parseUnits } from "viem";
 import { Loader, AlertCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { FadeIn } from "@/components/ui/fade-in";
+import { contractSchema } from "@/lib/validations";
 
 export default function NewContractPage() {
     const router = useRouter();
@@ -19,67 +20,52 @@ export default function NewContractPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState("");
 
-    const [formData, setFormData] = useState({
-        playerWalletAddress: "",
-        attorneyWalletAddress: "",
-        tokenURI: "",
-        cautionAmountUSDC: "",
+    const form = useForm({
+        defaultValues: {
+            playerWalletAddress: "",
+            attorneyWalletAddress: "",
+            tokenURI: "",
+            cautionAmountUSDC: "",
+        },
+        onSubmit: async ({ value }) => {
+            setIsSubmitting(true);
+            setError("");
+
+            try {
+                // Convert USDC to wei (6 decimals)
+                const cautionAmount = parseUnits(value.cautionAmountUSDC, 6).toString();
+
+                // Calculate deadline (24 hours from now)
+                const deadline = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+                if (!address) {
+                    throw new Error("You must connect your wallet to propose a contract");
+                }
+
+                const res = await createAgreement({
+                    ...value,
+                    cautionAmount,
+                    nonce: 0, // In MVP we use nonce 0, then increment for multiple contracts
+                    deadline,
+                    clubWalletAddress: address,
+                });
+
+                if (!res.success) {
+                    throw new Error(res.error || "Failed to create agreement");
+                }
+
+                router.push(`/contracts/${res.agreementId}`);
+            } catch (err: any) {
+                setError(err.message);
+            } finally {
+                setIsSubmitting(false);
+            }
+        },
     });
 
     if (session?.user?.role !== 'club') {
         return <div className="p-24 text-center">Only clubs can propose contracts.</div>;
     }
-
-    const handleSubmit = async (e: React.SubmitEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        setError("");
-
-        try {
-            // Basic validation
-            if (!isAddress(formData.playerWalletAddress)) {
-                throw new Error("Invalid Player Wallet Address");
-            }
-
-            if (!isAddress(formData.attorneyWalletAddress)) {
-                throw new Error("Invalid Attorney Wallet Address");
-            }
-            if (!formData.tokenURI) {
-                throw new Error("Token URI is required");
-            }
-            if (!formData.cautionAmountUSDC || isNaN(Number(formData.cautionAmountUSDC))) {
-                throw new Error("Invalid Caution Amount");
-            }
-
-            // Convert USDC to wei (6 decimals)
-            const cautionAmount = parseUnits(formData.cautionAmountUSDC, 6).toString();
-
-            // Calculate deadline (24 hours from now)
-            const deadline = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-
-            if (!address) {
-                throw new Error("You must connect your wallet to propose a contract");
-            }
-
-            const res = await createAgreement({
-                ...formData,
-                cautionAmount,
-                nonce: 0, // In MVP we use nonce 0, then increment for multiple contracts
-                deadline,
-                clubWalletAddress: address,
-            });
-
-            if (!res.success) {
-                throw new Error(res.error || "Failed to create agreement");
-            }
-
-            router.push(`/contracts/${res.agreementId}`);
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
 
     return (
         <div className="container max-w-3xl mx-auto py-24 px-6">
@@ -90,63 +76,146 @@ export default function NewContractPage() {
                 </div>
 
                 <Card className="glass-panel p-8 md:p-12 rounded-3xl border-none">
-                    <form onSubmit={handleSubmit} className="space-y-8">
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            form.handleSubmit();
+                        }}
+                        className="space-y-8"
+                    >
                         <div className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-foreground ml-1">Player Wallet Address</label>
-                                <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
-                                    <input
-                                        value={formData.playerWalletAddress}
-                                        onChange={(e) => setFormData({ ...formData, playerWalletAddress: e.target.value })}
-                                        placeholder="0x..."
-                                        className="bg-transparent flex-1 outline-none text-foreground font-mono text-sm"
-                                        required
-                                    />
-                                </div>
-                            </div>
+                            <form.Field
+                                name="playerWalletAddress"
+                                validators={{
+                                    onChange: ({ value }) => {
+                                        const res = contractSchema.shape.playerWalletAddress.safeParse(value);
+                                        return res.success ? undefined : res.error.issues?.[0]?.message || "Invalid input";
+                                    }
+                                }}
+                                children={(field) => (
+                                    <div className="space-y-2">
+                                        <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Player Wallet Address</label>
+                                        <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
+                                            <input
+                                                id={field.name}
+                                                name={field.name}
+                                                value={field.state.value}
+                                                onBlur={field.handleBlur}
+                                                onChange={(e) => field.handleChange(e.target.value)}
+                                                placeholder="0x..."
+                                                className="bg-transparent flex-1 outline-none text-foreground font-mono text-sm"
+                                                required
+                                            />
+                                        </div>
+                                        {field.state.meta.errors.length > 0 && (
+                                            <p className="text-xs text-destructive ml-1">
+                                                {field.state.meta.errors.join(', ')}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+                            />
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-foreground ml-1">Attorney Wallet Address</label>
-                                <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
-                                    <input
-                                        value={formData.attorneyWalletAddress}
-                                        onChange={(e) => setFormData({ ...formData, attorneyWalletAddress: e.target.value })}
-                                        placeholder="0x..."
-                                        className="bg-transparent flex-1 outline-none text-foreground font-mono text-sm"
-                                        required
-                                    />
-                                </div>
-                            </div>
+                            <form.Field
+                                name="attorneyWalletAddress"
+                                validators={{
+                                    onChange: ({ value }) => {
+                                        const res = contractSchema.shape.attorneyWalletAddress.safeParse(value);
+                                        return res.success ? undefined : res.error.issues?.[0]?.message || "Invalid input";
+                                    }
+                                }}
+                                children={(field) => (
+                                    <div className="space-y-2">
+                                        <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Attorney Wallet Address</label>
+                                        <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
+                                            <input
+                                                id={field.name}
+                                                name={field.name}
+                                                value={field.state.value}
+                                                onBlur={field.handleBlur}
+                                                onChange={(e) => field.handleChange(e.target.value)}
+                                                placeholder="0x..."
+                                                className="bg-transparent flex-1 outline-none text-foreground font-mono text-sm"
+                                                required
+                                            />
+                                        </div>
+                                        {field.state.meta.errors.length > 0 && (
+                                            <p className="text-xs text-destructive ml-1">
+                                                {field.state.meta.errors.join(', ')}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+                            />
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-foreground ml-1">Token URI (Legal Docs)</label>
-                                <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
-                                    <input
-                                        value={formData.tokenURI}
-                                        onChange={(e) => setFormData({ ...formData, tokenURI: e.target.value })}
-                                        placeholder="ipfs://..."
-                                        className="bg-transparent flex-1 outline-none text-foreground font-mono text-sm"
-                                        required
-                                    />
-                                </div>
-                            </div>
+                            <form.Field
+                                name="tokenURI"
+                                validators={{
+                                    onChange: ({ value }) => {
+                                        const res = contractSchema.shape.tokenURI.safeParse(value);
+                                        return res.success ? undefined : res.error.issues?.[0]?.message || "Invalid input";
+                                    }
+                                }}
+                                children={(field) => (
+                                    <div className="space-y-2">
+                                        <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Token URI (Legal Docs)</label>
+                                        <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
+                                            <input
+                                                id={field.name}
+                                                name={field.name}
+                                                value={field.state.value}
+                                                onBlur={field.handleBlur}
+                                                onChange={(e) => field.handleChange(e.target.value)}
+                                                placeholder="ipfs://..."
+                                                className="bg-transparent flex-1 outline-none text-foreground font-mono text-sm"
+                                                required
+                                            />
+                                        </div>
+                                        {field.state.meta.errors.length > 0 && (
+                                            <p className="text-xs text-destructive ml-1">
+                                                {field.state.meta.errors.join(', ')}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+                            />
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-foreground ml-1">Caution Amount (USDC)</label>
-                                <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        value={formData.cautionAmountUSDC}
-                                        onChange={(e) => setFormData({ ...formData, cautionAmountUSDC: e.target.value })}
-                                        placeholder="1000.00"
-                                        className="bg-transparent flex-1 outline-none text-foreground"
-                                        required
-                                    />
-                                </div>
-                                <p className="text-xs text-muted-foreground ml-1">This amount will be locked in the RightsVault.</p>
-                            </div>
+                            <form.Field
+                                name="cautionAmountUSDC"
+                                validators={{
+                                    onChange: ({ value }) => {
+                                        const res = contractSchema.shape.cautionAmountUSDC.safeParse(value);
+                                        return res.success ? undefined : res.error.issues?.[0]?.message || "Invalid input";
+                                    }
+                                }}
+                                children={(field) => (
+                                    <div className="space-y-2">
+                                        <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Caution Amount (USDC)</label>
+                                        <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
+                                            <input
+                                                id={field.name}
+                                                name={field.name}
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                value={field.state.value}
+                                                onBlur={field.handleBlur}
+                                                onChange={(e) => field.handleChange(e.target.value)}
+                                                placeholder="1000.00"
+                                                className="bg-transparent flex-1 outline-none text-foreground"
+                                                required
+                                            />
+                                        </div>
+                                        {field.state.meta.errors.length > 0 && (
+                                            <p className="text-xs text-destructive ml-1">
+                                                {field.state.meta.errors.join(', ')}
+                                            </p>
+                                        )}
+                                        <p className="text-xs text-muted-foreground ml-1">This amount will be locked in the RightsVault.</p>
+                                    </div>
+                                )}
+                            />
                         </div>
 
                         {error && (
