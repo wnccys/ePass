@@ -10,8 +10,13 @@ export function useEip712Signing(chainId: number) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [signature, setSignature] = useState<string | null>(null);
 
-  const { signTypedDataAsync } = useSignTypedData();
+  const { mutateAsync } = useSignTypedData();
 
+  /**
+   * Create a message to be signed / manage hook status / set signature var
+   * @param agreement
+   * @returns
+   */
   const signAgreement = async (agreement: any) => {
     try {
       setStatus('awaiting_wallet');
@@ -28,9 +33,10 @@ export function useEip712Signing(chainId: number) {
         deadline: BigInt(new Date(agreement.deadline).getTime() / 1000), // to seconds
       };
 
+      // Get domain prefix required for EIP-712
       const domain = buildMintAgreementDomain(RIGHTS_MINTER.address, chainId);
 
-      const sig = await signTypedDataAsync({
+      const sig = await mutateAsync({
         domain,
         types: MINT_AGREEMENT_TYPES,
         primaryType: 'MintAgreement',

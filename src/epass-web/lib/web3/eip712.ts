@@ -9,11 +9,18 @@ export const MINT_AGREEMENT_TYPES = {
   ],
 } as const;
 
+/**
+ * Build EIP-712 domain required by RightsMinter
+ * @param minterAddress
+ * @param chainId
+ * @returns
+ */
 export function buildMintAgreementDomain(minterAddress: `0x${string}`, chainId: number) {
   return {
     name: "RightsMinter",
     version: "1",
     chainId,
+    // minterAddress is already a keccak-256 representation of the mintAgreement fn
     verifyingContract: minterAddress,
   } as const;
 }

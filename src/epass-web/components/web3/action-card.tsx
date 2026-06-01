@@ -1,8 +1,7 @@
-import { useAccount, useChainId } from "wagmi";
+import { useChainId, useConnection } from "wagmi";
 import { Card } from "@/components/ui/card";
 import { Loader, AlertCircle, CheckCircle2, Link as LinkIcon } from "lucide-react";
 import SiweButton from "@/components/siwe-sign";
-import { ReactNode } from "react";
 
 interface ActionCardProps {
   title: string;
@@ -25,7 +24,7 @@ export function ActionCard({
   txHash,
   expectedChainId = 31337, // default foundry
 }: ActionCardProps) {
-  const { isConnected } = useAccount();
+  const { isConnected } = useConnection();
   const chainId = useChainId();
   const isWrongChain = chainId !== expectedChainId;
 
@@ -99,7 +98,7 @@ export function ActionCard({
               <span className="text-xs font-mono text-muted-foreground truncate mr-2">
                 Tx: {txHash}
               </span>
-              <button 
+              <button
                 onClick={() => navigator.clipboard.writeText(txHash)}
                 className="p-1.5 hover:bg-foreground/5 rounded-md transition-colors"
                 title="Copy hash"
