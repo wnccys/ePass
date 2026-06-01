@@ -9,6 +9,7 @@ export interface IUser extends Document {
     authProviderId: string;
     role: "player" | "club";
     onboardingComplete: boolean;
+    contracts: mongoose.Types.ObjectId[];
 }
 
 // Pass the interface into the Schema via <IUser>
@@ -20,7 +21,8 @@ const UserSchema = new Schema<IUser>({
   authProvider: { type: String, required: true },
   authProviderId: { type: String, required: true },
   role: { type: String, enum: ["player", "club"], required: true, default: "player" },
-  onboardingComplete: { type: Boolean, default: false }
+  onboardingComplete: { type: Boolean, default: false },
+  contracts: { type: [{ type: Schema.Types.ObjectId, ref: 'Agreement' }], default: [] }
 }, {
   timestamps: true // Automatically adds createdAt and updatedAt
 });

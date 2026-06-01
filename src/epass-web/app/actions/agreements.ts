@@ -41,6 +41,18 @@ export async function createAgreement(data: CreateAgreementPayload) {
         return { success: false, error: "Emails are required" };
     }
 
+    // Check player account
+    const playerUser = await User.findOne({ email: playerEmail.toLowerCase() });
+    if (!playerUser) {
+        return { success: false, error: `Player account with email "${playerEmail}" does not exist. Please register the player first.` };
+    }
+
+    // Check attorney account
+    const attorneyUser = await User.findOne({ email: attorneyEmail.toLowerCase() });
+    if (!attorneyUser) {
+        return { success: false, error: `Attorney account with email "${attorneyEmail}" does not exist. Please register the attorney first.` };
+    }
+
     try {
         const agreement = await Agreement.create({
             clubUserId: session.user.id,
@@ -56,7 +68,22 @@ export async function createAgreement(data: CreateAgreementPayload) {
             status: 'pending_signatures'
         });
 
-        // TODO Associate player
+        // Assign agreement to the contracts list of the correct user accounts
+        await User.findByIdAndUpdate(session.user.id, {
+            $addToSet: { contracts: agreement._id }
+        });
+
+        // Player account
+        await User.findOneAndUpdate(
+            { email: playerEmail.toLowerCase() },
+            { $addToSet: { contracts: agreement._id } }
+        );
+
+        // Attorney account
+        await User.findOneAndUpdate(
+            { email: attorneyEmail.toLowerCase() },
+            { $addToSet: { contracts: agreement._id } }
+        );
 
         return { success: true, agreementId: agreement._id.toString() };
     } catch (err) {
