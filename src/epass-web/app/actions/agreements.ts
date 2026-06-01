@@ -149,27 +149,20 @@ export async function getAgreement(id: string) {
     }
 }
 
-export async function getMyAgreements(walletAddress?: string) {
+export async function getMyAgreements() {
     const session = await getServerSession(authOptions);
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
     await dbConnect();
     try {
-        const query: any = {
-            $or: [
-                { clubUserId: session.user.id }
-            ]
-        };
-
-        const targetWallet = walletAddress || session.user.walletAddress;
-        if (targetWallet) {
-            const wallet = targetWallet.toLowerCase();
-            query.$or.push({ playerWalletAddress: wallet });
-            query.$or.push({ attorneyWalletAddress: wallet });
-            query.$or.push({ clubWalletAddress: wallet });
+        const user = await User.findById(session.user.id).select("contracts").lean();
+        if (!user || !user.contracts || user.contracts.length === 0) {
+            return { success: true, agreements: [] };
         }
 
-        const agreements = await Agreement.find(query).lean().sort({ createdAt: -1 });
+        const agreements = await Agreement.find({
+            _id: { $in: user.contracts }
+        }).lean().sort({ createdAt: -1 });
 
         const serialized = JSON.parse(JSON.stringify(agreements));
         return { success: true, agreements: serialized };
