@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { LiquidGlassNavbar } from "./ui/liquid-glass-navbar";
 import { useSession } from "next-auth/react";
+import { ArrowRight } from "lucide-react";
 
 interface PublicNavbarProps {
     forceLight?: boolean;
@@ -15,13 +16,12 @@ export function PublicNavbar({ forceLight = false }: PublicNavbarProps) {
     if (status === "authenticated") return null;
 
     const textColor = forceLight ? "text-foreground" : "text-white";
-    const hoverColor = forceLight ? "hover:text-foreground" : "hover:text-white";
-    const mutedColor = forceLight ? "text-muted-foreground" : "text-zinc-300";
+    const hoverColor = forceLight ? "hover:text-foreground text-muted-foreground" : "hover:text-white text-zinc-300";
 
     return (
         <div className="fixed top-4 left-0 right-0 flex justify-center z-50">
             <LiquidGlassNavbar>
-                <div className="flex items-center gap-8">
+                <div className="flex items-center justify-between w-full gap-8">
                     <div className="flex items-center select-none cursor-pointer gap-1.5">
                         <Image
                             src="/favicon.png"
@@ -32,10 +32,22 @@ export function PublicNavbar({ forceLight = false }: PublicNavbarProps) {
                         />
                         <Link href="/" className={`font-light ${textColor} text-xl`}>ePass</Link>
                     </div>
-                    <div className={`flex items-center gap-6 text-sm [&_a]:cursor-default [&_a]:select-none ${mutedColor}`}>
-                        <a href="#" className={`transition-colors ${hoverColor}`}>Clubs</a>
-                        <a href="#" className={`transition-colors ${hoverColor}`}>Players</a>
-                        <a href="#" className={`transition-colors ${hoverColor}`}>About</a>
+                    <div className="flex items-center gap-6">
+                        <a 
+                            href="https://epass.gitbook.io/epass-docs/" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className={`transition-colors text-sm font-medium ${hoverColor} cursor-pointer`}
+                        >
+                            Documentation
+                        </a>
+                        <Link 
+                            href="/login" 
+                            className={`group inline-flex items-center justify-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer glass-input ${textColor} border border-foreground/10 hover:border-foreground/20`}
+                        >
+                            Enter App
+                            <ArrowRight className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${textColor}`} />
+                        </Link>
                     </div>
                 </div>
             </LiquidGlassNavbar>

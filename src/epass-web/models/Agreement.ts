@@ -4,8 +4,10 @@ export interface IAgreement extends Document {
   // Parties
   clubUserId: mongoose.Types.ObjectId;
   playerWalletAddress: string;
+  playerEmail: string;
   clubWalletAddress: string;
   attorneyWalletAddress: string;
+  attorneyEmail: string;
   
   // Agreement Data
   tokenURI: string;
@@ -35,8 +37,10 @@ export interface IAgreement extends Document {
 const AgreementSchema = new Schema<IAgreement>({
   clubUserId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   playerWalletAddress: { type: String, required: true, lowercase: true, trim: true, index: true },
+  playerEmail: { type: String, required: true, trim: true, lowercase: true },
   clubWalletAddress: { type: String, required: true, lowercase: true, trim: true, index: true },
   attorneyWalletAddress: { type: String, required: true, lowercase: true, trim: true },
+  attorneyEmail: { type: String, required: true, trim: true, lowercase: true },
   
   tokenURI: { type: String, required: true },
   cautionAmount: { type: String, required: true },

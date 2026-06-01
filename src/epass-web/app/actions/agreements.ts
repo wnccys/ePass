@@ -9,7 +9,9 @@ import User from "@/models/User";
 
 export type CreateAgreementPayload = {
     playerWalletAddress: string;
+    playerEmail: string;
     attorneyWalletAddress: string;
+    attorneyEmail: string;
     tokenURI: string;
     cautionAmount: string;
     nonce: number;
@@ -28,11 +30,15 @@ export async function createAgreement(data: CreateAgreementPayload) {
         return { success: false, error: "Club user not found" };
     }
 
-    const { playerWalletAddress, attorneyWalletAddress, tokenURI, cautionAmount, nonce, deadline, clubWalletAddress } = data;
+    const { playerWalletAddress, playerEmail, attorneyWalletAddress, attorneyEmail, tokenURI, cautionAmount, nonce, deadline, clubWalletAddress } = data;
 
     // Addr validation
     if (!isAddress(playerWalletAddress) || !isAddress(attorneyWalletAddress) || !isAddress(clubWalletAddress)) {
         return { success: false, error: "Invalid wallet addresses" };
+    }
+
+    if (!playerEmail || !attorneyEmail) {
+        return { success: false, error: "Emails are required" };
     }
 
     try {
@@ -40,7 +46,9 @@ export async function createAgreement(data: CreateAgreementPayload) {
             clubUserId: session.user.id,
             clubWalletAddress: clubWalletAddress.toLowerCase(),
             playerWalletAddress: playerWalletAddress.toLowerCase(),
+            playerEmail: playerEmail.toLowerCase(),
             attorneyWalletAddress: attorneyWalletAddress.toLowerCase(),
+            attorneyEmail: attorneyEmail.toLowerCase(),
             tokenURI,
             cautionAmount,
             nonce,

@@ -33,7 +33,9 @@ export default function NewContractPage() {
     const form = useForm({
         defaultValues: {
             playerWalletAddress: "",
+            playerEmail: "",
             attorneyWalletAddress: "",
+            attorneyEmail: "",
             tokenURI: "",
             cautionAmountUSDC: "",
         },
@@ -151,11 +153,44 @@ export default function NewContractPage() {
                                                 <input
                                                     id={field.name}
                                                     name={field.name}
-                                                    value={field.state.value}
+                                                    value={field.state.value ?? ""}
                                                     onBlur={field.handleBlur}
                                                     onChange={(e) => field.handleChange(e.target.value)}
                                                     placeholder="0x..."
                                                     className="bg-transparent flex-1 outline-none text-foreground font-mono text-sm"
+                                                    required
+                                                />
+                                            </div>
+                                            {field.state.meta.errors.length > 0 && (
+                                                <p className="text-xs text-destructive ml-1">
+                                                    {field.state.meta.errors.join(', ')}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                />
+
+                                <form.Field
+                                    name="playerEmail"
+                                    validators={{
+                                        onChange: ({ value }) => {
+                                            const res = contractSchema.shape.playerEmail.safeParse(value);
+                                            return res.success ? undefined : res.error.issues?.[0]?.message || "Invalid input";
+                                        }
+                                    }}
+                                    children={(field) => (
+                                        <div className="space-y-2">
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Player Email</label>
+                                            <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
+                                                <input
+                                                    id={field.name}
+                                                    name={field.name}
+                                                    type="email"
+                                                    value={field.state.value ?? ""}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(e) => field.handleChange(e.target.value)}
+                                                    placeholder="player@example.com"
+                                                    className="bg-transparent flex-1 outline-none text-foreground text-sm"
                                                     required
                                                 />
                                             </div>
@@ -183,11 +218,44 @@ export default function NewContractPage() {
                                                 <input
                                                     id={field.name}
                                                     name={field.name}
-                                                    value={field.state.value}
+                                                    value={field.state.value ?? ""}
                                                     onBlur={field.handleBlur}
                                                     onChange={(e) => field.handleChange(e.target.value)}
                                                     placeholder="0x..."
                                                     className="bg-transparent flex-1 outline-none text-foreground font-mono text-sm"
+                                                    required
+                                                />
+                                            </div>
+                                            {field.state.meta.errors.length > 0 && (
+                                                <p className="text-xs text-destructive ml-1">
+                                                    {field.state.meta.errors.join(', ')}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                />
+
+                                <form.Field
+                                    name="attorneyEmail"
+                                    validators={{
+                                        onChange: ({ value }) => {
+                                            const res = contractSchema.shape.attorneyEmail.safeParse(value);
+                                            return res.success ? undefined : res.error.issues?.[0]?.message || "Invalid input";
+                                        }
+                                    }}
+                                    children={(field) => (
+                                        <div className="space-y-2">
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Attorney Email</label>
+                                            <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
+                                                <input
+                                                    id={field.name}
+                                                    name={field.name}
+                                                    type="email"
+                                                    value={field.state.value ?? ""}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(e) => field.handleChange(e.target.value)}
+                                                    placeholder="attorney@example.com"
+                                                    className="bg-transparent flex-1 outline-none text-foreground text-sm"
                                                     required
                                                 />
                                             </div>
@@ -218,7 +286,7 @@ export default function NewContractPage() {
                                                     type="number"
                                                     step="0.01"
                                                     min="0"
-                                                    value={field.state.value}
+                                                    value={field.state.value ?? ""}
                                                     onBlur={field.handleBlur}
                                                     onChange={(e) => field.handleChange(e.target.value)}
                                                     placeholder="1000.00"

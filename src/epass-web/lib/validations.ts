@@ -40,8 +40,14 @@ export const contractSchema = z.object({
   playerWalletAddress: z.string().refine((val) => isAddress(val), {
     message: "Invalid Player Wallet Address",
   }),
+  playerEmail: z.email({
+    message: "Invalid Player Email",
+  }),
   attorneyWalletAddress: z.string().refine((val) => isAddress(val), {
     message: "Invalid Attorney Wallet Address",
+  }),
+  attorneyEmail: z.email({
+    message: "Invalid Attorney Email",
   }),
   tokenURI: z.string().min(1, { message: "Token URI is required" }),
   cautionAmountUSDC: z.string().refine((val) => {
