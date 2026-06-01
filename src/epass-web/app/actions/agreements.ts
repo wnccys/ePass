@@ -8,6 +8,8 @@ import Agreement from "@/models/Agreement";
 import User from "@/models/User";
 
 export type CreateAgreementPayload = {
+    title: string;
+    description: string;
     playerWalletAddress: string;
     playerEmail: string;
     attorneyWalletAddress: string;
@@ -30,7 +32,7 @@ export async function createAgreement(data: CreateAgreementPayload) {
         return { success: false, error: "Club user not found" };
     }
 
-    const { playerWalletAddress, playerEmail, attorneyWalletAddress, attorneyEmail, tokenURI, cautionAmount, nonce, deadline, clubWalletAddress } = data;
+    const { title, description, playerWalletAddress, playerEmail, attorneyWalletAddress, attorneyEmail, tokenURI, cautionAmount, nonce, deadline, clubWalletAddress } = data;
 
     // Addr validation
     if (!isAddress(playerWalletAddress) || !isAddress(attorneyWalletAddress) || !isAddress(clubWalletAddress)) {
@@ -61,6 +63,8 @@ export async function createAgreement(data: CreateAgreementPayload) {
             playerEmail: playerEmail.toLowerCase(),
             attorneyWalletAddress: attorneyWalletAddress.toLowerCase(),
             attorneyEmail: attorneyEmail.toLowerCase(),
+            title,
+            description,
             tokenURI,
             cautionAmount,
             nonce,

@@ -32,6 +32,8 @@ export default function NewContractPage() {
 
     const form = useForm({
         defaultValues: {
+            title: "",
+            description: "",
             playerWalletAddress: "",
             playerEmail: "",
             attorneyWalletAddress: "",
@@ -138,6 +140,70 @@ export default function NewContractPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                             {/* Left Column: Form Fields */}
                             <div className="space-y-6">
+                                <form.Field
+                                    name="title"
+                                    validators={{
+                                        onChange: ({ value }) => {
+                                            const res = contractSchema.shape.title.safeParse(value);
+                                            return res.success ? undefined : res.error.issues?.[0]?.message || "Invalid input";
+                                        }
+                                    }}
+                                    children={(field) => (
+                                        <div className="space-y-2">
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Contract Title</label>
+                                            <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
+                                                <input
+                                                    id={field.name}
+                                                    name={field.name}
+                                                    value={field.state.value ?? ""}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(e) => field.handleChange(e.target.value)}
+                                                    placeholder="e.g. Image Rights Agreement 2026"
+                                                    className="bg-transparent flex-1 outline-none text-foreground text-sm"
+                                                    required
+                                                />
+                                            </div>
+                                            {field.state.meta.errors.length > 0 && (
+                                                <p className="text-xs text-destructive ml-1">
+                                                    {field.state.meta.errors.join(', ')}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                />
+
+                                <form.Field
+                                    name="description"
+                                    validators={{
+                                        onChange: ({ value }) => {
+                                            const res = contractSchema.shape.description.safeParse(value);
+                                            return res.success ? undefined : res.error.issues?.[0]?.message || "Invalid input";
+                                        }
+                                    }}
+                                    children={(field) => (
+                                        <div className="space-y-2">
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Description</label>
+                                            <div className="glass-input rounded-2xl px-4 py-3 flex items-start">
+                                                <textarea
+                                                    id={field.name}
+                                                    name={field.name}
+                                                    value={field.state.value ?? ""}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(e) => field.handleChange(e.target.value)}
+                                                    placeholder="Describe the terms, duration, and specific parameters of the contract..."
+                                                    className="bg-transparent flex-1 outline-none text-foreground text-sm resize-none h-24"
+                                                    required
+                                                />
+                                            </div>
+                                            {field.state.meta.errors.length > 0 && (
+                                                <p className="text-xs text-destructive ml-1">
+                                                    {field.state.meta.errors.join(', ')}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                />
+
                                 <form.Field
                                     name="playerWalletAddress"
                                     validators={{

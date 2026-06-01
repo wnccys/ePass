@@ -37,18 +37,16 @@ export const profileSchema = baseProfileSchema.extend({
 });
 
 export const contractSchema = z.object({
+  title: z.string().min(5, { message: "Title must be at least 5 characters long" }),
+  description: z.string().min(10, { message: "Description must be at least 10 characters long" }),
   playerWalletAddress: z.string().refine((val) => isAddress(val), {
     message: "Invalid Player Wallet Address",
   }),
-  playerEmail: z.email({
-    message: "Invalid Player Email",
-  }),
+  playerEmail: z.string().email({ message: "Invalid Player Email Address" }),
   attorneyWalletAddress: z.string().refine((val) => isAddress(val), {
     message: "Invalid Attorney Wallet Address",
   }),
-  attorneyEmail: z.email({
-    message: "Invalid Attorney Email",
-  }),
+  attorneyEmail: z.string().email({ message: "Invalid Attorney Email Address" }),
   tokenURI: z.string().min(1, { message: "Token URI is required" }),
   cautionAmountUSDC: z.string().refine((val) => {
     const num = Number(val);

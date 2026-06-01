@@ -25,10 +25,14 @@ export function ContractsList({ agreements, userRole }: ContractsListProps) {
         };
     }, [searchQuery]);
 
-    // Filter agreements efficiently by ID
+    // Filter agreements efficiently by ID or Title
     const filteredAgreements = agreements.filter((agreement) => {
         if (!debouncedQuery.trim()) return true;
-        return agreement._id.toLowerCase().includes(debouncedQuery.toLowerCase().trim());
+        const query = debouncedQuery.toLowerCase().trim();
+        return (
+            agreement._id.toLowerCase().includes(query) ||
+            (agreement.title && agreement.title.toLowerCase().includes(query))
+        );
     });
 
     return (
@@ -39,7 +43,7 @@ export function ContractsList({ agreements, userRole }: ContractsListProps) {
                     <Search className="w-5 h-5 text-muted-foreground shrink-0" />
                     <input
                         type="text"
-                        placeholder="Search contracts by ID..."
+                        placeholder="Search contracts by ID or Title..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="bg-transparent flex-1 outline-none text-foreground text-sm placeholder:text-muted-foreground/60"

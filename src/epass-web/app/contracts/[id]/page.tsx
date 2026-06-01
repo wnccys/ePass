@@ -172,11 +172,11 @@ export default function ContractDetailPage() {
         <div className="container max-w-4xl mx-auto py-24 px-6">
             <div className="flex items-start justify-between mb-8">
                 <div>
-                    <h1 className="text-4xl font-serif font-light tracking-tight">Contract Details</h1>
+                    <h1 className="text-4xl font-serif font-light tracking-tight">Contract Inspection</h1>
                     <p className="text-muted-foreground mt-2 font-mono text-sm">ID: {agreement._id}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="px-4 py-2 text-sm">
+                    <Badge variant="outline" className="px-4 py-2 text-sm bg-primary/5 text-primary border-primary/20">
                         {agreement.status.replace('_', ' ').toUpperCase()}
                     </Badge>
                     <button
@@ -187,6 +187,26 @@ export default function ContractDetailPage() {
                     >
                         {isExcluding ? <Loader className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                     </button>
+                </div>
+            </div>
+
+            {/* Featured Contract Header Panel */}
+            <div className="glass-panel p-8 rounded-2xl mb-8 border border-primary/20 relative overflow-hidden bg-gradient-to-r from-primary/5 via-transparent to-transparent">
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-primary" />
+                <div className="space-y-4">
+                    <div>
+                        <span className="text-[10px] uppercase font-mono tracking-widest text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full font-medium">
+                            On-Chain Image Rights Agreement
+                        </span>
+                        <h2 className="text-3xl md:text-4xl font-serif font-light tracking-tight text-foreground mt-2">
+                            {agreement.title || "Image Rights Agreement"}
+                        </h2>
+                    </div>
+                    {agreement.description && (
+                        <p className="text-muted-foreground text-base md:text-lg leading-relaxed font-light italic pl-4 border-l border-foreground/10 max-w-3xl">
+                            "{agreement.description}"
+                        </p>
+                    )}
                 </div>
             </div>
 

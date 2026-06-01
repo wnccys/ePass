@@ -38,6 +38,17 @@ export function ContractCard({ agreement, userRole }: { agreement: any, userRole
 
         <div className="flex-1 space-y-3">
           <div>
+            <h4 className="font-semibold text-foreground text-base line-clamp-1 group-hover:text-primary transition-colors">
+              {agreement.title || "Image Rights Agreement"}
+            </h4>
+            {agreement.description && (
+              <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+                {agreement.description}
+              </p>
+            )}
+          </div>
+
+          <div className="pt-2 border-t border-border">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">{targetRole}</p>
             <p className="font-mono text-sm break-all text-foreground mt-1">
               {targetWallet.slice(0, 8)}...{targetWallet.slice(-6)}

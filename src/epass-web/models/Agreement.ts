@@ -10,6 +10,8 @@ export interface IAgreement extends Document {
   attorneyEmail: string;
   
   // Agreement Data
+  title: string;
+  description: string;
   tokenURI: string;
   cautionAmount: string; // BigInt as string (wei)
   
@@ -42,6 +44,8 @@ const AgreementSchema = new Schema<IAgreement>({
   attorneyWalletAddress: { type: String, required: true, lowercase: true, trim: true },
   attorneyEmail: { type: String, required: true, trim: true, lowercase: true },
   
+  title: { type: String, required: true, trim: true },
+  description: { type: String, required: true, trim: true },
   tokenURI: { type: String, required: true },
   cautionAmount: { type: String, required: true },
   
