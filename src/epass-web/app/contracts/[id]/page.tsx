@@ -216,16 +216,32 @@ export default function ContractDetailPage() {
                         <h3 className="font-semibold mb-4">Agreement Information</h3>
                         <div className="space-y-4">
                             <div>
-                                <p className="text-xs text-muted-foreground uppercase">Player</p>
-                                <p className="font-mono text-sm break-all">{agreement.playerWalletAddress}</p>
+                                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Player</p>
+                                    {agreement.playerEmail && (
+                                        <span className="text-[11px] font-mono text-primary/80 bg-primary/5 px-2.5 py-0.5 rounded-full border border-primary/10">
+                                            {agreement.playerEmail}
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="font-mono text-sm break-all text-foreground pl-1">{agreement.playerWalletAddress}</p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground uppercase">Club</p>
-                                <p className="font-mono text-sm break-all">{agreement.clubWalletAddress}</p>
+                                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Club</p>
+                                </div>
+                                <p className="font-mono text-sm break-all text-foreground pl-1">{agreement.clubWalletAddress}</p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground uppercase">Attorney</p>
-                                <p className="font-mono text-sm break-all">{agreement.attorneyWalletAddress}</p>
+                                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Attorney</p>
+                                    {agreement.attorneyEmail && (
+                                        <span className="text-[11px] font-mono text-primary/80 bg-primary/5 px-2.5 py-0.5 rounded-full border border-primary/10">
+                                            {agreement.attorneyEmail}
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="font-mono text-sm break-all text-foreground pl-1">{agreement.attorneyWalletAddress}</p>
                             </div>
                             <div>
                                 <p className="text-xs text-muted-foreground uppercase">Token URI</p>
