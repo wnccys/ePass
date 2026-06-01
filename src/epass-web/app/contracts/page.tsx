@@ -1,6 +1,6 @@
 import { getMyAgreements } from "@/app/actions/agreements";
 import { getCurrentUser } from "@/services/user";
-import { ContractCard } from "./contract-card";
+import { ContractsList } from "./contracts-list";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 
@@ -40,11 +40,7 @@ export default async function ContractsPage() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {agreements.map((agreement: any) => (
-            <ContractCard key={agreement._id} agreement={agreement} userRole={user.role} />
-          ))}
-        </div>
+        <ContractsList agreements={agreements} userRole={user.role} />
       )}
     </div>
   );
