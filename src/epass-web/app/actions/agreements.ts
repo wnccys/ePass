@@ -6,7 +6,6 @@ import { authOptions } from "../api/auth/[...nextauth]/route";
 import dbConnect from "@/lib/db";
 import Agreement from "@/models/Agreement";
 import User from "@/models/User";
-import { MongooseBaseQueryOptions } from "mongoose";
 
 export type CreateAgreementPayload = {
     playerWalletAddress: string;
