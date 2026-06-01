@@ -34,6 +34,14 @@ export async function createAgreement(data: CreateAgreementPayload) {
 
     const { title, description, playerWalletAddress, playerEmail, attorneyWalletAddress, attorneyEmail, tokenURI, cautionAmount, nonce, deadline, clubWalletAddress } = data;
 
+    // Server-side title & description validations
+    if (!title || title.trim().length < 5) {
+        return { success: false, error: "Title must be at least 5 characters long" };
+    }
+    if (!description || description.trim().length < 10) {
+        return { success: false, error: "Description must be at least 10 characters long" };
+    }
+
     // Addr validation
     if (!isAddress(playerWalletAddress) || !isAddress(attorneyWalletAddress) || !isAddress(clubWalletAddress)) {
         return { success: false, error: "Invalid wallet addresses" };

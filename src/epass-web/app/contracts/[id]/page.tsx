@@ -12,6 +12,32 @@ import { Loader, CheckCircle2, Clock, Trash2, Copy, Check, ExternalLink, FileTex
 import { formatUnits } from "viem";
 import { ActionCard } from "@/components/web3/action-card";
 
+interface SerializedAgreement {
+    _id: string;
+    clubUserId: string;
+    playerWalletAddress: string;
+    playerEmail: string;
+    clubWalletAddress: string;
+    clubEmail: string;
+    attorneyWalletAddress: string;
+    attorneyEmail: string;
+    title: string;
+    description: string;
+    tokenURI: string;
+    cautionAmount: string;
+    playerSignature?: string | null;
+    clubSignature?: string | null;
+    attorneySignature?: string | null;
+    status: "draft" | "pending_signatures" | "ready" | "minted" | "vault_created" | "active" | "rescinded" | "expired";
+    mintTxHash?: string | null;
+    nftTokenId?: number | null;
+    vaultAddress?: string | null;
+    nonce: number;
+    deadline: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export default function ContractDetailPage() {
     const params = useParams();
     const router = useRouter();
@@ -20,7 +46,7 @@ export default function ContractDetailPage() {
     const { address } = useConnection();
     const chainId = useChainId();
 
-    const [agreement, setAgreement] = useState<any>(null);
+    const [agreement, setAgreement] = useState<SerializedAgreement | null>(null);
     const [loading, setLoading] = useState(true);
     const [isCopied, setIsCopied] = useState(false);
     const [isExcluding, setIsExcluding] = useState(false);
