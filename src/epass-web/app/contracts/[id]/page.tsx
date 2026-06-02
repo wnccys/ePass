@@ -431,10 +431,10 @@ export default function ContractDetailPage() {
                     </div>
 
                     {/* Action Panels based on status */}
-                    {agreement.status === 'ready' && (
+                    {agreement.status === 'ready' && isClub && (
                         <ActionCard
                             title="Ready to Mint"
-                            description="All signatures collected. Anyone can broadcast the transaction."
+                            description="All signatures collected. Only Clubs can broadcast the transaction."
                             actionName="Execute Mint"
                             onAction={handleMint}
                             status={mintStatus}

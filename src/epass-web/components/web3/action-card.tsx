@@ -13,6 +13,9 @@ interface ActionCardProps {
   expectedChainId?: number;
 }
 
+/**
+ * Generic component that acts like a bridge between the entire flow and contract execution
+ */
 export function ActionCard({
   title,
   description,
