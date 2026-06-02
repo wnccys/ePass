@@ -63,6 +63,9 @@ export async function createAgreement(data: CreateAgreementPayload) {
         return { success: false, error: `Attorney account with email "${attorneyEmail}" does not exist. Please register the attorney first.` };
     }
 
+    const rawDeadline = new Date(deadline);
+    rawDeadline.setUTCMilliseconds(0);
+
     try {
         const agreement = await Agreement.create({
             clubUserId: session.user.id,
@@ -77,7 +80,7 @@ export async function createAgreement(data: CreateAgreementPayload) {
             tokenURI,
             cautionAmount,
             nonce,
-            deadline: new Date(deadline),
+            deadline: rawDeadline,
             status: 'pending_signatures'
         });
 
@@ -105,12 +108,12 @@ export async function createAgreement(data: CreateAgreementPayload) {
     }
 }
 
-export async function submitSignature(agreementId: string, role: 'player' | 'club' | 'attorney', signature: string, walletAddress: string) {
+export async function submitSignature(agreementId: string, signature: string, walletAddress: string) {
     const session = await getServerSession(authOptions);
     if (!session?.user) return { success: false, error: "Unauthorized" };
-
     if (!walletAddress) return { success: false, error: "Wallet address is required" };
 
+    const role = session.user.role;
     const userWallet = walletAddress.toLowerCase();
 
     try {
@@ -118,20 +121,14 @@ export async function submitSignature(agreementId: string, role: 'player' | 'clu
         if (!agreement) return { success: false, error: "Agreement not found" };
         if (agreement.status !== 'pending_signatures') return { success: false, error: "Agreement is not pending signatures" };
 
-        let roleMatched = false;
         if (role === 'club' && agreement.clubWalletAddress === userWallet) {
             agreement.clubSignature = signature;
-            roleMatched = true;
         } else if (role === 'player' && agreement.playerWalletAddress === userWallet) {
             agreement.playerSignature = signature;
-            roleMatched = true;
-        } else if (role === 'attorney' && agreement.attorneyWalletAddress === userWallet) {
-            agreement.attorneySignature = signature;
-            roleMatched = true;
+            if (agreement.attorneyWalletAddress === userWallet) agreement.attorneySignature = signature;
         }
 
-        if (!roleMatched) return { success: false, error: `Caller is not the authorized ${role}` };
-
+        // Update agreement db status when all signatures has been set
         if (agreement.clubSignature && agreement.playerSignature && agreement.attorneySignature) {
             agreement.status = 'ready';
         }

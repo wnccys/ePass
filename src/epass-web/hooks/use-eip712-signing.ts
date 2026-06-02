@@ -60,7 +60,7 @@ export function useEip712Signing(chainId: number) {
                 attorney: agreement.attorneyWalletAddress as `0x${string}`,
                 tokenURI: agreement.tokenURI,
                 nonce: BigInt(agreement.nonce),
-                deadline: BigInt(Math.ceil(new Date(agreement.deadline).getTime() / 1000)), // to seconds
+                deadline: BigInt(new Date(agreement.deadline).getTime() / 1000), // to seconds
             };
 
             // Get domain prefix required for EIP-712

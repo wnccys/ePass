@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader, CheckCircle2, Clock, Trash2, Copy, Check, ExternalLink, FileText } from "lucide-react";
 import { formatUnits } from "viem";
 import { ActionCard } from "@/components/web3/action-card";
+import { useSession } from "next-auth/react";
 
 interface SerializedAgreement {
     _id: string;
@@ -39,6 +40,7 @@ interface SerializedAgreement {
 }
 
 export default function ContractDetailPage() {
+    const { data: session } = useSession();
     const params = useParams();
     const router = useRouter();
     const id = params.id as string;
@@ -58,7 +60,7 @@ export default function ContractDetailPage() {
     const { execute: executeMint, status: mintStatus, txHash: mintTxHash, errorMsg: mintErrorMsg } = useContractAction(RIGHTS_MINTER);
     const { execute: executeFactory, status: factoryStatus, txHash: factoryTxHash, errorMsg: factoryErrorMsg } = useContractAction(VAULT_FACTORY);
 
-    // Fetch specific agreement data
+    // Fetch specific [id] based agreement data and set its state
     useEffect(() => {
         fetchAgreement();
     }, [id]);
@@ -80,15 +82,9 @@ export default function ContractDetailPage() {
             // Keccak-256 string representing the signed transaction
             const sig = await signAgreement(agreement);
 
-            let role: 'player' | 'club' | 'attorney' | null = null;
-
-            // TODO refine role approach
-            if (address.toLowerCase() === agreement.clubWalletAddress.toLowerCase()) role = 'club';
-            else if (address.toLowerCase() === agreement.playerWalletAddress.toLowerCase()) role = 'player';
-            else if (address.toLowerCase() === agreement.attorneyWalletAddress.toLowerCase()) role = 'attorney';
-
-            if (role) {
-                await submitSignature(id, role, sig as string, address);
+            if (session?.user?.role) {
+                // Save the signature to db agreement repr
+                await submitSignature(id, sig as string, address);
                 // Update agreement status (re-renders this component's agreement data)
                 await fetchAgreement();
             }
