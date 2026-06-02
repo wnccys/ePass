@@ -66,6 +66,18 @@ export function useEip712Signing(chainId: number) {
             // Get domain prefix required for EIP-712
             const domain = buildMintAgreementDomain(RIGHTS_MINTER.address, chainId);
 
+            // This must exactly match the ABI encoded structure of us
+            // bytes32 structHash = keccak256(
+            //     abi.encode(
+            //         MINT_AGREEMENT_TYPEHASH,
+            //         req.player,
+            //         req.club,
+            //         req.attorney,
+            //         keccak256(bytes(req.tokenURI)),
+            //         req.nonce,
+            //         req.deadline
+            //     )
+            // );
             const sig = await mutateAsync({
                 domain,
                 types: MINT_AGREEMENT_TYPES,
