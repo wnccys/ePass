@@ -54,8 +54,12 @@ export const authOptions: NextAuthOptions = {
                 }
             }
 
-            if (trigger === "update" && session && "walletAddress" in session) {
-                token.walletAddress = session.walletAddress;
+            if (trigger === "update" && session) {
+                if ("walletAddress" in session) {
+                    token.walletAddress = session.walletAddress || undefined;
+                } else if (session.user && "walletAddress" in session.user) {
+                    token.walletAddress = session.user.walletAddress || undefined;
+                }
             }
 
             if (token.id && trigger === "update") {

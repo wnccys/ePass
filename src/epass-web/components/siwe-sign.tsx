@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useSession } from 'next-auth/react';
 import { useConnect, useConnection, useConnectors, useDisconnect, usePublicClient, useSwitchChain } from 'wagmi';
 import { foundry } from 'wagmi/chains';
 
@@ -12,6 +13,7 @@ type WalletConnectProps = {
 
 export default function SiweButton({ onAddressChange }: WalletConnectProps) {
     const connection = useConnection();
+    const { data: session, update } = useSession();
     const { mutateAsync: connectMutateAsync, status: connectStatus, error: connectError } = useConnect();
 
     const connectors = useConnectors();
@@ -63,7 +65,10 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
     // Update address on parent component
     useEffect(() => {
         onAddressChange?.(address);
-    }, [address, onAddressChange]);
+        if (session) {
+            update({ walletAddress: address || null });
+        }
+    }, [address, onAddressChange, session, update]);
 
     return (
         /** Connect wallet button */
