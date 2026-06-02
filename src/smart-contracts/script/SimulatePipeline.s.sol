@@ -37,16 +37,16 @@ contract SimulatePipeline is Script {
         RightsVaultImpl vault = RightsVaultImpl(clone);
 
         vault.initialize(
-        address(masterNft),
-        address(usdc),
-        player,
-        clubSpv,
-        attorney,
-        PLAYER_BPS,
-        CLUB_BPS,
-        ATTORNEY_BPS,
-        admin
-    );
+            address(masterNft),
+            address(usdc),
+            player,
+            clubSpv,
+            attorney,
+            PLAYER_BPS,
+            CLUB_BPS,
+            ATTORNEY_BPS,
+            admin
+        );
 
         gateway.setMasterNftAddress(address(masterNft));
         masterNft.setAuthorizedMinter(address(gateway));
@@ -56,14 +56,15 @@ contract SimulatePipeline is Script {
 
         console2.log("1. Architecture Deployed and Linked Securely.");
 
-        RightsMinter.MintAgreement memory agreement = RightsMinter.MintAgreement({
-            player: player,
-            club: clubSpv,
-            attorney: attorney,
-            tokenURI: "ipfs://QmSignedLegalDocs123",
-            nonce: 0,
-            deadline: block.timestamp + 1 hours
-        });
+        RightsMinter.MintAgreement memory agreement = RightsMinter
+            .MintAgreement({
+                player: player,
+                club: clubSpv,
+                attorney: attorney,
+                tokenURI: "ipfs://QmSignedLegalDocs123",
+                nonce: 0,
+                deadline: block.timestamp + 1 hours
+            });
 
         bytes32 domainSeparator = keccak256(
             abi.encode(
@@ -89,7 +90,9 @@ contract SimulatePipeline is Script {
             )
         );
 
-        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
+        bytes32 digest = keccak256(
+            abi.encodePacked("\x19\x01", domainSeparator, structHash)
+        );
 
         bytes memory playerSig = sign(playerPk, digest);
         bytes memory clubSig = sign(clubSpvPk, digest);
@@ -118,11 +121,17 @@ contract SimulatePipeline is Script {
         console2.log("4. NFT Locked in Vault: %s", masterNft.ownerOf(tokenId));
         console2.log("5. Player balance: %s", vault.balanceOf(player) / 1e18);
         console2.log("6. Club balance: %s", vault.balanceOf(clubSpv) / 1e18);
-        console2.log("7. Attorney balance: %s", vault.balanceOf(attorney) / 1e18);
+        console2.log(
+            "7. Attorney balance: %s",
+            vault.balanceOf(attorney) / 1e18
+        );
         console2.log("=== PIPELINE COMPLETE ===");
     }
 
-    function sign(uint256 pk, bytes32 digest) internal view returns (bytes memory) {
+    function sign(
+        uint256 pk,
+        bytes32 digest
+    ) internal view returns (bytes memory) {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(pk, digest);
         return abi.encodePacked(r, s, v);
     }
