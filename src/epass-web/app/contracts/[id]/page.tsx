@@ -233,7 +233,7 @@ export default function ContractDetailPage() {
             <div className="glass-panel p-8 rounded-2xl mb-8 relative overflow-hidden bg-gradient-to-r from-primary/5 via-transparent to-transparent hover:border-primary/30 transition-all duration-300">
                 <div className="space-y-4">
                     <div>
-                        <span className="text-[10px] uppercase font-mono tracking-widest text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full font-medium">
+                        <span className="text-[10px] uppercase font-mono tracking-widest px-2 py-0.5 rounded-full font-medium">
                             On-Chain Image Rights Agreement
                         </span>
                         <h2 className="text-3xl md:text-4xl font-serif font-light tracking-tight text-foreground mt-2">
