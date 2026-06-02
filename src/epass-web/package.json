@@ -6,6 +6,8 @@
     "dev": "set NODE_OPTIONS=--max-old-space-size=8192 && next dev",
     "build": "set NODE_OPTIONS=--max-old-space-size=8192 && next build",
     "start": "set NODE_OPTIONS=--max-old-space-size=8192 && next start",
+    "wagmi": "wagmi generate",
+    "wagmi:watch": "wagmi generate --watch",
     "db:reset": "tsx scripts/seed.ts"
   },
   "dependencies": {
@@ -42,6 +44,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@wagmi/cli": "^2.10.0",
     "postcss": "^8.5.15",
     "tailwindcss": "^4",
     "typescript": "^5"
