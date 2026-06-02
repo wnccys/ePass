@@ -1,0 +1,26 @@
+name: Contracts Build CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build Smart Contracts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Build Contracts
+        run: |
+          cd src/smart-contracts
+          forge build
