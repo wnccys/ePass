@@ -125,8 +125,9 @@ export async function submitSignature(agreementId: string, signature: string, wa
             agreement.clubSignature = signature;
         } else if (role === 'player' && agreement.playerWalletAddress === userWallet) {
             agreement.playerSignature = signature;
-            if (agreement.attorneyWalletAddress === userWallet) agreement.attorneySignature = signature;
         }
+
+        if (agreement.attorneyWalletAddress === userWallet) agreement.attorneySignature = signature;
 
         // Update agreement db status when all signatures has been set
         if (agreement.clubSignature && agreement.playerSignature && agreement.attorneySignature) {

@@ -72,9 +72,7 @@ export default function ContractDetailPage() {
         setLoading(false);
     };
 
-    /**
-     * Submit the signature
-     */
+    // Submit the signature
     const handleSign = async () => {
         if (!agreement || !address) return;
 
@@ -161,6 +159,7 @@ export default function ContractDetailPage() {
         }
     };
 
+    // Exclude db contract representation
     const handleExclude = async () => {
         if (!confirm("Are you sure you want to exclude this contract from your account? This won't delete the contract on-chain or for other signers, but it will hide it from your dashboard.")) return;
         setIsExcluding(true);
@@ -181,6 +180,7 @@ export default function ContractDetailPage() {
     if (loading) return <div className="p-24 flex justify-center"><Loader className="animate-spin" /></div>;
     if (!agreement) return <div className="p-24 text-center">Agreement not found.</div>;
 
+    // Checks for signature availability
     const isClub = address?.toLowerCase() === agreement.clubWalletAddress.toLowerCase();
     const isPlayer = address?.toLowerCase() === agreement.playerWalletAddress.toLowerCase();
     const isAttorney = address?.toLowerCase() === agreement.attorneyWalletAddress.toLowerCase();
