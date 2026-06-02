@@ -20,7 +20,7 @@ export function buildMintAgreementDomain(minterAddress: `0x${string}`, chainId: 
     name: "RightsMinter",
     version: "1",
     chainId,
-    // minterAddress is already a keccak-256 representation of the mintAgreement fn
+    // minterAddress is the mintAgreement contract address
     verifyingContract: minterAddress,
   } as const;
 }
