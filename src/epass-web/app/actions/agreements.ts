@@ -121,13 +121,22 @@ export async function submitSignature(agreementId: string, signature: string, wa
         if (!agreement) return { success: false, error: "Agreement not found" };
         if (agreement.status !== 'pending_signatures') return { success: false, error: "Agreement is not pending signatures" };
 
+        let match: boolean = false;
         if (role === 'club' && agreement.clubWalletAddress === userWallet) {
             agreement.clubSignature = signature;
+            match = true;
         } else if (role === 'player' && agreement.playerWalletAddress === userWallet) {
             agreement.playerSignature = signature;
+            match = true;
         }
 
-        if (agreement.attorneyWalletAddress === userWallet) agreement.attorneySignature = signature;
+        if (agreement.attorneyWalletAddress === userWallet) {
+            agreement.attorneySignature = signature;
+            match = true;
+        }
+
+        // True if wallet doesn't match none of the addresses
+        if (!match) return { success: false, error: "Wallet is not valid for this contract" };
 
         // Update agreement db status when all signatures has been set
         if (agreement.clubSignature && agreement.playerSignature && agreement.attorneySignature) {

@@ -8,10 +8,11 @@ import { useEip712Signing } from "@/hooks/use-eip712-signing";
 import { useContractAction } from "@/hooks/use-contract-action";
 import { RIGHTS_MINTER, VAULT_FACTORY, PLAYER_RIGHTS_MASTER, MOCK_USDC } from "@/lib/web3/contracts";
 import { Badge } from "@/components/ui/badge";
-import { Loader, CheckCircle2, Clock, Trash2, Copy, Check, ExternalLink, FileText } from "lucide-react";
+import { Loader, CheckCircle2, Clock, Trash2, Copy, Check, ExternalLink, FileText, AlertTriangle, KeyRound } from "lucide-react";
 import { formatUnits } from "viem";
 import { ActionCard } from "@/components/web3/action-card";
 import { useSession } from "next-auth/react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface SerializedAgreement {
     _id: string;
@@ -180,15 +181,31 @@ export default function ContractDetailPage() {
     if (loading) return <div className="p-24 flex justify-center"><Loader className="animate-spin" /></div>;
     if (!agreement) return <div className="p-24 text-center">Agreement not found.</div>;
 
-    // Checks for signature availability
+    // Checks for signature availability (connected wallet)
     const isClub = address?.toLowerCase() === agreement.clubWalletAddress.toLowerCase();
     const isPlayer = address?.toLowerCase() === agreement.playerWalletAddress.toLowerCase();
     const isAttorney = address?.toLowerCase() === agreement.attorneyWalletAddress.toLowerCase();
 
+    // Wallet mismatch validation (session wallet vs contract-assigned wallet)
+    const sessionWallet = session?.user?.walletAddress?.toLowerCase();
+    const userEmail = session?.user?.email?.toLowerCase();
+    const userRole = session?.user?.role;
+
+    const isAssignedClub = userRole === 'club' && userEmail === agreement.clubEmail.toLowerCase();
+    const isAssignedPlayer = userRole === 'player' && userEmail === agreement.playerEmail.toLowerCase();
+    const isAssignedAttorney = userEmail === agreement.attorneyEmail.toLowerCase();
+
+    const clubWalletMismatch = isAssignedClub && sessionWallet !== agreement.clubWalletAddress.toLowerCase();
+    const playerWalletMismatch = isAssignedPlayer && sessionWallet !== agreement.playerWalletAddress.toLowerCase();
+    const attorneyWalletMismatch = isAssignedAttorney && sessionWallet !== agreement.attorneyWalletAddress.toLowerCase();
+
+    const hasAnyWalletMismatch = clubWalletMismatch || playerWalletMismatch || attorneyWalletMismatch;
+
+    // Show sign button if connected wallet OR email assignment matches an unsigned role
     const needsMySignature =
-    (isClub && !agreement.clubSignature) ||
-    (isPlayer && !agreement.playerSignature) ||
-    (isAttorney && !agreement.attorneySignature);
+    ((isClub || isAssignedClub) && !agreement.clubSignature) ||
+    ((isPlayer || isAssignedPlayer) && !agreement.playerSignature) ||
+    ((isAttorney || isAssignedAttorney) && !agreement.attorneySignature);
 
     return (
         <div className="container max-w-4xl mx-auto py-24 px-6">
@@ -213,8 +230,7 @@ export default function ContractDetailPage() {
             </div>
 
             {/* Featured Contract Header Panel */}
-            <div className="glass-panel p-8 rounded-2xl mb-8 border border-primary/20 relative overflow-hidden bg-gradient-to-r from-primary/5 via-transparent to-transparent">
-                <div className="absolute top-0 left-0 w-1.5 h-full bg-primary" />
+            <div className="glass-panel p-8 rounded-2xl mb-8 relative overflow-hidden bg-gradient-to-r from-primary/5 via-transparent to-transparent hover:border-primary/30 transition-all duration-300">
                 <div className="space-y-4">
                     <div>
                         <span className="text-[10px] uppercase font-mono tracking-widest text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full font-medium">
@@ -232,6 +248,57 @@ export default function ContractDetailPage() {
                 </div>
             </div>
 
+            {/* Wallet Mismatch Warnings */}
+            {hasAnyWalletMismatch && (
+                <div className="space-y-3 mb-8">
+                    {clubWalletMismatch && (
+                        <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
+                            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                            <div className="space-y-1">
+                                <p className="text-sm font-medium text-amber-400">Club wallet mismatch</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Your synced wallet does not match the club wallet registered on this contract.
+                                </p>
+                                <div className="text-xs font-mono text-muted-foreground space-y-0.5 mt-1">
+                                    <p>Expected: <span className="text-foreground/70">{agreement.clubWalletAddress}</span></p>
+                                    <p>Your wallet: <span className="text-amber-400/80">{sessionWallet || 'Not synced'}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {playerWalletMismatch && (
+                        <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
+                            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                            <div className="space-y-1">
+                                <p className="text-sm font-medium text-amber-400">Player wallet mismatch</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Your synced wallet does not match the player wallet registered on this contract.
+                                </p>
+                                <div className="text-xs font-mono text-muted-foreground space-y-0.5 mt-1">
+                                    <p>Expected: <span className="text-foreground/70">{agreement.playerWalletAddress}</span></p>
+                                    <p>Your wallet: <span className="text-amber-400/80">{sessionWallet || 'Not synced'}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {attorneyWalletMismatch && (
+                        <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
+                            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                            <div className="space-y-1">
+                                <p className="text-sm font-medium text-amber-400">Attorney wallet mismatch</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Your synced wallet does not match the attorney wallet registered on this contract.
+                                </p>
+                                <div className="text-xs font-mono text-muted-foreground space-y-0.5 mt-1">
+                                    <p>Expected: <span className="text-foreground/70">{agreement.attorneyWalletAddress}</span></p>
+                                    <p>Your wallet: <span className="text-amber-400/80">{sessionWallet || 'Not synced'}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 space-y-6">
                     <div className="glass-panel p-6 rounded-xl hover:border-primary/30 transition-all duration-300">
@@ -245,6 +312,16 @@ export default function ContractDetailPage() {
                                             {agreement.playerEmail}
                                         </span>
                                     )}
+                                    {isAssignedPlayer && (
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <KeyRound className="w-3.5 h-3.5 text-primary/60" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>Your account is responsible for signing as Player</TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    )}
                                 </div>
                                 <p className="font-mono text-sm break-all text-foreground pl-1">{agreement.playerWalletAddress}</p>
                             </div>
@@ -256,6 +333,16 @@ export default function ContractDetailPage() {
                                             {agreement.clubEmail}
                                         </span>
                                     )}
+                                    {isAssignedClub && (
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <KeyRound className="w-3.5 h-3.5 text-primary/60" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>Your account is responsible for signing as Club</TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    )}
                                 </div>
                                 <p className="font-mono text-sm break-all text-foreground pl-1">{agreement.clubWalletAddress}</p>
                             </div>
@@ -266,6 +353,16 @@ export default function ContractDetailPage() {
                                         <span className="text-[11px] font-mono text-primary/80 bg-primary/5 px-2.5 py-0.5 rounded-full border border-primary/10">
                                             {agreement.attorneyEmail}
                                         </span>
+                                    )}
+                                    {isAssignedAttorney && (
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <KeyRound className="w-3.5 h-3.5 text-primary/60" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>Your account is responsible for signing as Attorney</TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
                                     )}
                                 </div>
                                 <p className="font-mono text-sm break-all text-foreground pl-1">{agreement.attorneyWalletAddress}</p>
@@ -384,13 +481,19 @@ export default function ContractDetailPage() {
                             <div className="mt-6 pt-6 border-t border-border">
                                 <button
                                     onClick={handleSign}
-                                    disabled={signStatus === 'awaiting_wallet'}
-                                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                                    disabled={signStatus === 'awaiting_wallet' || hasAnyWalletMismatch}
+                                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {signStatus === 'awaiting_wallet' ? <Loader className="w-4 h-4 animate-spin" /> : null}
                                     Sign Agreement
                                 </button>
                                 {signError && <p className="text-xs text-destructive mt-2">{signError}</p>}
+                                {hasAnyWalletMismatch && (
+                                    <p className="text-xs text-amber-400/80 mt-2 flex items-center gap-1.5">
+                                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                                        Signing is disabled due to wallet mismatch. Sync the correct wallet on your profile.
+                                    </p>
+                                )}
                             </div>
                         )}
                     </div>
