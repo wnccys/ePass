@@ -1,1 +1,1 @@
-docker exec -it epass-mongo mongosh -u root -p [password] --authenticationDatabase admin epass_db
+docker exec -it epass-mongo mongosh -u root -p secretpassword --authenticationDatabase admin epass_db
