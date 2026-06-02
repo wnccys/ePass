@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "set NODE_OPTIONS=--max-old-space-size=8192 && next dev",
     "build": "set NODE_OPTIONS=--max-old-space-size=8192 && next build",
-    "start": "set NODE_OPTIONS=--max-old-space-size=8192 && next start"
+    "start": "set NODE_OPTIONS=--max-old-space-size=8192 && next start",
+    "db:reset": "tsx scripts/seed.ts"
   },
   "dependencies": {
     "@metamask/connect-evm": "^1.4.0",
