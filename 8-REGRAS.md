@@ -26,7 +26,11 @@ The project uses ```pnpm``` as its package manager.
 
 ### Code Formatting
 
-It uses Biome as linter (run throught Github Actions, no need to run manually)
+It uses Biome as linter (run throught Github Actions, no need to run manually).
+
+### Build
+
+epass-web and smart-contracts has its own dedicated CI/CD pipeline in order to check and validate build state.
 
 ### Project Image
 
@@ -55,4 +59,8 @@ The project uses Next-Auth with OAuth, specially with Google Provider.
 
 ### Wallets
 
-No wallet information is saved on this app's DB.
+No wallet information is saved on this app's DB. It is saved on cookies and disconnected on sign-out.
+
+### Contracts
+
+Contracts uses Foundry ecosystem and are called on front-end by using wagmi-cli (pnpm wagmi);
