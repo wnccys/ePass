@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "set NODE_OPTIONS=--max-old-space-size=8192 && next dev",
-    "build": "set NODE_OPTIONS=--max-old-space-size=8192 && next build",
-    "start": "set NODE_OPTIONS=--max-old-space-size=8192 && next start",
+    "dev": "set NODE_OPTIONS=--max-old-space-size=8192 && wagmi generate && next dev",
+    "build": "set NODE_OPTIONS=--max-old-space-size=8192 && wagmi generate && next build",
+    "start": "set NODE_OPTIONS=--max-old-space-size=8192 && wagmi generate && next start",
     "wagmi": "wagmi generate",
     "wagmi:watch": "wagmi generate --watch",
     "db:reset": "tsx scripts/seed.ts"
