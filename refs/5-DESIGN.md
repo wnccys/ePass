@@ -1,6 +1,5 @@
 # Design
 
-
 ## Components
 
 ### Core Tools
@@ -15,16 +14,8 @@ https://21st.dev/
 
 ### Components
 
-* Pixel Logo Grid: https://21st.dev/community/components/smammar100/pixel-logo-grid/default
-* Liquid Glass Nav: https://21st.dev/community/components/easemize/apple-tahoe-liquid-glass-button/default
-
-* Background: https://21st.dev/community/components/shadway/paper-design-shader-background/default
-
-* Hero Example: https://21st.dev/community/components/easemize/glassmorphism-trust-hero/default
-
-* Sign In: https://21st.dev/community/components/easemize/sign-up/default
-
-* Theme Toggler: https://magicui.design/docs/components/animated-theme-toggler
+* Pricing: https://21st.dev/community/components/ui-layouts/pricing-section-4/default
+* Video Hero (Presentation on Doc): https://cdn.21st.dev/bundled/1107.html?theme=dark&dark=true
 
 ## Fonts
 
