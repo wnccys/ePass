@@ -11,7 +11,18 @@
 // ---------------------------------------------------------------------------
 
 function envAddress(key: string): `0x${string}` {
-  const raw = process.env[key];
+  let raw: string | undefined;
+  if (key === "NEXT_PUBLIC_RIGHTS_MINTER_ADDRESS") {
+    raw = process.env.NEXT_PUBLIC_RIGHTS_MINTER_ADDRESS;
+  } else if (key === "NEXT_PUBLIC_PLAYER_RIGHTS_MASTER_ADDRESS") {
+    raw = process.env.NEXT_PUBLIC_PLAYER_RIGHTS_MASTER_ADDRESS;
+  } else if (key === "NEXT_PUBLIC_VAULT_FACTORY_ADDRESS") {
+    raw = process.env.NEXT_PUBLIC_VAULT_FACTORY_ADDRESS;
+  } else if (key === "NEXT_PUBLIC_MOCK_USDC_ADDRESS") {
+    raw = process.env.NEXT_PUBLIC_MOCK_USDC_ADDRESS;
+  } else {
+    raw = process.env[key];
+  }
   if (!raw) return "0x0000000000000000000000000000000000000000";
   return raw as `0x${string}`;
 }
