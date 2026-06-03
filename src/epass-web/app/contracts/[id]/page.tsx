@@ -925,7 +925,7 @@ export default function ContractDetailPage() {
                             </div>
                             <div className="flex items-center gap-1.5 bg-foreground/5 px-2.5 py-1 rounded-md border border-foreground/5">
                                 <span className="text-muted-foreground/60">Created:</span>
-                                <span className="font-semibold text-foreground">
+                                <span className="font-semibold text-foreground" suppressHydrationWarning>
                                     {new Date(agreement.createdAt).toLocaleDateString(undefined, {
                                         year: 'numeric',
                                         month: 'short',
@@ -1084,7 +1084,7 @@ export default function ContractDetailPage() {
                             </div>
                             <div>
                                 <p className="text-xs text-muted-foreground uppercase">Deadline</p>
-                                <p className="font-semibold text-sm">{new Date(agreement.deadline).toLocaleString()}</p>
+                                <p className="font-semibold text-sm" suppressHydrationWarning>{new Date(agreement.deadline).toLocaleString()}</p>
                             </div>
                         </div>
                     </div>

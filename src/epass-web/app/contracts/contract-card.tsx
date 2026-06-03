@@ -31,7 +31,7 @@ export function ContractCard({ agreement, userRole }: { agreement: any, userRole
           <Badge variant="outline" className={`${statusConfig.color} font-medium`}>
             {statusConfig.label}
           </Badge>
-          <span className="text-xs text-muted-foreground font-mono">
+          <span className="text-xs text-muted-foreground font-mono" suppressHydrationWarning>
             {new Date(agreement.createdAt).toLocaleDateString()}
           </span>
         </div>
