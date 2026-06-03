@@ -183,51 +183,159 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+    * {
+        @apply border-border outline-ring/50;
     }
-  body {
-    @apply bg-background text-foreground;
+    body {
+        @apply bg-background text-foreground;
     }
-  html {
-    @apply font-serif;
+    html {
+        @apply font-serif;
     }
 }
 
 @layer components {
-  .glass-panel {
-    backdrop-filter: blur(12px);
-    background: linear-gradient(135deg, oklch(from var(--card) l c h / 10%), oklch(from var(--card) l c h / 15%));
-    border: 1px solid oklch(from var(--foreground) l c h / 10%);
-  }
+    .glass-panel {
+        backdrop-filter: blur(12px);
+        background: linear-gradient(135deg, oklch(from var(--card) l c h / 10%), oklch(from var(--card) l c h / 15%));
+        border: 1px solid oklch(from var(--foreground) l c h / 10%);
+    }
 
-  .glass-card {
-    background: linear-gradient(-75deg, oklch(from var(--card) l c h / 5%), oklch(from var(--card) l c h / 15%), oklch(from var(--card) l c h / 5%));
-    border: 1px solid oklch(from var(--border) l c h / 20%);
-  }
+    .glass-card {
+        background: linear-gradient(-75deg, oklch(from var(--card) l c h / 5%), oklch(from var(--card) l c h / 15%), oklch(from var(--card) l c h / 5%));
+        border: 1px solid oklch(from var(--border) l c h / 20%);
+    }
 
-  .glass-input {
-    background: linear-gradient(-75deg, oklch(from var(--card) l c h / 5%), oklch(from var(--card) l c h / 15%), oklch(from var(--card) l c h / 5%));
-    border: 1px solid transparent;
-    border-color: oklch(from var(--foreground) l c h / 10%);
-    transition: all 0.3s ease;
-  }
+    .glass-input {
+        background: linear-gradient(-75deg, oklch(from var(--card) l c h / 5%), oklch(from var(--card) l c h / 15%), oklch(from var(--card) l c h / 5%));
+        border: 1px solid transparent;
+        border-color: oklch(from var(--foreground) l c h / 10%);
+        transition: all 0.3s ease;
+    }
 
-  .glass-aspect {
-    background: linear-gradient(-75deg, oklch(from var(--background) l c h / 5%), oklch(from var(--background) l c h / 20%), oklch(from var(--background) l c h / 5%));
-    box-shadow: inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%), inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 50%), 0 0.1em 0.25em inset oklch(from var(--background) l c h / 20%);
-    border: 1px solid transparent;
-    transition: all 0.3s ease;
-  }
+    .glass-aspect {
+        background: linear-gradient(-75deg, oklch(from var(--background) l c h / 5%), oklch(from var(--background) l c h / 20%), oklch(from var(--background) l c h / 5%));
+        box-shadow: inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%), inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 50%), 0 0.1em 0.25em inset oklch(from var(--background) l c h / 20%);
+        border: 1px solid transparent;
+        transition: all 0.3s ease;
+    }
 
     .glass-aspect:hover {
         border-color: oklch(from var(--destructive) l c h / 30%);
         background: oklch(from var(--destructive) l c h / 5%);
     }
 
-  .glass-input:focus-within, .glass-input:hover {
-    border-color: oklch(from var(--foreground) l c h / 20%);
-  }
+    .glass-input:focus-within, .glass-input:hover {
+        border-color: oklch(from var(--foreground) l c h / 20%);
+    }
+
+    @property --angle-1 { syntax: "<angle>"; inherits: false; initial-value: -75deg; }
+    @property --angle-2 { syntax: "<angle>"; inherits: false; initial-value: -45deg; }
+
+    @keyframes rotate-angle {
+        0% {
+            --angle-1: 0deg;
+        }
+        100% {
+            --angle-1: 360deg;
+        }
+    }
+
+    .glass-container-wrap {
+        --border-width: clamp(1px, 0.0625em, 2px);
+        position: relative;
+        z-index: 2;
+    }
+
+    .glass-container-shadow {
+        --shadow-cutoff-fix: 2em;
+        position: absolute;
+        width: calc(100% + var(--shadow-cutoff-fix));
+        height: calc(100% + var(--shadow-cutoff-fix));
+        top: calc(0% - var(--shadow-cutoff-fix) / 2);
+        left: calc(0% - var(--shadow-cutoff-fix) / 2);
+        filter: blur(clamp(2px, 0.125em, 16px));
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .glass-container-shadow::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 1.5rem;
+        background: linear-gradient(180deg, oklch(from var(--foreground) l c h / 12%), oklch(from var(--foreground) l c h / 4%));
+        width: calc(100% - var(--shadow-cutoff-fix) - 0.25em);
+        height: calc(100% - var(--shadow-cutoff-fix) - 0.25em);
+        top: calc(var(--shadow-cutoff-fix) - 0.5em);
+        left: calc(var(--shadow-cutoff-fix) - 0.875em);
+        padding: 0.125em;
+        box-sizing: border-box;
+        mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        mask-composite: exclude;
+        transition: all 0.3s ease;
+        opacity: 0.85;
+    }
+
+    .glass-container {
+        backdrop-filter: blur(clamp(4px, 0.25em, 12px));
+        transition: all 0.3s ease;
+        background: linear-gradient(-75deg, oklch(from var(--background) l c h / 8%), oklch(from var(--background) l c h / 16%), oklch(from var(--background) l c h / 8%));
+        box-shadow:
+        inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 4%),
+        inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 40%),
+        0 0.15em 0.125em -0.125em oklch(from var(--foreground) l c h / 12%),
+        0 0 0.1em 0.25em inset oklch(from var(--background) l c h / 12%);
+        border-radius: 1.5rem;
+    }
+
+    .glass-container::after {
+        content: "";
+        position: absolute;
+        z-index: 1;
+        inset: 0;
+        border-radius: 1.5rem;
+        width: calc(100% + var(--border-width));
+        height: calc(100% + var(--border-width));
+        top: calc(0% - var(--border-width) / 2);
+        left: calc(0% - var(--border-width) / 2);
+        padding: var(--border-width);
+        box-sizing: border-box;
+        background: conic-gradient(from var(--angle-1) at 50% 50%, oklch(from var(--foreground) l c h / 25%) 0%, transparent 10% 40%, oklch(from var(--foreground) l c h / 25%) 50%, transparent 60% 90%, oklch(from var(--foreground) l c h / 25%) 100%), linear-gradient(180deg, oklch(from var(--background) l c h / 30%), oklch(from var(--background) l c h / 30%));
+        mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        mask-composite: exclude;
+        transition: all 0.3s ease;
+        box-shadow: inset 0 0 0 calc(var(--border-width) / 2) oklch(from var(--background) l c h / 30%);
+        pointer-events: none;
+        animation: rotate-angle 20s linear infinite;
+    }
+
+    .glass-badge {
+        backdrop-filter: blur(clamp(1px, 0.125em, 4px));
+        background: linear-gradient(-75deg, oklch(from var(--background) l c h / 5%), oklch(from var(--background) l c h / 20%), oklch(from var(--background) l c h / 5%));
+        box-shadow:
+        inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%),
+        inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 50%),
+        0 0.1em 0.25em inset oklch(from var(--background) l c h / 20%) !important;
+        border: 1px solid oklch(from var(--foreground) l c h / 15%) !important;
+        border-radius: 9999px;
+        transition: all 0.3s ease;
+    }
+    .glass-badge:hover {
+        border-color: oklch(from var(--primary) l c h / 30%) !important;
+        background: oklch(from var(--primary) l c h / 8%) !important;
+        color: oklch(from var(--primary) l c h) !important;
+    }
+
+    /* Hover Effect in Lime Green (border-only color transition) */
+    .glass-container-wrap:hover .glass-container::after {
+        background: conic-gradient(from var(--angle-1) at 50% 50%, oklch(0.82 0.23 138 / 40%) 0%, transparent 10% 40%, oklch(0.82 0.23 138 / 40%) 50%, transparent 60% 90%, oklch(0.82 0.23 138 / 40%) 100%), linear-gradient(180deg, oklch(0.82 0.23 138 / 30%), oklch(0.82 0.23 138 / 30%));
+        box-shadow: inset 0 0 0 calc(var(--border-width) / 2) oklch(0.82 0.23 138 / 30%);
+    }
+
+    .glass-container-wrap:hover .glass-container-shadow::after {
+        background: linear-gradient(180deg, oklch(0.82 0.23 138 / 15%), oklch(0.82 0.23 138 / 5%));
+    }
 }
 
 ::view-transition-old(root), ::view-transition-new(root) {
