@@ -6,13 +6,15 @@
         "dev": "set NODE_OPTIONS=--max-old-space-size=8192 && wagmi generate && next dev",
         "build": "set NODE_OPTIONS=--max-old-space-size=8192 && wagmi generate && next build",
         "start": "set NODE_OPTIONS=--max-old-space-size=8192 && wagmi generate && next start",
-
         "wagmi": "wagmi generate",
         "wagmi:watch": "wagmi generate --watch",
-
         "db:reset": "tsx scripts/db-reset.ts",
         "db:seed": "tsx scripts/db-seed.ts",
-
+        "test:e2e": "pnpm exec bddgen && pnpm exec playwright test",
+        "test:e2e:ui": "pnpm exec bddgen && pnpm exec playwright test --ui",
+        "test:e2e:report": "pnpm exec playwright show-report",
+        "test:e2e:install:arch": "sudo pacman -S --needed nspr nss alsa-lib at-spi2-core cups libdrm libxcomposite libxdamage libxrandr mesa pango cairo libxkbcommon",
+        "bdd:gen": "pnpm exec bddgen",
         "// biome:format": "Formats all files and writes changes",
         "biome:format": "biome format --write .",
         "// biome:lint": "Lints code and applies safe autofixes",
@@ -52,11 +54,13 @@
     },
     "devDependencies": {
         "@biomejs/biome": "^2.4.15",
+        "@playwright/test": "^1.60.0",
         "@tailwindcss/postcss": "^4",
         "@types/node": "^20",
         "@types/react": "^19",
         "@types/react-dom": "^19",
         "@wagmi/cli": "^2.10.0",
+        "playwright-bdd": "^9.0.0",
         "postcss": "^8.5.15",
         "tailwindcss": "^4",
         "typescript": "^5"
