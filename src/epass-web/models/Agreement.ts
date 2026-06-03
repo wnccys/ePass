@@ -22,7 +22,7 @@ export interface IAgreement extends Document {
     attorneySignature?: string;
 
     // Lifecycle
-    status: "draft" | "pending_signatures" | "ready" | "minted" | "vault_created" | "active" | "rescinded" | "expired";
+    status: "draft" | "pending_signatures" | "ready" | "minted" | "vault_created" | "pending_deposit" | "active" | "rescinded" | "expired";
 
     // On-chain references
     mintTxHash?: string;
@@ -57,7 +57,7 @@ const AgreementSchema = new Schema<IAgreement>({
 
     status: {
         type: String,
-        enum: ['draft', 'pending_signatures', 'ready', 'minted', 'vault_created', 'active', 'rescinded', 'expired'],
+        enum: ['draft', 'pending_signatures', 'ready', 'minted', 'vault_created', 'pending_deposit', 'active', 'rescinded', 'expired'],
         default: 'pending_signatures',
         required: true
     },

@@ -5,13 +5,32 @@ import { useParams, useRouter } from "next/navigation";
 import { getAgreement, submitSignature, updateAgreementOnChain, excludeAgreementFromAccount } from "@/app/actions/agreements";
 import { useConnection, useChainId, usePublicClient } from "wagmi";
 import { useEip712Signing } from "@/hooks/use-eip712-signing";
-import { useContractAction } from "@/hooks/use-contract-action";
 import { RIGHTS_MINTER, VAULT_FACTORY, PLAYER_RIGHTS_MASTER, MOCK_USDC } from "@/lib/web3/contracts";
 import { Badge } from "@/components/ui/badge";
 import { Loader, CheckCircle2, Clock, Trash2, Copy, Check, ExternalLink, FileText, AlertTriangle, KeyRound } from "lucide-react";
 import { formatUnits, BaseError, ContractFunctionRevertedError, parseEventLogs } from "viem";
 import { ActionCard } from "@/components/web3/action-card";
-import { useWriteRightsMinterExecuteMint } from "@/src/generated";
+import {
+    useWriteRightsMinterExecuteMint,
+    useWriteRightsVaultFactoryCreateVault,
+    useWritePlayerRightsMasterApprove,
+    useWriteRightsVaultImplFractionalize,
+    useWriteMockUsdcApprove,
+    useWriteMockUsdcMint,
+    useReadMockUsdcBalanceOf,
+    useReadMockUsdcAllowance,
+    useReadPlayerRightsMasterGetApproved,
+    useReadPlayerRightsMasterOwner,
+    useReadPlayerRightsMasterAuthorizedOperators,
+    useWritePlayerRightsMasterSetAuthorizedOperator,
+    useWriteRightsVaultImplDepositCaution,
+    useWriteRightsVaultImplRescindByPlayer,
+    useWriteRightsVaultImplRescindByClub,
+    useWriteRightsVaultImplExpireContract,
+    useReadRightsVaultImplTimeRemaining,
+    useReadRightsVaultImplIsBeforeHalfTime,
+    rightsVaultFactoryAbi
+} from "@/src/generated";
 import { recordTransaction, confirmTransaction, failTransaction } from "@/app/actions/transactions";
 import { useSession } from "next-auth/react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -32,7 +51,7 @@ interface SerializedAgreement {
     playerSignature?: string | null;
     clubSignature?: string | null;
     attorneySignature?: string | null;
-    status: "draft" | "pending_signatures" | "ready" | "minted" | "vault_created" | "active" | "rescinded" | "expired";
+    status: "draft" | "pending_signatures" | "ready" | "minted" | "vault_created" | "pending_deposit" | "active" | "rescinded" | "expired";
     mintTxHash?: string | null;
     nftTokenId?: number | null;
     vaultAddress?: string | null;
@@ -61,11 +80,78 @@ export default function ContractDetailPage() {
 
     // Contracts action hooks
     const { mutateAsync: executeMintContract } = useWriteRightsMinterExecuteMint();
+    const { mutateAsync: createVaultContract } = useWriteRightsVaultFactoryCreateVault();
+    const { mutateAsync: approveNft } = useWritePlayerRightsMasterApprove();
+    const { mutateAsync: fractionalizeNft } = useWriteRightsVaultImplFractionalize();
+    const { mutateAsync: approveUsdc } = useWriteMockUsdcApprove();
+    const { mutateAsync: depositCautionContract } = useWriteRightsVaultImplDepositCaution();
+    const { mutateAsync: mintMockUsdc } = useWriteMockUsdcMint();
+    const { mutateAsync: setAuthorizedOperator } = useWritePlayerRightsMasterSetAuthorizedOperator();
+    const { mutateAsync: rescindByPlayerContract } = useWriteRightsVaultImplRescindByPlayer();
+    const { mutateAsync: rescindByClubContract } = useWriteRightsVaultImplRescindByClub();
+    const { mutateAsync: expireContractAction } = useWriteRightsVaultImplExpireContract();
+
     const publicClient = usePublicClient();
 
     const [mintStatus, setMintStatus] = useState<'idle' | 'simulating' | 'awaiting_wallet' | 'submitting' | 'confirming' | 'success' | 'error'>('idle');
     const [mintErrorMsg, setMintErrorMsg] = useState<string | null>(null);
     const [mintTxHash, setMintTxHash] = useState<string | null>(null);
+
+    const [actionStatus, setActionStatus] = useState<'idle' | 'simulating' | 'awaiting_wallet' | 'submitting' | 'confirming' | 'success' | 'error'>('idle');
+    const [actionErrorMsg, setActionErrorMsg] = useState<string | null>(null);
+    const [actionTxHash, setActionTxHash] = useState<string | null>(null);
+    const [faucetLoading, setFaucetLoading] = useState(false);
+
+    // Read hooks
+    const { data: approvedAddress, refetch: refetchApproved } = useReadPlayerRightsMasterGetApproved({
+        address: PLAYER_RIGHTS_MASTER.address,
+        args: agreement?.nftTokenId ? [BigInt(agreement.nftTokenId)] : undefined,
+        query: {
+            enabled: !!agreement?.nftTokenId
+        }
+    });
+
+    const { data: nftContractOwner } = useReadPlayerRightsMasterOwner({
+        address: PLAYER_RIGHTS_MASTER.address
+    });
+
+    const { data: isVaultAuthorized, refetch: refetchAuthorized } = useReadPlayerRightsMasterAuthorizedOperators({
+        address: PLAYER_RIGHTS_MASTER.address,
+        args: agreement?.vaultAddress ? [agreement.vaultAddress as `0x${string}`] : undefined,
+        query: {
+            enabled: !!agreement?.vaultAddress
+        }
+    });
+
+    const { data: usdcAllowance, refetch: refetchAllowance } = useReadMockUsdcAllowance({
+        address: MOCK_USDC.address,
+        args: address && agreement?.vaultAddress ? [address as `0x${string}`, agreement.vaultAddress as `0x${string}`] : undefined,
+        query: {
+            enabled: !!address && !!agreement?.vaultAddress
+        }
+    });
+
+    const { data: usdcBalance, refetch: refetchUsdcBalance } = useReadMockUsdcBalanceOf({
+        address: MOCK_USDC.address,
+        args: address ? [address as `0x${string}`] : undefined,
+        query: {
+            enabled: !!address
+        }
+    });
+
+    const { data: timeRemaining, refetch: refetchTimeRemaining } = useReadRightsVaultImplTimeRemaining({
+        address: agreement?.vaultAddress as `0x${string}`,
+        query: {
+            enabled: !!agreement?.vaultAddress && agreement?.status === 'active'
+        }
+    });
+
+    const { data: isBeforeHalfTime, refetch: refetchHalfTime } = useReadRightsVaultImplIsBeforeHalfTime({
+        address: agreement?.vaultAddress as `0x${string}`,
+        query: {
+            enabled: !!agreement?.vaultAddress && agreement?.status === 'active'
+        }
+    });
 
     // Fetch specific [id] based agreement data and set its state
     useEffect(() => {
@@ -75,6 +161,12 @@ export default function ContractDetailPage() {
         const res = await getAgreement(id);
         if (res.success) {
             setAgreement(res.agreement);
+            refetchApproved?.();
+            refetchAuthorized?.();
+            refetchAllowance?.();
+            refetchUsdcBalance?.();
+            refetchTimeRemaining?.();
+            refetchHalfTime?.();
         }
         setLoading(false);
     };
@@ -226,6 +318,525 @@ export default function ContractDetailPage() {
         }
     };
 
+    const handleCreateVault = async () => {
+        if (!agreement || !address) return;
+
+        setActionStatus('awaiting_wallet');
+        setActionErrorMsg(null);
+        setActionTxHash(null);
+
+        try {
+            const txHash = await createVaultContract({
+                address: VAULT_FACTORY.address,
+                args: [
+                    agreement.playerWalletAddress as `0x${string}`,
+                    agreement.clubWalletAddress as `0x${string}`,
+                    agreement.attorneyWalletAddress as `0x${string}`,
+                    3000n, // playerBps: 30%
+                    6000n, // clubBps: 60%
+                    1000n  // attorneyBps: 10%
+                ]
+            });
+
+            if (!txHash) throw new Error("Transaction hash was not returned.");
+
+            setActionTxHash(txHash);
+            setActionStatus('submitting');
+
+            await recordTransaction({
+                txHash,
+                chainId,
+                actionType: 'create_vault',
+                contractAddress: VAULT_FACTORY.address,
+                walletAddress: address,
+                agreementId: id
+            });
+
+            setActionStatus('confirming');
+
+            if (!publicClient) throw new Error("Public client is not available.");
+            const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+            if (receipt.status === 'success') {
+                setActionStatus('success');
+                await confirmTransaction(txHash, Number(receipt.blockNumber));
+
+                let vaultAddress = "";
+                try {
+                    const parsedLogs = parseEventLogs({
+                        abi: rightsVaultFactoryAbi,
+                        eventName: 'VaultCreated',
+                        logs: receipt.logs
+                    });
+                    const eventArgs = parsedLogs[0]?.args as any;
+                    if (eventArgs && 'vault' in eventArgs) {
+                        vaultAddress = eventArgs.vault;
+                    }
+                } catch (parseErr) {
+                    console.error("Failed to parse event logs for vault address:", parseErr);
+                }
+
+                if (!vaultAddress) {
+                    throw new Error("Could not retrieve vault address from transaction logs.");
+                }
+
+                await updateAgreementOnChain(id, {
+                    vaultAddress,
+                    status: 'vault_created'
+                });
+
+                await fetchAgreement();
+            } else {
+                throw new Error("Transaction reverted on-chain.");
+            }
+        } catch (err: any) {
+            console.error("Create vault error:", err);
+            setActionStatus('error');
+            if (actionTxHash) {
+                await failTransaction(actionTxHash);
+            }
+            setActionErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+        }
+    };
+
+    const handleAuthorizeVault = async () => {
+        if (!agreement || !agreement.vaultAddress || !address) return;
+
+        setActionStatus('awaiting_wallet');
+        setActionErrorMsg(null);
+        setActionTxHash(null);
+
+        try {
+            const txHash = await setAuthorizedOperator({
+                address: PLAYER_RIGHTS_MASTER.address,
+                args: [
+                    agreement.vaultAddress as `0x${string}`,
+                    true
+                ]
+            });
+
+            if (!txHash) throw new Error("Transaction hash was not returned.");
+
+            setActionTxHash(txHash);
+            setActionStatus('submitting');
+
+            await recordTransaction({
+                txHash,
+                chainId,
+                actionType: 'authorize_vault_operator',
+                contractAddress: PLAYER_RIGHTS_MASTER.address,
+                walletAddress: address,
+                agreementId: id
+            });
+
+            setActionStatus('confirming');
+
+            if (!publicClient) throw new Error("Public client is not available.");
+            const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+            if (receipt.status === 'success') {
+                setActionStatus('success');
+                await confirmTransaction(txHash, Number(receipt.blockNumber));
+                await refetchAuthorized();
+            } else {
+                throw new Error("Transaction reverted on-chain.");
+            }
+        } catch (err: any) {
+            console.error("Authorize vault operator error:", err);
+            setActionStatus('error');
+            if (actionTxHash) {
+                await failTransaction(actionTxHash);
+            }
+            setActionErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+        }
+    };
+
+    const handleFractionalize = async () => {
+        if (!agreement || !agreement.vaultAddress || !agreement.nftTokenId || !address) return;
+
+        setActionStatus('awaiting_wallet');
+        setActionErrorMsg(null);
+        setActionTxHash(null);
+
+        try {
+            const isApproved = approvedAddress?.toLowerCase() === agreement.vaultAddress.toLowerCase();
+
+            if (!isApproved) {
+                // Step 1: Approve
+                const txHash = await approveNft({
+                    address: PLAYER_RIGHTS_MASTER.address,
+                    args: [
+                        agreement.vaultAddress as `0x${string}`,
+                        BigInt(agreement.nftTokenId)
+                    ]
+                });
+
+                if (!txHash) throw new Error("Transaction hash was not returned.");
+
+                setActionTxHash(txHash);
+                setActionStatus('submitting');
+
+                await recordTransaction({
+                    txHash,
+                    chainId,
+                    actionType: 'approve_nft_to_vault',
+                    contractAddress: PLAYER_RIGHTS_MASTER.address,
+                    walletAddress: address,
+                    agreementId: id
+                });
+
+                setActionStatus('confirming');
+
+                if (!publicClient) throw new Error("Public client is not available.");
+                const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+                if (receipt.status === 'success') {
+                    setActionStatus('success');
+                    await confirmTransaction(txHash, Number(receipt.blockNumber));
+                    await refetchApproved();
+                    setActionStatus('idle');
+                } else {
+                    throw new Error("Approve transaction reverted on-chain.");
+                }
+            } else {
+                // Step 2: Fractionalize
+                const supply = 1_000_000n * 10n**18n; // 1M tokens with 18 decimals
+                const txHash = await fractionalizeNft({
+                    address: agreement.vaultAddress as `0x${string}`,
+                    args: [
+                        BigInt(agreement.nftTokenId),
+                        supply
+                    ]
+                });
+
+                if (!txHash) throw new Error("Transaction hash was not returned.");
+
+                setActionTxHash(txHash);
+                setActionStatus('submitting');
+
+                await recordTransaction({
+                    txHash,
+                    chainId,
+                    actionType: 'fractionalize_nft',
+                    contractAddress: agreement.vaultAddress,
+                    walletAddress: address,
+                    agreementId: id
+                });
+
+                setActionStatus('confirming');
+
+                if (!publicClient) throw new Error("Public client is not available.");
+                const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+                if (receipt.status === 'success') {
+                    setActionStatus('success');
+                    await confirmTransaction(txHash, Number(receipt.blockNumber));
+
+                    // Update database status to pending_deposit
+                    await updateAgreementOnChain(id, {
+                        status: 'pending_deposit'
+                    });
+
+                    await fetchAgreement();
+                } else {
+                    throw new Error("Fractionalize transaction reverted on-chain.");
+                }
+            }
+        } catch (err: any) {
+            console.error("Fractionalization error:", err);
+            setActionStatus('error');
+            if (actionTxHash) {
+                await failTransaction(actionTxHash);
+            }
+            setActionErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+        }
+    };
+
+    const handleDepositCaution = async () => {
+        if (!agreement || !agreement.vaultAddress || !agreement.cautionAmount || !address) return;
+
+        setActionStatus('awaiting_wallet');
+        setActionErrorMsg(null);
+        setActionTxHash(null);
+
+        const onChainCautionAmount = BigInt(agreement.cautionAmount) * 10n**12n; // scale 6 decimals to 18 decimals
+
+        try {
+            const hasAllowance = usdcAllowance !== undefined && usdcAllowance >= onChainCautionAmount;
+
+            if (!hasAllowance) {
+                // Step 1: Approve USDC
+                const txHash = await approveUsdc({
+                    address: MOCK_USDC.address,
+                    args: [
+                        agreement.vaultAddress as `0x${string}`,
+                        onChainCautionAmount
+                    ]
+                });
+
+                if (!txHash) throw new Error("Transaction hash was not returned.");
+
+                setActionTxHash(txHash);
+                setActionStatus('submitting');
+
+                await recordTransaction({
+                    txHash,
+                    chainId,
+                    actionType: 'approve_usdc_to_vault',
+                    contractAddress: MOCK_USDC.address,
+                    walletAddress: address,
+                    agreementId: id
+                });
+
+                setActionStatus('confirming');
+
+                if (!publicClient) throw new Error("Public client is not available.");
+                const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+                if (receipt.status === 'success') {
+                    setActionStatus('success');
+                    await confirmTransaction(txHash, Number(receipt.blockNumber));
+                    await refetchAllowance();
+                    setActionStatus('idle');
+                } else {
+                    throw new Error("Approve transaction reverted on-chain.");
+                }
+            } else {
+                // Step 2: Deposit Caution
+                const txHash = await depositCautionContract({
+                    address: agreement.vaultAddress as `0x${string}`,
+                    args: [
+                        onChainCautionAmount
+                    ]
+                });
+
+                if (!txHash) throw new Error("Transaction hash was not returned.");
+
+                setActionTxHash(txHash);
+                setActionStatus('submitting');
+
+                await recordTransaction({
+                    txHash,
+                    chainId,
+                    actionType: 'deposit_caution',
+                    contractAddress: agreement.vaultAddress,
+                    walletAddress: address,
+                    agreementId: id
+                });
+
+                setActionStatus('confirming');
+
+                if (!publicClient) throw new Error("Public client is not available.");
+                const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+                if (receipt.status === 'success') {
+                    setActionStatus('success');
+                    await confirmTransaction(txHash, Number(receipt.blockNumber));
+
+                    // Update database status to active
+                    await updateAgreementOnChain(id, {
+                        status: 'active'
+                    });
+
+                    await fetchAgreement();
+                } else {
+                    throw new Error("Deposit transaction reverted on-chain.");
+                }
+            }
+        } catch (err: any) {
+            console.error("Deposit caution error:", err);
+            setActionStatus('error');
+            if (actionTxHash) {
+                await failTransaction(actionTxHash);
+            }
+            setActionErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+        }
+    };
+
+    const handleFaucet = async () => {
+        if (!address) return;
+        setFaucetLoading(true);
+        try {
+            const txHash = await mintMockUsdc({
+                address: MOCK_USDC.address,
+                args: [
+                    address as `0x${string}`,
+                    10_000n * 10n**18n // Mint 10,000 USDC (18 decimals)
+                ]
+            });
+
+            if (!txHash) throw new Error("Faucet transaction failed.");
+
+            if (!publicClient) throw new Error("Public client is not available.");
+            await publicClient.waitForTransactionReceipt({ hash: txHash });
+            await refetchUsdcBalance();
+        } catch (err) {
+            console.error("Faucet error:", err);
+        } finally {
+            setFaucetLoading(false);
+        }
+    };
+
+    const handleRescindByPlayer = async () => {
+        if (!agreement || !agreement.vaultAddress || !address) return;
+
+        setActionStatus('awaiting_wallet');
+        setActionErrorMsg(null);
+        setActionTxHash(null);
+
+        try {
+            const txHash = await rescindByPlayerContract({
+                address: agreement.vaultAddress as `0x${string}`
+            });
+
+            if (!txHash) throw new Error("Transaction hash was not returned.");
+
+            setActionTxHash(txHash);
+            setActionStatus('submitting');
+
+            await recordTransaction({
+                txHash,
+                chainId,
+                actionType: 'rescind_by_player',
+                contractAddress: agreement.vaultAddress,
+                walletAddress: address,
+                agreementId: id
+            });
+
+            setActionStatus('confirming');
+
+            if (!publicClient) throw new Error("Public client is not available.");
+            const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+            if (receipt.status === 'success') {
+                setActionStatus('success');
+                await confirmTransaction(txHash, Number(receipt.blockNumber));
+
+                await updateAgreementOnChain(id, {
+                    status: 'rescinded'
+                });
+
+                await fetchAgreement();
+            } else {
+                throw new Error("Transaction reverted on-chain.");
+            }
+        } catch (err: any) {
+            console.error("Rescind error:", err);
+            setActionStatus('error');
+            if (actionTxHash) {
+                await failTransaction(actionTxHash);
+            }
+            setActionErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+        }
+    };
+
+    const handleRescindByClub = async () => {
+        if (!agreement || !agreement.vaultAddress || !address) return;
+
+        setActionStatus('awaiting_wallet');
+        setActionErrorMsg(null);
+        setActionTxHash(null);
+
+        try {
+            const txHash = await rescindByClubContract({
+                address: agreement.vaultAddress as `0x${string}`
+            });
+
+            if (!txHash) throw new Error("Transaction hash was not returned.");
+
+            setActionTxHash(txHash);
+            setActionStatus('submitting');
+
+            await recordTransaction({
+                txHash,
+                chainId,
+                actionType: 'rescind_by_club',
+                contractAddress: agreement.vaultAddress,
+                walletAddress: address,
+                agreementId: id
+            });
+
+            setActionStatus('confirming');
+
+            if (!publicClient) throw new Error("Public client is not available.");
+            const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+            if (receipt.status === 'success') {
+                setActionStatus('success');
+                await confirmTransaction(txHash, Number(receipt.blockNumber));
+
+                await updateAgreementOnChain(id, {
+                    status: 'rescinded'
+                });
+
+                await fetchAgreement();
+            } else {
+                throw new Error("Transaction reverted on-chain.");
+            }
+        } catch (err: any) {
+            console.error("Rescind error:", err);
+            setActionStatus('error');
+            if (actionTxHash) {
+                await failTransaction(actionTxHash);
+            }
+            setActionErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+        }
+    };
+
+    const handleExpireContract = async () => {
+        if (!agreement || !agreement.vaultAddress || !address) return;
+
+        setActionStatus('awaiting_wallet');
+        setActionErrorMsg(null);
+        setActionTxHash(null);
+
+        try {
+            const txHash = await expireContractAction({
+                address: agreement.vaultAddress as `0x${string}`
+            });
+
+            if (!txHash) throw new Error("Transaction hash was not returned.");
+
+            setActionTxHash(txHash);
+            setActionStatus('submitting');
+
+            await recordTransaction({
+                txHash,
+                chainId,
+                actionType: 'expire_contract',
+                contractAddress: agreement.vaultAddress,
+                walletAddress: address,
+                agreementId: id
+            });
+
+            setActionStatus('confirming');
+
+            if (!publicClient) throw new Error("Public client is not available.");
+            const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+            if (receipt.status === 'success') {
+                setActionStatus('success');
+                await confirmTransaction(txHash, Number(receipt.blockNumber));
+
+                await updateAgreementOnChain(id, {
+                    status: 'expired'
+                });
+
+                await fetchAgreement();
+            } else {
+                throw new Error("Transaction reverted on-chain.");
+            }
+        } catch (err: any) {
+            console.error("Expire error:", err);
+            setActionStatus('error');
+            if (actionTxHash) {
+                await failTransaction(actionTxHash);
+            }
+            setActionErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+        }
+    };
+
+
     // Exclude db contract representation
     const handleExclude = async () => {
         if (!confirm("Are you sure you want to exclude this contract from your account? This won't delete the contract on-chain or for other signers, but it will hide it from your dashboard.")) return;
@@ -332,7 +943,7 @@ export default function ContractDetailPage() {
                         </h2>
                         {agreement.description && (
                             <div className="relative pl-5 mt-4">
-                                <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-primary to-transparent rounded-full" />
+                                <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-linear-to-b from-primary to-transparent rounded-full" />
                                 <p className="text-muted-foreground text-base md:text-lg leading-relaxed font-light italic">
                                     "{agreement.description}"
                                 </p>
@@ -536,6 +1147,262 @@ export default function ContractDetailPage() {
                             txHash={mintTxHash}
                             expectedChainId={31337}
                         />
+                    )}
+
+                    {agreement.status === 'minted' && isClub && (
+                        <ActionCard
+                            title="Deploy Vault Escrow"
+                            description="Deploy a secure EIP-1167 proxy vault escrow clone for this agreement."
+                            actionName="Deploy Escrow"
+                            onAction={handleCreateVault}
+                            status={actionStatus}
+                            errorMsg={actionErrorMsg}
+                            txHash={actionTxHash}
+                            expectedChainId={31337}
+                        />
+                    )}
+
+                    {agreement.status === 'vault_created' && (
+                        <div className="space-y-4">
+                            {!isVaultAuthorized ? (
+                                address?.toLowerCase() === nftContractOwner?.toLowerCase() ? (
+                                    <ActionCard
+                                        title="Authorize Vault (Admin Only)"
+                                        description="As the owner of PlayerRightsMaster, you must authorize the Vault Escrow contract clone as an operator before it can fractionalize the NFT."
+                                        actionName="Authorize Vault Clone"
+                                        onAction={handleAuthorizeVault}
+                                        status={actionStatus}
+                                        errorMsg={actionErrorMsg}
+                                        txHash={actionTxHash}
+                                        expectedChainId={31337}
+                                    />
+                                ) : (
+                                    <div className="glass-panel p-6 rounded-xl border-amber-500/20 bg-amber-500/5 space-y-3">
+                                        <div className="flex items-start gap-3">
+                                            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                                            <div className="space-y-1">
+                                                <p className="text-sm font-medium text-amber-400">Pending Admin Authorization</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    The Vault Escrow contract clone must be authorized on the master NFT contract before fractionalization can proceed.
+                                                </p>
+                                                <p className="text-xs text-muted-foreground font-mono mt-2">
+                                                    Required Admin: <span className="text-foreground">{nftContractOwner || "Loading..."}</span>
+                                                </p>
+                                                <p className="text-xs text-amber-400/80 mt-1">
+                                                    Please connect the Admin wallet (Anvil Account #0) to authorize this Vault.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            ) : (
+                                isClub && (
+                                    <ActionCard
+                                        title="Lock & Fractionalize NFT"
+                                        description={approvedAddress?.toLowerCase() === agreement.vaultAddress?.toLowerCase()
+                                            ? "Step 2 of 2: Lock the Player Rights NFT into the Vault and fractionalize it into 1,000,000 $P_IMAGE tokens."
+                                            : "Step 1 of 2: Approve the Vault Escrow clone to transfer the Player Rights NFT."
+                                        }
+                                        actionName={approvedAddress?.toLowerCase() === agreement.vaultAddress?.toLowerCase()
+                                            ? "Lock & Fractionalize NFT"
+                                            : "Approve NFT to Vault"
+                                        }
+                                        onAction={handleFractionalize}
+                                        status={actionStatus}
+                                        errorMsg={actionErrorMsg}
+                                        txHash={actionTxHash}
+                                        expectedChainId={31337}
+                                    />
+                                )
+                            )}
+                        </div>
+                    )}
+
+                    {agreement.status === 'pending_deposit' && isClub && (
+                        <div className="space-y-6">
+                            {/* Mock USDC Balance & Faucet Card */}
+                            <div className="glass-panel p-6 rounded-xl space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h3 className="font-semibold text-foreground">USDC Stablecoin Faucet</h3>
+                                        <p className="text-xs text-muted-foreground mt-0.5">Mint test stablecoins to fund your caution deposit</p>
+                                    </div>
+                                    <Badge variant="outline" className="font-mono bg-primary/5 text-primary text-xs border-primary/20">
+                                        Testnet Faucet
+                                    </Badge>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 bg-foreground/5 p-4 rounded-xl border border-foreground/5 font-mono text-sm">
+                                    <div className="space-y-0.5">
+                                        <p className="text-xs text-muted-foreground/80">Required Deposit:</p>
+                                        <p className="font-semibold text-foreground">{formatUnits(BigInt(agreement.cautionAmount), 6)} USDC</p>
+                                    </div>
+                                    <div className="space-y-0.5">
+                                        <p className="text-xs text-muted-foreground/80">Your Balance:</p>
+                                        <p className="font-semibold text-foreground">
+                                            {usdcBalance !== undefined ? formatUnits(usdcBalance, 18) : "0.0"} USDC
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {usdcBalance !== undefined && usdcBalance < (BigInt(agreement.cautionAmount) * 10n**12n) && (
+                                    <p className="text-xs text-amber-500 flex items-center gap-1.5 font-medium">
+                                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                                        Your USDC balance is insufficient. Use the faucet below.
+                                    </p>
+                                )}
+
+                                <button
+                                    onClick={handleFaucet}
+                                    disabled={faucetLoading}
+                                    className="w-full py-2.5 rounded-xl border border-primary/20 hover:border-primary/40 text-primary font-medium text-sm flex items-center justify-center gap-2 hover:bg-primary/5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {faucetLoading && <Loader className="w-4 h-4 animate-spin" />}
+                                    Get 10,000 Mock USDC
+                                </button>
+                            </div>
+
+                            {/* Caution Deposit Action Card */}
+                            <ActionCard
+                                title="Deposit Caution"
+                                description={usdcAllowance !== undefined && usdcAllowance >= (BigInt(agreement.cautionAmount) * 10n**12n)
+                                    ? "Step 2 of 2: Deposit the USDC caution money into the vault to activate the image rights agreement."
+                                    : "Step 1 of 2: Approve the Vault Escrow clone to spend the caution amount in USDC."
+                                }
+                                actionName={usdcAllowance !== undefined && usdcAllowance >= (BigInt(agreement.cautionAmount) * 10n**12n)
+                                    ? "Deposit Caution"
+                                    : "Approve USDC for Caution"
+                                }
+                                onAction={handleDepositCaution}
+                                status={actionStatus}
+                                errorMsg={actionErrorMsg}
+                                txHash={actionTxHash}
+                                expectedChainId={31337}
+                            />
+                        </div>
+                    )}
+
+                    {agreement.status === 'active' && (
+                        <div className="space-y-6">
+                            {/* Active Contract Status Panel */}
+                            <div className="glass-panel p-6 rounded-xl space-y-6 border-primary/20 bg-primary/5">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h3 className="font-semibold text-foreground text-lg">Active Escrow & Agreement</h3>
+                                        <p className="text-xs text-muted-foreground mt-0.5">The image rights agreement is active on-chain</p>
+                                    </div>
+                                    <Badge variant="outline" className="font-mono bg-green-500/10 text-green-400 text-xs border-green-500/20 px-3 py-1 animate-pulse">
+                                        ● Live
+                                    </Badge>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-sm">
+                                    <div className="bg-foreground/5 p-4 rounded-xl border border-foreground/5 space-y-1">
+                                        <p className="text-xs text-muted-foreground/80">Time Remaining:</p>
+                                        <p className="font-semibold text-foreground text-base">
+                                            {timeRemaining !== undefined ? (
+                                                timeRemaining > 0n ? (
+                                                    `${(timeRemaining / 86400n).toString()} Days, ${((timeRemaining % 86400n) / 3600n).toString()} Hours`
+                                                ) : (
+                                                    "0 Days (Completed)"
+                                                )
+                                            ) : (
+                                                "Loading..."
+                                            )}
+                                        </p>
+                                    </div>
+                                    <div className="bg-foreground/5 p-4 rounded-xl border border-foreground/5 space-y-1">
+                                        <p className="text-xs text-muted-foreground/80">Contract Phase:</p>
+                                        <p className="font-semibold text-foreground text-base">
+                                            {isBeforeHalfTime !== undefined ? (
+                                                isBeforeHalfTime ? (
+                                                    <span className="text-amber-400">1st Half (Penalty Period)</span>
+                                                ) : (
+                                                    <span className="text-green-400">2nd Half (No Penalty Period)</span>
+                                                )
+                                            ) : (
+                                                "Loading..."
+                                            )}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Rescission Actions */}
+                            {isPlayer && (
+                                <ActionCard
+                                    title="Rescind Agreement (as Player)"
+                                    description={isBeforeHalfTime
+                                        ? "Step 1 of 1: Terminate the agreement. Since it is before 6 months, a penalty of 65% of the caution will go to the Club, and you will receive 35%."
+                                        : "Step 1 of 1: Terminate the agreement. Since it is after 6 months, the caution is returned to the Club without penalty."
+                                    }
+                                    actionName="Rescind Agreement"
+                                    onAction={handleRescindByPlayer}
+                                    status={actionStatus}
+                                    errorMsg={actionErrorMsg}
+                                    txHash={actionTxHash}
+                                    expectedChainId={31337}
+                                />
+                            )}
+
+                            {isClub && (
+                                <ActionCard
+                                    title="Rescind Agreement (as Club)"
+                                    description={isBeforeHalfTime
+                                        ? "Step 1 of 1: Terminate the agreement. Since it is before 6 months, a penalty of 65% of the caution will go to the Player, and you will receive 35%."
+                                        : "Step 1 of 1: Terminate the agreement. Since it is after 6 months, the caution is returned back to you without penalty."
+                                    }
+                                    actionName="Rescind Agreement"
+                                    onAction={handleRescindByClub}
+                                    status={actionStatus}
+                                    errorMsg={actionErrorMsg}
+                                    txHash={actionTxHash}
+                                    expectedChainId={31337}
+                                />
+                            )}
+
+                            {/* Expiration Action */}
+                            {timeRemaining !== undefined && timeRemaining === 0n && (
+                                <ActionCard
+                                    title="Expire Agreement"
+                                    description="The contract period has concluded. Expire the contract on-chain to return 100% of the caution deposit back to the Club."
+                                    actionName="Expire Agreement"
+                                    onAction={handleExpireContract}
+                                    status={actionStatus}
+                                    errorMsg={actionErrorMsg}
+                                    txHash={actionTxHash}
+                                    expectedChainId={31337}
+                                />
+                            )}
+                        </div>
+                    )}
+
+                    {agreement.status === 'rescinded' && (
+                        <div className="glass-panel p-6 rounded-xl border-destructive/20 bg-destructive/5 space-y-3">
+                            <div className="flex items-start gap-3">
+                                <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+                                <div className="space-y-1">
+                                    <p className="text-sm font-medium text-destructive">Agreement Rescinded</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        This agreement has been prematurely terminated (rescinded) on-chain. The caution deposit has been distributed to the parties according to the contract's timing rules.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {agreement.status === 'expired' && (
+                        <div className="glass-panel p-6 rounded-xl border-green-500/20 bg-green-500/5 space-y-3">
+                            <div className="flex items-start gap-3">
+                                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                                <div className="space-y-1">
+                                    <p className="text-sm font-medium text-green-400">Agreement Completed</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        This contract has naturally expired on-chain. The caution deposit has been fully returned to the Club.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     )}
                 </div>
 
