@@ -24,24 +24,26 @@ if [ ! -f "$ENV_FILE" ]; then
     cp ../epass-web/.env.example "$ENV_FILE"
 fi
 
-# Extract addresses from output
-USDC=$(echo "$OUTPUT" | grep "NEXT_PUBLIC_MOCK_USDC_ADDRESS=" | awk -F'=' '{print $2}' | tr -d '\r')
-MINTER=$(echo "$OUTPUT" | grep "NEXT_PUBLIC_RIGHTS_MINTER_ADDRESS=" | awk -F'=' '{print $2}' | tr -d '\r')
-MASTER=$(echo "$OUTPUT" | grep "NEXT_PUBLIC_PLAYER_RIGHTS_MASTER_ADDRESS=" | awk -F'=' '{print $2}' | tr -d '\r')
-FACTORY=$(echo "$OUTPUT" | grep "NEXT_PUBLIC_VAULT_FACTORY_ADDRESS=" | awk -F'=' '{print $2}' | tr -d '\r')
+# Extract addresses from output portably
+USDC=$(echo "$OUTPUT" | grep "NEXT_PUBLIC_MOCK_USDC_ADDRESS=" | cut -d'=' -f2 | tr -d '\r' | tr -d '\n')
+MINTER=$(echo "$OUTPUT" | grep "NEXT_PUBLIC_RIGHTS_MINTER_ADDRESS=" | cut -d'=' -f2 | tr -d '\r' | tr -d '\n')
+MASTER=$(echo "$OUTPUT" | grep "NEXT_PUBLIC_PLAYER_RIGHTS_MASTER_ADDRESS=" | cut -d'=' -f2 | tr -d '\r' | tr -d '\n')
+FACTORY=$(echo "$OUTPUT" | grep "NEXT_PUBLIC_VAULT_FACTORY_ADDRESS=" | cut -d'=' -f2 | tr -d '\r' | tr -d '\n')
 
 if [[ -z "$USDC" || -z "$MINTER" || -z "$MASTER" || -z "$FACTORY" ]]; then
     echo "❌ Failed to extract one or more addresses from deployment output."
     exit 1
 fi
 
-# Update .env using sed
+# Update .env portably (works on Linux/macOS without sed -i incompatibilities)
 update_env() {
     local key=$1
     local value=$2
     if grep -q "^${key}=" "$ENV_FILE"; then
-        # Replace existing key
-        sed -i "s/^${key}=.*/${key}=${value}/" "$ENV_FILE"
+        # Exclude old key, append new key to temp file, then overwrite
+        grep -v "^${key}=" "$ENV_FILE" > "$ENV_FILE.tmp"
+        echo "${key}=${value}" >> "$ENV_FILE.tmp"
+        mv "$ENV_FILE.tmp" "$ENV_FILE"
     else
         # Append if not found
         echo "${key}=${value}" >> "$ENV_FILE"
