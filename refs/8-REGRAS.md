@@ -30,13 +30,15 @@ It uses Biome as linter (run throught Github Actions, no need to run manually).
 
 ### Build
 
-epass-web and smart-contracts has its own dedicated CI/CD pipeline in order to check and validate build state.
+Folders epass-web and smart-contracts has its own dedicated CI/CD pipeline in order to check and validate build state.
 
 ### Project Image
 
 // TODO
 
 ## Linter
+
+Biome; Can be run by running.
 
 ## Architecture
 
