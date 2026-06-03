@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
@@ -11,7 +10,7 @@ interface IPlayerRightsMaster {
     function mintRights(address recipient, string calldata uri) external returns (uint256);
 }
 
-contract RightsMinter is EIP712, Nonces, Ownable, ReentrancyGuard {
+contract RightsMinter is EIP712, Ownable, ReentrancyGuard {
     using ECDSA for bytes32;
 
     bytes32 public constant MINT_AGREEMENT_TYPEHASH = keccak256(
@@ -20,10 +19,13 @@ contract RightsMinter is EIP712, Nonces, Ownable, ReentrancyGuard {
 
     address public masterNftAddress;
 
+    mapping(bytes32 => bool) public executedAgreements;
+
     error SignatureExpired();
     error InvalidSignature(address expected);
     error ZeroAddress();
     error MasterNotConfigured();
+    error AgreementAlreadyExecuted();
 
     event MasterNftAddressUpdated(address indexed masterNftAddress);
     event AgreementAuthorized(address indexed player, address indexed club, string tokenURI, uint256 tokenId);
@@ -55,8 +57,6 @@ contract RightsMinter is EIP712, Nonces, Ownable, ReentrancyGuard {
         if (req.player == address(0) || req.club == address(0) || req.attorney == address(0)) revert ZeroAddress();
         if (block.timestamp > req.deadline) revert SignatureExpired();
 
-        _useCheckedNonce(req.player, req.nonce);
-
         bytes32 structHash = keccak256(
             abi.encode(
                 MINT_AGREEMENT_TYPEHASH,
@@ -70,6 +70,9 @@ contract RightsMinter is EIP712, Nonces, Ownable, ReentrancyGuard {
         );
 
         bytes32 digest = _hashTypedDataV4(structHash);
+
+        if (executedAgreements[digest]) revert AgreementAlreadyExecuted();
+        executedAgreements[digest] = true;
 
         if (digest.recover(playerSig) != req.player) revert InvalidSignature(req.player);
         if (digest.recover(clubSig) != req.club) revert InvalidSignature(req.club);

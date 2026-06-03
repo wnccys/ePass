@@ -59,7 +59,7 @@ export default function NewContractPage() {
                 const res = await createAgreement({
                     ...value,
                     cautionAmount,
-                    nonce: 0, // In MVP we use nonce 0, then increment for multiple contracts
+                    nonce: Math.floor(Math.random() * 1000000000), // Random salt to prevent hash collisions and sequential blocking
                     deadline,
                     clubWalletAddress: address,
                 });

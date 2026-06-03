@@ -92,7 +92,7 @@ contract RightsMinterTest is Test {
 
         gateway.executeMint(agreement, playerSig, clubSig, attorneySig);
 
-        vm.expectRevert();
+        vm.expectRevert(RightsMinter.AgreementAlreadyExecuted.selector);
         gateway.executeMint(agreement, playerSig, clubSig, attorneySig);
     }
 

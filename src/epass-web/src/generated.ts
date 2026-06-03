@@ -2957,16 +2957,16 @@ export const rightsMinterAbi = [
   },
   {
     type: 'function',
-    inputs: [],
-    name: 'masterNftAddress',
-    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    inputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'executedAgreements',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
-    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
-    name: 'nonces',
-    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    inputs: [],
+    name: 'masterNftAddress',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
   },
   {
@@ -3058,6 +3058,7 @@ export const rightsMinterAbi = [
     ],
     name: 'OwnershipTransferred',
   },
+  { type: 'error', inputs: [], name: 'AgreementAlreadyExecuted' },
   { type: 'error', inputs: [], name: 'ECDSAInvalidSignature' },
   {
     type: 'error',
@@ -3068,14 +3069,6 @@ export const rightsMinterAbi = [
     type: 'error',
     inputs: [{ name: 's', internalType: 'bytes32', type: 'bytes32' }],
     name: 'ECDSAInvalidSignatureS',
-  },
-  {
-    type: 'error',
-    inputs: [
-      { name: 'account', internalType: 'address', type: 'address' },
-      { name: 'currentNonce', internalType: 'uint256', type: 'uint256' },
-    ],
-    name: 'InvalidAccountNonce',
   },
   { type: 'error', inputs: [], name: 'InvalidShortString' },
   {
@@ -7311,6 +7304,15 @@ export const useReadRightsMinterEip712Domain =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rightsMinterAbi}__ and `functionName` set to `"executedAgreements"`
+ */
+export const useReadRightsMinterExecutedAgreements =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rightsMinterAbi,
+    functionName: 'executedAgreements',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rightsMinterAbi}__ and `functionName` set to `"masterNftAddress"`
  */
 export const useReadRightsMinterMasterNftAddress =
@@ -7318,14 +7320,6 @@ export const useReadRightsMinterMasterNftAddress =
     abi: rightsMinterAbi,
     functionName: 'masterNftAddress',
   })
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link rightsMinterAbi}__ and `functionName` set to `"nonces"`
- */
-export const useReadRightsMinterNonces = /*#__PURE__*/ createUseReadContract({
-  abi: rightsMinterAbi,
-  functionName: 'nonces',
-})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rightsMinterAbi}__ and `functionName` set to `"owner"`

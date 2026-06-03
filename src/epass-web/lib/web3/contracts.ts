@@ -49,11 +49,11 @@ export const RIGHTS_MINTER = {
     },
     // Read
     {
-      name: "nonces",
+      name: "executedAgreements",
       type: "function",
       stateMutability: "view",
-      inputs: [{ name: "owner", type: "address" }],
-      outputs: [{ name: "", type: "uint256" }],
+      inputs: [{ name: "", type: "bytes32" }],
+      outputs: [{ name: "", type: "bool" }],
     },
     {
       name: "MINT_AGREEMENT_TYPEHASH",
