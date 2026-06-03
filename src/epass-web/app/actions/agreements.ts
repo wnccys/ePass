@@ -192,6 +192,9 @@ export async function getMyAgreements() {
     }
 }
 
+/**
+ * Update Agreement data on db: mintTxHash, nftTokenId, vaultAddress, status
+ */
 export async function updateAgreementOnChain(id: string, data: { mintTxHash?: string, nftTokenId?: number, vaultAddress?: string, status?: string }) {
     const session = await getServerSession(authOptions);
     if (!session?.user) return { success: false, error: "Unauthorized" };

@@ -3,14 +3,16 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getAgreement, submitSignature, updateAgreementOnChain, excludeAgreementFromAccount } from "@/app/actions/agreements";
-import { useConnection, useChainId } from "wagmi";
+import { useConnection, useChainId, usePublicClient } from "wagmi";
 import { useEip712Signing } from "@/hooks/use-eip712-signing";
 import { useContractAction } from "@/hooks/use-contract-action";
 import { RIGHTS_MINTER, VAULT_FACTORY, PLAYER_RIGHTS_MASTER, MOCK_USDC } from "@/lib/web3/contracts";
 import { Badge } from "@/components/ui/badge";
 import { Loader, CheckCircle2, Clock, Trash2, Copy, Check, ExternalLink, FileText, AlertTriangle, KeyRound } from "lucide-react";
-import { formatUnits } from "viem";
+import { formatUnits, BaseError, ContractFunctionRevertedError, parseEventLogs } from "viem";
 import { ActionCard } from "@/components/web3/action-card";
+import { useWriteRightsMinterExecuteMint } from "@/src/generated";
+import { recordTransaction, confirmTransaction, failTransaction } from "@/app/actions/transactions";
 import { useSession } from "next-auth/react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -58,8 +60,12 @@ export default function ContractDetailPage() {
     const { signAgreement, status: signStatus, errorMsg: signError } = useEip712Signing(chainId);
 
     // Contracts action hooks
-    const { execute: executeMint, status: mintStatus, txHash: mintTxHash, errorMsg: mintErrorMsg } = useContractAction(RIGHTS_MINTER);
-    const { execute: executeFactory, status: factoryStatus, txHash: factoryTxHash, errorMsg: factoryErrorMsg } = useContractAction(VAULT_FACTORY);
+    const { mutateAsync: executeMintContract } = useWriteRightsMinterExecuteMint();
+    const publicClient = usePublicClient();
+
+    const [mintStatus, setMintStatus] = useState<'idle' | 'simulating' | 'awaiting_wallet' | 'submitting' | 'confirming' | 'success' | 'error'>('idle');
+    const [mintErrorMsg, setMintErrorMsg] = useState<string | null>(null);
+    const [mintTxHash, setMintTxHash] = useState<string | null>(null);
 
     // Fetch specific [id] based agreement data and set its state
     useEffect(() => {
@@ -93,39 +99,130 @@ export default function ContractDetailPage() {
     };
 
     const handleMint = async () => {
-        if (!agreement || !agreement.playerSignature || !agreement.clubSignature || !agreement.attorneySignature) return;
+        if (!agreement || !agreement.playerSignature || !agreement.clubSignature || !agreement.attorneySignature || !address) return;
+
+        setMintStatus('awaiting_wallet');
+        setMintErrorMsg(null);
+        setMintTxHash(null);
+
+        const req = {
+            player: agreement.playerWalletAddress as `0x${string}`,
+            club: agreement.clubWalletAddress as `0x${string}`,
+            attorney: agreement.attorneyWalletAddress as `0x${string}`,
+            tokenURI: agreement.tokenURI,
+            nonce: BigInt(agreement.nonce),
+            deadline: BigInt(new Date(agreement.deadline).getTime() / 1000)
+        };
+
+        let txHash: `0x${string}` | undefined;
 
         try {
-            const args = [
-                {
-                    player: agreement.playerWalletAddress,
-                    club: agreement.clubWalletAddress,
-                    attorney: agreement.attorneyWalletAddress,
-                    tokenURI: agreement.tokenURI,
-                    nonce: BigInt(agreement.nonce),
-                    deadline: BigInt(new Date(agreement.deadline).getTime() / 1000)
-                },
-                agreement.playerSignature,
-                agreement.clubSignature,
-                agreement.attorneySignature
-            ];
+            txHash = await executeMintContract({
+                address: RIGHTS_MINTER.address,
+                args: [
+                    req,
+                    agreement.playerSignature as `0x${string}`,
+                    agreement.clubSignature as `0x${string}`,
+                    agreement.attorneySignature as `0x${string}`
+                ]
+            });
 
-            const txHash = await executeMint(
-                RIGHTS_MINTER.address,
-                RIGHTS_MINTER.abi,
-                "executeMint",
-                args,
-                "execute_mint",
+            if (!txHash) throw new Error("Transaction hash was not returned.");
+
+            setMintTxHash(txHash);
+            setMintStatus('submitting');
+
+            // Record transaction to database as 'submitted'
+            await recordTransaction({
+                txHash,
                 chainId,
-                address!,
-                id
-            );
+                actionType: 'execute_mint',
+                contractAddress: RIGHTS_MINTER.address,
+                walletAddress: address,
+                agreementId: id
+            });
 
-            // In a real app we'd parse the event to get the tokenId. For MVP we'll just mock 1 or fetch from graph
-            await updateAgreementOnChain(id, { mintTxHash: txHash, status: 'minted', nftTokenId: 1 });
-            await fetchAgreement();
-        } catch (err) {
-            console.error(err);
+            setMintStatus('confirming');
+
+            if (!publicClient) throw new Error("Public client is not available.");
+
+            // Wait for transaction receipt
+            const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+            if (receipt.status === 'success') {
+                setMintStatus('success');
+
+                // Update database transaction status to 'confirmed'
+                await confirmTransaction(txHash, Number(receipt.blockNumber));
+
+                // Parse logs to decode the exact tokenId of the minted agreement
+                let nftTokenId = 1;
+                try {
+                    const parsedLogs = parseEventLogs({
+                        abi: RIGHTS_MINTER.abi,
+                        eventName: 'AgreementAuthorized',
+                        logs: receipt.logs
+                    });
+                    const eventArgs = parsedLogs[0]?.args as any;
+                    if (eventArgs && 'tokenId' in eventArgs) {
+                        nftTokenId = Number(eventArgs.tokenId);
+                    }
+                } catch (parseErr) {
+                    console.error("Failed to parse event logs for tokenId:", parseErr);
+                }
+
+                // Update agreement status in database
+                await updateAgreementOnChain(id, {
+                    mintTxHash: txHash,
+                    status: 'minted',
+                    nftTokenId
+                });
+
+                await fetchAgreement();
+            } else {
+                throw new Error("Transaction reverted on-chain.");
+            }
+        } catch (err: any) {
+            console.error("Minting error:", err);
+            setMintStatus('error');
+
+            if (txHash) {
+                // If transaction failed/reverted on-chain, update database transaction to 'failed'
+                await failTransaction(txHash);
+            }
+
+            // User rejected
+            if (err.message?.includes('User rejected') || err.code === 4001) {
+                setMintErrorMsg('Transaction was rejected in your wallet.');
+                return;
+            }
+
+            // Parse custom contract errors from RightsMinter.sol
+            if (err instanceof BaseError) {
+                const revertError = err.walk(e => e instanceof ContractFunctionRevertedError);
+                if (revertError instanceof ContractFunctionRevertedError) {
+                    const errorName = revertError.data?.errorName;
+                    switch (errorName) {
+                        case 'SignatureExpired':
+                            setMintErrorMsg('The signatures have expired. Please resign the agreement.');
+                            break;
+                        case 'InvalidSignature':
+                            setMintErrorMsg('One or more signatures are invalid or do not match the expected signers.');
+                            break;
+                        case 'MasterNotConfigured':
+                            setMintErrorMsg('The PlayerRightsMaster NFT contract address is not configured yet.');
+                            break;
+                        case 'ZeroAddress':
+                            setMintErrorMsg('An invalid address (0x0) was provided.');
+                            break;
+                        default:
+                            setMintErrorMsg(`Contract reverted: ${errorName || 'Unknown reason'}`);
+                    }
+                    return;
+                }
+            }
+
+            setMintErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
         }
     };
 

@@ -39,13 +39,13 @@ export function useVaultStatus(vaultAddress?: `0x${string}`) {
   }
 
   return {
-    status: data[0].result as ContractStatus | undefined,
-    timeRemaining: data[1].result as bigint | undefined,
-    isBeforeHalfTime: data[2].result as boolean | undefined,
-    cautionAmount: data[3].result as bigint | undefined,
-    player: data[4].result as `0x${string}` | undefined,
-    club: data[5].result as `0x${string}` | undefined,
-    contractStart: data[6].result as bigint | undefined,
+    status: data?.[0]?.result as ContractStatus | undefined,
+    timeRemaining: data?.[1]?.result as bigint | undefined,
+    isBeforeHalfTime: data?.[2]?.result as boolean | undefined,
+    cautionAmount: data?.[3]?.result as bigint | undefined,
+    player: data?.[4]?.result as `0x${string}` | undefined,
+    club: data?.[5]?.result as `0x${string}` | undefined,
+    contractStart: data?.[6]?.result as bigint | undefined,
     isLoading,
     isError,
     refetch,

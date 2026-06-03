@@ -14,7 +14,8 @@ export async function recordTransaction(data: { txHash: string, chainId: number,
         const transaction = await Transaction.create({
             userId: session.user.id,
             status: 'submitted',
-            ...data
+            ...data,
+            actionType: data.actionType as any
         });
 
         return { success: true, transactionId: transaction._id.toString() };
