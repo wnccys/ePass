@@ -15,9 +15,6 @@ import { profileSchema } from "@/lib/validations";
 import { LogoutButton } from "../home/logout-button";
 import { FadeIn } from "@/components/ui/fade-in";
 import { Card } from "@/components/ui/card";
-import { ActionCard } from "@/components/web3/action-card";
-import { useContractAction } from "@/hooks/use-contract-action";
-import { MOCK_USDC } from "@/lib/web3/contracts";
 
 export function PlayerProfile({
   user
@@ -38,8 +35,6 @@ export function PlayerProfile({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.image || null);
-
-  const { execute: executeApprove, status: approveStatus, errorMsg: approveError, txHash: approveHash } = useContractAction(MOCK_USDC);
 
   const form = useForm({
     defaultValues: {
@@ -261,31 +256,6 @@ export function PlayerProfile({
 
                     <LogoutButton />
                 </div>
-            </div>
-
-            {/* MVP TEST AREA */}
-            <div className="mt-8 pt-8 border-t border-foreground/10">
-              <h3 className="text-lg font-semibold mb-4">Web3 Test Area</h3>
-              <ActionCard
-                title="Approve USDC"
-                description="Test the transaction lifecycle with a harmless token approval."
-                actionName="Approve"
-                status={approveStatus}
-                errorMsg={approveError}
-                txHash={approveHash}
-                onAction={async () => {
-                  if(!walletAddress) return;
-                  await executeApprove(
-                    MOCK_USDC.address,
-                    MOCK_USDC.abi,
-                    "approve",
-                    [walletAddress, 0], // approve to self 0 for testing
-                    "approve_token",
-                    31337,
-                    walletAddress
-                  );
-                }}
-              />
             </div>
           </div>
         </form>
