@@ -60,7 +60,7 @@ export function OnBoardingForm({
           form.reset(value as any);
           router.push('/home');
         } else {
-          if (result.error) setSubmitError(result.error);
+          if ((result as any).error) setSubmitError((result as any).error);
           setIsSubmitting(false);
         }
       } catch (err) {
