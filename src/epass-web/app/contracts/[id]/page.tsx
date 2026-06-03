@@ -129,37 +129,6 @@ export default function ContractDetailPage() {
         }
     };
 
-    const handleCreateVault = async () => {
-        if (!agreement) return;
-
-        try {
-            const args = [
-                PLAYER_RIGHTS_MASTER.address,
-                MOCK_USDC.address,
-                agreement.playerWalletAddress,
-                agreement.clubWalletAddress
-            ];
-
-            const txHash = await executeFactory(
-                VAULT_FACTORY.address,
-                VAULT_FACTORY.abi,
-                "createVault",
-                args,
-                "create_vault",
-                chainId,
-                address!,
-                id
-            );
-
-            // Wait a bit, in real app parse VaultCreated event.
-            // We will set status to vault_created and prompt to deposit caution.
-            await updateAgreementOnChain(id, { status: 'vault_created' });
-            await fetchAgreement();
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
     // Exclude db contract representation
     const handleExclude = async () => {
         if (!confirm("Are you sure you want to exclude this contract from your account? This won't delete the contract on-chain or for other signers, but it will hide it from your dashboard.")) return;
@@ -234,7 +203,7 @@ export default function ContractDetailPage() {
                 <style>{`
                     @property --angle-1 { syntax: "<angle>"; inherits: false; initial-value: -75deg; }
                     @property --angle-2 { syntax: "<angle>"; inherits: false; initial-value: -45deg; }
-                    
+
                     @keyframes rotate-angle {
                         0% {
                             --angle-1: 0deg;
@@ -249,7 +218,7 @@ export default function ContractDetailPage() {
                         position: relative;
                         z-index: 2;
                     }
-                    
+
                     .glass-container-shadow {
                         --shadow-cutoff-fix: 2em;
                         position: absolute;
@@ -261,7 +230,7 @@ export default function ContractDetailPage() {
                         pointer-events: none;
                         z-index: 0;
                     }
-                    
+
                     .glass-container-shadow::after {
                         content: "";
                         position: absolute;
@@ -279,19 +248,19 @@ export default function ContractDetailPage() {
                         transition: all 0.3s ease;
                         opacity: 0.85;
                     }
-                    
+
                     .glass-container {
                         backdrop-filter: blur(clamp(4px, 0.25em, 12px));
                         transition: all 0.3s ease;
                         background: linear-gradient(-75deg, oklch(from var(--background) l c h / 8%), oklch(from var(--background) l c h / 16%), oklch(from var(--background) l c h / 8%));
-                        box-shadow: 
-                            inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 4%), 
-                            inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 40%), 
-                            0 0.15em 0.125em -0.125em oklch(from var(--foreground) l c h / 12%), 
+                        box-shadow:
+                            inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 4%),
+                            inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 40%),
+                            0 0.15em 0.125em -0.125em oklch(from var(--foreground) l c h / 12%),
                             0 0 0.1em 0.25em inset oklch(from var(--background) l c h / 12%);
                         border-radius: 1.5rem;
                     }
-                    
+
                     .glass-container::after {
                         content: "";
                         position: absolute;
@@ -316,9 +285,9 @@ export default function ContractDetailPage() {
                     .glass-badge {
                         backdrop-filter: blur(clamp(1px, 0.125em, 4px));
                         background: linear-gradient(-75deg, oklch(from var(--background) l c h / 5%), oklch(from var(--background) l c h / 20%), oklch(from var(--background) l c h / 5%));
-                        box-shadow: 
-                            inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%), 
-                            inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 50%), 
+                        box-shadow:
+                            inset 0 0.125em 0.125em oklch(from var(--foreground) l c h / 5%),
+                            inset 0 -0.125em 0.125em oklch(from var(--background) l c h / 50%),
                             0 0.1em 0.25em inset oklch(from var(--background) l c h / 20%) !important;
                         border: 1px solid oklch(from var(--foreground) l c h / 15%) !important;
                         border-radius: 9999px;
@@ -335,7 +304,7 @@ export default function ContractDetailPage() {
                         background: conic-gradient(from var(--angle-1) at 50% 50%, oklch(0.82 0.23 138 / 40%) 0%, transparent 10% 40%, oklch(0.82 0.23 138 / 40%) 50%, transparent 60% 90%, oklch(0.82 0.23 138 / 40%) 100%), linear-gradient(180deg, oklch(0.82 0.23 138 / 30%), oklch(0.82 0.23 138 / 30%));
                         box-shadow: inset 0 0 0 calc(var(--border-width) / 2) oklch(0.82 0.23 138 / 30%);
                     }
-                    
+
                     .glass-container-wrap:hover .glass-container-shadow::after {
                         background: linear-gradient(180deg, oklch(0.82 0.23 138 / 15%), oklch(0.82 0.23 138 / 5%));
                     }
@@ -577,19 +546,6 @@ export default function ContractDetailPage() {
                             status={mintStatus}
                             errorMsg={mintErrorMsg}
                             txHash={mintTxHash}
-                            expectedChainId={31337}
-                        />
-                    )}
-
-                    {agreement.status === 'minted' && isClub && (
-                        <ActionCard
-                            title="Create Vault"
-                            description="Deploy the RightsVault to secure the asset."
-                            actionName="Create Vault"
-                            onAction={handleCreateVault}
-                            status={factoryStatus}
-                            errorMsg={factoryErrorMsg}
-                            txHash={factoryTxHash}
                             expectedChainId={31337}
                         />
                     )}

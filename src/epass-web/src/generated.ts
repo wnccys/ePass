@@ -6,11 +6,29 @@ import {
 } from 'wagmi/codegen'
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Address
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const addressAbi = [
+  {
+    type: 'error',
+    inputs: [{ name: 'target', internalType: 'address', type: 'address' }],
+    name: 'AddressEmptyCode',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'AddressInsufficientBalance',
+  },
+  { type: 'error', inputs: [], name: 'FailedInnerCall' },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Clones
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const clonesAbi = [
-  { type: 'error', inputs: [], name: 'CloneArgumentsTooLong' },
+  { type: 'error', inputs: [], name: 'ERC1167FailedCreateClone' },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1345,6 +1363,42 @@ export const ierc20MetadataAbi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IERC20Permit
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const ierc20PermitAbi = [
+  {
+    type: 'function',
+    inputs: [],
+    name: 'DOMAIN_SEPARATOR',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'nonces',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: 'spender', internalType: 'address', type: 'address' },
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+      { name: 'deadline', internalType: 'uint256', type: 'uint256' },
+      { name: 'v', internalType: 'uint8', type: 'uint8' },
+      { name: 'r', internalType: 'bytes32', type: 'bytes32' },
+      { name: 's', internalType: 'bytes32', type: 'bytes32' },
+    ],
+    name: 'permit',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // IERC4906
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2094,11 +2148,11 @@ export const initializableAbi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// MessageHashUtils
+// Math
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const messageHashUtilsAbi = [
-  { type: 'error', inputs: [], name: 'ERC5267ExtensionsNotSupported' },
+export const mathAbi = [
+  { type: 'error', inputs: [], name: 'MathOverflowedMulDiv' },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3762,15 +3816,7 @@ export const rightsVaultFactoryAbi = [
     ],
     name: 'VaultCreated',
   },
-  { type: 'error', inputs: [], name: 'FailedDeployment' },
-  {
-    type: 'error',
-    inputs: [
-      { name: 'balance', internalType: 'uint256', type: 'uint256' },
-      { name: 'needed', internalType: 'uint256', type: 'uint256' },
-    ],
-    name: 'InsufficientBalance',
-  },
+  { type: 'error', inputs: [], name: 'ERC1167FailedCreateClone' },
   { type: 'error', inputs: [], name: 'InvalidBasisPoints' },
   {
     type: 'error',
@@ -4369,6 +4415,16 @@ export const rightsVaultImplAbi = [
     ],
     name: 'VaultInitialized',
   },
+  {
+    type: 'error',
+    inputs: [{ name: 'target', internalType: 'address', type: 'address' }],
+    name: 'AddressEmptyCode',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'AddressInsufficientBalance',
+  },
   { type: 'error', inputs: [], name: 'AlreadyInitialized' },
   { type: 'error', inputs: [], name: 'ContractNotActive' },
   { type: 'error', inputs: [], name: 'ContractNotPending' },
@@ -4411,6 +4467,7 @@ export const rightsVaultImplAbi = [
     inputs: [{ name: 'spender', internalType: 'address', type: 'address' }],
     name: 'ERC20InvalidSpender',
   },
+  { type: 'error', inputs: [], name: 'FailedInnerCall' },
   { type: 'error', inputs: [], name: 'FractionalizationRequired' },
   { type: 'error', inputs: [], name: 'InvalidBasisPoints' },
   { type: 'error', inputs: [], name: 'InvalidInitialization' },
@@ -4520,8 +4577,6 @@ export const stringsAbi = [
     ],
     name: 'StringsInsufficientHexLength',
   },
-  { type: 'error', inputs: [], name: 'StringsInvalidAddressFormat' },
-  { type: 'error', inputs: [], name: 'StringsInvalidChar' },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -5755,6 +5810,61 @@ export const useWatchIerc20MetadataTransferEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: ierc20MetadataAbi,
     eventName: 'Transfer',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ierc20PermitAbi}__
+ */
+export const useReadIerc20Permit = /*#__PURE__*/ createUseReadContract({
+  abi: ierc20PermitAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ierc20PermitAbi}__ and `functionName` set to `"DOMAIN_SEPARATOR"`
+ */
+export const useReadIerc20PermitDomainSeparator =
+  /*#__PURE__*/ createUseReadContract({
+    abi: ierc20PermitAbi,
+    functionName: 'DOMAIN_SEPARATOR',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ierc20PermitAbi}__ and `functionName` set to `"nonces"`
+ */
+export const useReadIerc20PermitNonces = /*#__PURE__*/ createUseReadContract({
+  abi: ierc20PermitAbi,
+  functionName: 'nonces',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link ierc20PermitAbi}__
+ */
+export const useWriteIerc20Permit = /*#__PURE__*/ createUseWriteContract({
+  abi: ierc20PermitAbi,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link ierc20PermitAbi}__ and `functionName` set to `"permit"`
+ */
+export const useWriteIerc20PermitPermit = /*#__PURE__*/ createUseWriteContract({
+  abi: ierc20PermitAbi,
+  functionName: 'permit',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link ierc20PermitAbi}__
+ */
+export const useSimulateIerc20Permit = /*#__PURE__*/ createUseSimulateContract({
+  abi: ierc20PermitAbi,
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link ierc20PermitAbi}__ and `functionName` set to `"permit"`
+ */
+export const useSimulateIerc20PermitPermit =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: ierc20PermitAbi,
+    functionName: 'permit',
   })
 
 /**
