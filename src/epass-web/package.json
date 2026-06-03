@@ -10,7 +10,8 @@
         "wagmi": "wagmi generate",
         "wagmi:watch": "wagmi generate --watch",
 
-        "db:reset": "tsx scripts/seed.ts",
+        "db:reset": "tsx scripts/db-reset.ts",
+        "db:seed": "tsx scripts/db-seed.ts",
 
         "// biome:format": "Formats all files and writes changes",
         "biome:format": "biome format --write .",
