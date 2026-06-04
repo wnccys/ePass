@@ -1,9 +1,10 @@
 "use server";
 
+import { env } from "@/env";
 import { PinataSDK } from "pinata-web3";
 
 const pinata = new PinataSDK({
-    pinataJwt: process.env.PINATA_JWT,
+    pinataJwt: env.PINATA_JWT,
 });
 
 export async function uploadToIPFS(file: File) {

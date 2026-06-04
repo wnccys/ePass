@@ -12,8 +12,8 @@ const ipv4Agent = isDev ? new Agent({ family: 4 }) : undefined;
 export const authOptions: NextAuthOptions = {
     providers: [
         GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID as string,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+            clientId: env.GOOGLE_CLIENT_ID as string,
+            clientSecret: env.GOOGLE_CLIENT_SECRET as string,
             httpOptions: {
                 timeout: 10000,
                 ...(ipv4Agent && { agent: ipv4Agent })
