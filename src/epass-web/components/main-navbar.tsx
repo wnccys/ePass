@@ -30,6 +30,7 @@ export function MainNavbar() {
                     <div className='flex items-center gap-6 text-sm [&_a]:cursor-default [&_a]:select-none text-muted-foreground dark:text-zinc-300'>
                         {role === 'player' && (
                             <>
+                                <Link href="/home" className='transition-colors hover:text-foreground dark:hover:text-white'>Home</Link>
                                 <Link href="/contracts" className='transition-colors hover:text-foreground dark:hover:text-white'>Contracts</Link>
                                 <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Find Clubs</Link>
                                 <Link href="/profile" className='transition-colors hover:text-foreground dark:hover:text-white'>My Profile</Link>
@@ -37,6 +38,7 @@ export function MainNavbar() {
                         )}
                         {role === 'club' && (
                             <>
+                                <Link href="/home" className='transition-colors hover:text-foreground dark:hover:text-white'>Home</Link>
                                 <Link href="/contracts" className='transition-colors hover:text-foreground dark:hover:text-white'>Contracts</Link>
                                 <Link href="/contracts/new" className='transition-colors hover:text-foreground dark:hover:text-white'>Propose Contract</Link>
                                 <Link href="/profile" className='transition-colors hover:text-foreground dark:hover:text-white'>Club Profile</Link>
