@@ -334,7 +334,9 @@ export default function ContractDetailPage() {
                     agreement.attorneyWalletAddress as `0x${string}`,
                     3000n, // playerBps: 30%
                     6000n, // clubBps: 60%
-                    1000n  // attorneyBps: 10%
+                    1000n,  // attorneyBps: 10%
+                    agreement.tokenName,
+                    agreement.tokenSymbol
                 ]
             });
 
