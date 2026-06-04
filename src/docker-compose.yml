@@ -13,5 +13,13 @@ services:
     volumes:
       - mongo_data:/data/db
 
+  explorer:
+    image: abdullahmia/compooss:latest
+    container_name: mongo_explorer
+    ports:
+      - "6969:3000"
+    depends_on:
+      - mongodb
+
 volumes:
   mongo_data:
