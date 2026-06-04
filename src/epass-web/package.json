@@ -13,6 +13,7 @@
         "test:e2e": "pnpm exec bddgen && pnpm exec playwright test",
         "test:e2e:ui": "pnpm exec bddgen && pnpm exec playwright test --ui",
         "test:e2e:report": "pnpm exec playwright show-report",
+        "test:e2e:install:linux" : "pnpm exec playwright install-deps",
         "test:e2e:install:arch": "sudo pacman -S --needed nspr nss alsa-lib at-spi2-core cups libdrm libxcomposite libxdamage libxrandr mesa pango cairo libxkbcommon",
         "bdd:gen": "pnpm exec bddgen",
         "// biome:format": "Formats all files and writes changes",
