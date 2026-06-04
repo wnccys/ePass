@@ -11,7 +11,7 @@ import { z } from "zod";
 export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), { 
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
             status: 401,
             headers: { "Content-Type": "application/json" }
         });
@@ -21,9 +21,12 @@ export async function POST(req: Request) {
     const role = session.user.role;
     const email = session.user.email;
 
+    // llama-3.3-70b-versatile is higher quality but has a much lower daily token limit.
+    const modelId = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+
     try {
         const result = streamText({
-            model: groq('llama-3.3-70b-versatile'),
+            model: groq(modelId),
             system: `You are ePass AI, an advanced virtual assistant for managing on-chain football image rights escrow contracts.
 You help clubs and players query their contracts, transactions, and manage user profile details.
 The current logged in user has role: ${role} and email: ${email}.
@@ -155,7 +158,7 @@ When a user asks you to create a contract, draft a proposal, or set up an agreem
                         };
                         const base64Prefill = Buffer.from(JSON.stringify(prefillData)).toString('base64');
                         const redirectUrl = `/contracts/new?prefill=${base64Prefill}`;
-                        
+
                         return {
                             status: 'success',
                             preview: prefillData,
@@ -168,10 +171,29 @@ When a user asks you to create a contract, draft a proposal, or set up an agreem
             stopWhen: stepCountIs(5),
         });
 
-        return result.toUIMessageStreamResponse();
+        // Surface real, actionable errors to the client instead of the SDK's masked
+        // generic message. Streaming errors (e.g. Groq rate limits) happen AFTER the
+        // handler returns, so they must be handled here rather than in the try/catch.
+        return result.toUIMessageStreamResponse({
+            onError: (error) => {
+                const msg = error instanceof Error ? error.message : String(error);
+                console.error("AI stream error:", msg);
+
+                if (/rate.?limit|tokens per day|TPD|quota|429/i.test(msg)) {
+                    return "The AI is temporarily rate-limited (Groq daily token limit reached). Please try again later, or set a different GROQ_MODEL.";
+                }
+                if (/api key|unauthor|401|invalid.*key/i.test(msg)) {
+                    return "AI is misconfigured: the Groq API key is missing or invalid. Check GROQ_API_KEY in your .env.";
+                }
+                if (/model.*(not found|decommission|deprecat)|does not exist/i.test(msg)) {
+                    return `The configured Groq model "${modelId}" is unavailable. Set a valid GROQ_MODEL in your .env.`;
+                }
+                return "The AI service hit an unexpected error. Please try again.";
+            },
+        });
     } catch (err: any) {
         console.error("AI Chat Route Error:", err);
-        return new Response(JSON.stringify({ error: err.message || "Internal Server Error" }), { 
+        return new Response(JSON.stringify({ error: err.message || "Internal Server Error" }), {
             status: 500,
             headers: { "Content-Type": "application/json" }
         });
