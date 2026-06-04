@@ -2,21 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
-import { 
-    Coins, 
-    FileText, 
-    CheckCircle, 
-    AlertCircle, 
-    TrendingUp, 
-    Activity, 
-    ArrowUpRight 
+import {
+    Coins,
+    FileText,
+    CheckCircle,
+    AlertCircle,
+    TrendingUp,
+    Activity,
+    ArrowUpRight
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-    PieChart, 
-    Pie, 
-    Cell, 
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+    PieChart,
+    Pie,
+    Cell,
     ResponsiveContainer,
     AreaChart,
     Area,
@@ -74,7 +75,9 @@ export function RightSidebar({
     ];
 
     return (
-        <aside className="w-full space-y-6 lg:max-h-[calc(100vh-8rem)] overflow-y-auto pl-1">
+        <aside className="w-full lg:max-h-[calc(100vh-8rem)] flex flex-col">
+            <ScrollArea className="flex-1 w-full pr-4">
+                <div className="space-y-6 pl-1 pb-4">
             {/* Quick Stats Grid */}
             <div className="space-y-3">
                 <div className="flex items-center gap-1.5 pb-1 border-b border-border/40">
@@ -134,37 +137,107 @@ export function RightSidebar({
                     </div>
 
                     <Card className="glass-card p-4 flex flex-col items-center">
-                        <div className="w-full h-36">
+                        <div className="relative w-full h-44">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
                                         data={chartData}
                                         cx="50%"
                                         cy="50%"
-                                        innerRadius={30}
-                                        outerRadius={50}
+                                        innerRadius={48}
+                                        outerRadius={68}
                                         paddingAngle={4}
+                                        cornerRadius={4}
                                         dataKey="value"
+                                        stroke="none"
                                     >
                                         {chartData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
+                                    <Tooltip
+                                        cursor={false}
+                                        contentStyle={{
+                                            background: 'oklch(from var(--card) l c h / 95%)',
+                                            border: '1px solid oklch(from var(--border) l c h / 40%)',
+                                            borderRadius: '0.75rem',
+                                            fontSize: '11px',
+                                            padding: '6px 10px',
+                                        }}
+                                    />
                                 </PieChart>
                             </ResponsiveContainer>
+                            {/* Center total overlay */}
+                            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                <span className="text-2xl font-bold font-mono text-foreground leading-none">
+                                    {stats.totalContracts}
+                                </span>
+                                <span className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">
+                                    Total
+                                </span>
+                            </div>
                         </div>
 
                         {/* Chart Legend */}
                         <div className="grid grid-cols-3 gap-2 w-full pt-2 border-t border-border/50 text-[10px] text-center">
                             {chartData.map((item, idx) => (
                                 <div key={item.name} className="flex flex-col items-center">
-                                    <span 
-                                        className="w-1.5 h-1.5 rounded-full mb-1" 
+                                    <span
+                                        className="w-1.5 h-1.5 rounded-full mb-1"
                                         style={{ backgroundColor: COLORS[idx % COLORS.length] }}
                                     />
                                     <span className="text-muted-foreground line-clamp-1 font-semibold">{item.name}</span>
                                     <span className="font-bold text-foreground font-mono">{item.value}</span>
                                 </div>
+                            ))}
+                        </div>
+                    </Card>
+                </div>
+            )}
+
+            {/* Transaction Activity (Area chart) */}
+            {mounted && (
+                <div className="space-y-3">
+                    <div className="flex items-center gap-1.5 pb-1 border-b border-border/40">
+                        <TrendingUp className="w-4 h-4 text-primary" />
+                        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                            Activity Trend
+                        </h3>
+                    </div>
+
+                    <Card className="glass-card p-4">
+                        <div className="w-full h-28">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={timelineData} margin={{ top: 5, right: 4, left: 4, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="activityFill" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="oklch(from var(--primary) l c h)" stopOpacity={0.4} />
+                                            <stop offset="100%" stopColor="oklch(from var(--primary) l c h)" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <Tooltip
+                                        cursor={{ stroke: 'oklch(from var(--primary) l c h / 30%)' }}
+                                        contentStyle={{
+                                            background: 'oklch(from var(--card) l c h / 95%)',
+                                            border: '1px solid oklch(from var(--border) l c h / 40%)',
+                                            borderRadius: '0.75rem',
+                                            fontSize: '11px',
+                                            padding: '6px 10px',
+                                        }}
+                                    />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="count"
+                                        stroke="oklch(from var(--primary) l c h)"
+                                        strokeWidth={2}
+                                        fill="url(#activityFill)"
+                                    />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                        <div className="grid grid-cols-5 gap-1 pt-2 border-t border-border/50 text-[9px] text-center text-muted-foreground">
+                            {timelineData.map((d) => (
+                                <span key={d.day}>{d.day}</span>
                             ))}
                         </div>
                     </Card>
@@ -196,7 +269,7 @@ export function RightSidebar({
                                         {tx.txHash.slice(0, 6)}...{tx.txHash.slice(-4)}
                                     </p>
                                 </div>
-                                <a 
+                                <a
                                     href={`https://sepolia.etherscan.io/tx/${tx.txHash}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
@@ -208,7 +281,9 @@ export function RightSidebar({
                         ))}
                     </div>
                 )}
+                </div>
             </div>
+        </ScrollArea>
         </aside>
     );
 }
