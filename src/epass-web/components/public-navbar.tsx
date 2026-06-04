@@ -5,6 +5,7 @@ import Link from "next/link";
 import { LiquidGlassNavbar } from "./ui/liquid-glass-navbar";
 import { useSession } from "next-auth/react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { FadeInDown } from "./ui/fade-in-down";
 
 interface PublicNavbarProps {
     forceLight?: boolean;
@@ -19,7 +20,7 @@ export function PublicNavbar({ forceLight = false }: PublicNavbarProps) {
     const hoverColor = forceLight ? "hover:text-foreground text-muted-foreground" : "hover:text-white text-zinc-300";
 
     return (
-        <div className="fixed top-4 left-0 right-0 flex justify-center z-50">
+        <FadeInDown className="fixed top-4 left-0 right-0 flex justify-center z-50">
             <LiquidGlassNavbar>
                 <div className="flex items-center justify-between w-full gap-8">
                     <div className="flex items-center select-none cursor-pointer gap-1.5">
@@ -52,6 +53,6 @@ export function PublicNavbar({ forceLight = false }: PublicNavbarProps) {
                     </div>
                 </div>
             </LiquidGlassNavbar>
-        </div>
+        </FadeInDown>
     );
 }

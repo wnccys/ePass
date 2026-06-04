@@ -5,6 +5,7 @@ import Link from "next/link";
 import { LiquidGlassNavbar } from "./ui/liquid-glass-navbar";
 import { AnimatedThemeToggler } from "./ui/animated-theme-toggler";
 import { useSession } from "next-auth/react";
+import { FadeInDown } from "./ui/fade-in-down";
 
 export function MainNavbar() {
     const { data: session, status } = useSession();
@@ -14,7 +15,7 @@ export function MainNavbar() {
     if (!session?.user) return null;
 
     return (
-        <div className="fixed top-4 left-0 right-0 flex justify-center z-50">
+        <FadeInDown className="fixed top-4 left-0 right-0 flex justify-center z-50">
             <LiquidGlassNavbar>
                 <div className="flex items-center gap-8">
                     <Link href="/home" className="flex items-center select-none cursor-pointer gap-1.5">
@@ -50,6 +51,6 @@ export function MainNavbar() {
                     <AnimatedThemeToggler />
                 </div>
             </LiquidGlassNavbar>
-        </div>
+        </FadeInDown>
     );
 }
