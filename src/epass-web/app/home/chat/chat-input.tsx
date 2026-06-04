@@ -4,7 +4,6 @@ import { useChat } from '@ai-sdk/react';
 import { useRef, useEffect, useState } from 'react';
 import {
     Send,
-    Loader,
     User,
     Sparkles,
     AlertCircle,
@@ -26,12 +25,35 @@ export function ChatInput() {
 
     const [input, setInput] = useState("");
     const isLoading = status === 'submitted' || status === 'streaming';
-    const messagesEndRef = useRef<HTMLDivElement | null>(null);
+    const chatContainerRef = useRef<HTMLDivElement | null>(null);
+
+    // Show a typing indicator while the assistant is responding but hasn't
+    // produced any visible text yet (request sent / tool calls running).
+    const lastMessage = messages[messages.length - 1];
+    const assistantIsTyping =
+        isLoading &&
+        (!lastMessage ||
+            lastMessage.role !== 'assistant' ||
+            !lastMessage.parts?.some((p: any) => p.type === 'text' && p.text?.trim()));
+
+    // Turn the raw error into a friendly, accurate message. The server's onError
+    // already returns actionable strings (rate limit, bad key, etc.); only fall
+    // back to a generic message for transport/network failures.
+    const errorText = error
+        ? /failed to fetch|networkerror|load failed/i.test(error.message || "")
+            ? "Couldn't reach the AI service. Check your connection and try again."
+            : error.message || "The AI service is unavailable right now. Please try again."
+        : null;
 
     // Scroll to bottom on message updates
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTo({
+                top: chatContainerRef.current.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    }, [messages, assistantIsTyping]);
 
     return (
         <Card className="glass-panel p-4 flex flex-col space-y-4 border border-primary/10 bg-primary/[0.01]">
@@ -53,7 +75,10 @@ export function ChatInput() {
 
             {/* Chat History Area (Only visible when there are messages) */}
             {messages.length > 0 && (
-                <div className="max-h-72 overflow-y-auto pr-1 space-y-4 text-sm pb-2 border-b border-border/40">
+                <div
+                    ref={chatContainerRef}
+                    className="max-h-72 overflow-y-auto pr-1 space-y-4 text-sm pb-2 border-b border-border/40"
+                >
                     {messages.map((message) => {
                         const isUser = message.role === 'user';
                         return (
@@ -62,7 +87,7 @@ export function ChatInput() {
                                 {/* Icon for AI */}
                                 {!isUser && (
                                     <div className="w-7 h-7 rounded-lg border border-primary/20 bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
-                                        <Loader className="w-4 h-4" />
+                                        <Sparkles className="w-4 h-4" />
                                     </div>
                                 )}
 
@@ -133,15 +158,28 @@ export function ChatInput() {
                             </div>
                         );
                     })}
-                    <div ref={messagesEndRef} />
+
+                    {/* Typing indicator while the assistant is composing a reply */}
+                    {assistantIsTyping && (
+                        <div className="flex gap-3 justify-start">
+                            <div className="w-7 h-7 rounded-lg border border-primary/20 bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                                <Sparkles className="w-4 h-4 animate-pulse" />
+                            </div>
+                            <div className="bg-muted/50 border border-border/40 rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:-0.3s]" />
+                                <span className="w-1.5 h-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:-0.15s]" />
+                                <span className="w-1.5 h-1.5 rounded-full bg-primary/70 animate-bounce" />
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 
-            {/* Error Message banner */}
-            {error && (
-                <div className="p-3 border border-red-500/30 bg-red-500/10 text-red-500 text-xs rounded-xl flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                    <span>Failed to reach AI service. Please verify your connection and Groq configuration.</span>
+            {/* Error Message banner — shows the real, actionable reason */}
+            {errorText && (
+                <div className="p-3 border border-red-500/30 bg-red-500/10 text-red-500 text-xs rounded-xl flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>{errorText}</span>
                 </div>
             )}
 

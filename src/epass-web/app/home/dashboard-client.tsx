@@ -32,8 +32,8 @@ export function DashboardClient({
     );
 
     return (
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-            <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr_280px] gap-8 items-start">
+        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-24">
+            <div className="grid grid-cols-1 lg:grid-cols-[230px_minmax(0,1fr)_256px] xl:grid-cols-[260px_minmax(0,1fr)_304px] gap-6 xl:gap-8 items-start">
                 
                 {/* Left Sidebar - Sticky */}
                 <div className="lg:sticky lg:top-24 space-y-6 order-2 lg:order-1">

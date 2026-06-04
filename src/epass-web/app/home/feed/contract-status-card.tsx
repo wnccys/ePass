@@ -6,7 +6,7 @@ import { Clock, ShieldAlert, CheckCircle2, AlertCircle, ArrowUpRight, Calendar }
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export function ContractStatusCard({ agreement, userRole }: { agreement: any; userRole: string }) {
+export function ContractStatusCard({ agreement, userRole, grouped }: { agreement: any; userRole: string; grouped?: 'top' | 'bottom' }) {
     const getStatusConfig = (status: string) => {
         switch (status) {
             case 'draft': 
@@ -49,8 +49,10 @@ export function ContractStatusCard({ agreement, userRole }: { agreement: any; us
     const timeRemaining = agreement.deadline ? getTimeRemaining(agreement.deadline) : null;
 
     return (
-        <Link href={`/contracts/${agreement._id}`}>
-            <Card className="glass-card hover:border-primary/30 transition-all p-5 space-y-4 cursor-pointer group relative">
+        <Link href={`/contracts/${agreement._id}`} className="block">
+            <Card className={`glass-card hover:border-primary/30 transition-all p-5 space-y-4 cursor-pointer group relative ${
+                grouped === 'top' ? 'rounded-b-none' : grouped === 'bottom' ? 'rounded-t-none' : ''
+            }`}>
                 {/* Header row */}
                 <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">

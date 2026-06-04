@@ -6,12 +6,14 @@ import { ShieldCheck, HelpCircle, ArrowUpRight, Coins, Percent } from "lucide-re
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export function VaultCard({ agreement }: { agreement: any }) {
+export function VaultCard({ agreement, grouped }: { agreement: any; grouped?: 'top' | 'bottom' }) {
     const isFractionalized = agreement.status === 'active' || agreement.status === 'vault_created' || !!agreement.vaultAddress;
 
     return (
-        <Link href={`/contracts/${agreement._id}`}>
-            <Card className="glass-card hover:border-primary/30 transition-all p-5 space-y-4 cursor-pointer group relative">
+        <Link href={`/contracts/${agreement._id}`} className="block">
+            <Card className={`glass-card hover:border-primary/30 transition-all p-5 space-y-4 cursor-pointer group relative ${
+                grouped === 'top' ? 'rounded-b-none' : grouped === 'bottom' ? 'rounded-t-none' : ''
+            }`}>
                 {/* Header row */}
                 <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">

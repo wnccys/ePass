@@ -5,7 +5,7 @@ import { TransactionCard } from "./transaction-card";
 import { ContractStatusCard } from "./contract-status-card";
 import { VaultCard } from "./vault-card";
 import { getMyTransactions } from "@/app/actions/transactions";
-import { Loader2, Layers } from "lucide-react";
+import { Loader2, Layers, Link2 } from "lucide-react";
 
 type FeedItem = 
     | { type: 'transaction'; id: string; timestamp: number; data: any }
@@ -148,15 +148,26 @@ export function FeedContainer({
                             );
                         }
 
-                        // If user is club, render a VaultCard if it's active or has a vaultAddress
+                        // If user is club, render a VaultCard if it's active or has a vaultAddress.
+                        // The two cards describe the SAME contract, so they are intentionally
+                        // glued into one unit with a link icon straddling the seam.
                         if (userRole === 'club' && (item.data.status === 'active' || item.data.vaultAddress)) {
                             return (
-                                <div key={item.id} className="space-y-4">
-                                    <ContractStatusCard 
-                                        agreement={item.data} 
-                                        userRole={userRole} 
+                                <div key={item.id} className="relative">
+                                    <ContractStatusCard
+                                        agreement={item.data}
+                                        userRole={userRole}
+                                        grouped="top"
                                     />
-                                    <VaultCard agreement={item.data} />
+
+                                    {/* Connector: link icon centered on the seam, adds no spacing */}
+                                    <div className="relative z-20 flex h-0 items-center justify-center pointer-events-none">
+                                        <div className="-translate-y-1/2 w-7 h-7 rounded-full bg-background ring-1 ring-primary/30 border border-primary/20 flex items-center justify-center shadow-sm">
+                                            <Link2 className="w-3.5 h-3.5 text-primary" />
+                                        </div>
+                                    </div>
+
+                                    <VaultCard agreement={item.data} grouped="bottom" />
                                 </div>
                             );
                         }
