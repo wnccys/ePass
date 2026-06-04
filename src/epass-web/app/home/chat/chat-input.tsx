@@ -58,7 +58,6 @@ export function ChatInput() {
 
     return (
         <Card className="glass-panel p-4 flex flex-col space-y-4 border border-primary/10 bg-primary/1">
-
             {/* Header / Info line */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground select-none">
@@ -83,7 +82,7 @@ export function ChatInput() {
                     {messages.map((message) => {
                         const isUser = message.role === 'user';
                         return (
-                            <div key={message.id} className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
+                            <div key={message.id} className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'} my-2 mr-4`}>
 
                                 {/* Icon for AI */}
                                 {!isUser && (
