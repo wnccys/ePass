@@ -35,31 +35,7 @@ import { recordTransaction, confirmTransaction, failTransaction } from "@/app/ac
 import { useSession } from "next-auth/react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-interface SerializedAgreement {
-    _id: string;
-    clubUserId: string;
-    playerWalletAddress: string;
-    playerEmail: string;
-    clubWalletAddress: string;
-    clubEmail: string;
-    attorneyWalletAddress: string;
-    attorneyEmail: string;
-    title: string;
-    description: string;
-    tokenURI: string;
-    cautionAmount: string;
-    playerSignature?: string | null;
-    clubSignature?: string | null;
-    attorneySignature?: string | null;
-    status: "draft" | "pending_signatures" | "ready" | "minted" | "vault_created" | "pending_deposit" | "active" | "rescinded" | "expired";
-    mintTxHash?: string | null;
-    nftTokenId?: number | null;
-    vaultAddress?: string | null;
-    nonce: number;
-    deadline: string;
-    createdAt: string;
-    updatedAt: string;
-}
+import { SerializedAgreement } from "@/types/agreement";
 
 export default function ContractDetailPage() {
     const { data: session } = useSession();
@@ -202,8 +178,8 @@ export default function ContractDetailPage() {
             club: agreement.clubWalletAddress as `0x${string}`,
             attorney: agreement.attorneyWalletAddress as `0x${string}`,
             tokenURI: agreement.tokenURI,
-            nonce: BigInt(agreement.nonce),
-            deadline: BigInt(new Date(agreement.deadline).getTime() / 1000)
+            nonce: BigInt(agreement.nonce!),
+            deadline: BigInt(new Date(agreement.deadline!).getTime() / 1000)
         };
 
         let txHash: `0x${string}` | undefined;
@@ -1101,7 +1077,7 @@ export default function ContractDetailPage() {
                             </div>
                             <div>
                                 <p className="text-xs text-muted-foreground uppercase">Deadline</p>
-                                <p className="font-semibold text-sm" suppressHydrationWarning>{new Date(agreement.deadline).toLocaleString()}</p>
+                                <p className="font-semibold text-sm" suppressHydrationWarning>{new Date(agreement.deadline!).toLocaleString()}</p>
                             </div>
                         </div>
                     </div>
