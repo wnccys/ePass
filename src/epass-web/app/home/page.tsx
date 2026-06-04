@@ -4,6 +4,7 @@ import { getMyAgreements, getExpiringAgreements, getPendingSignatures } from "@/
 import { getMyTransactions } from "@/app/actions/transactions";
 import { getDashboardStats } from "@/app/actions/dashboard";
 import { DashboardClient } from "./dashboard-client";
+import { IUser } from "@/models/User";
 
 export default async function Home() {
     const user = await getCurrentUser();
@@ -46,10 +47,12 @@ export default async function Home() {
         activeAgreementCount: user.role === 'player' ? 0 : undefined
     };
 
+    const parsedUser = JSON.parse(JSON.stringify(user));
+
     return (
         <DashboardClient
             initialAgreements={initialAgreements}
-            user={user}
+            user={parsedUser as IUser}
             initialTransactions={initialTransactions}
             expiringAgreements={expiringAgreements}
             pendingSignatures={pendingSignatures}

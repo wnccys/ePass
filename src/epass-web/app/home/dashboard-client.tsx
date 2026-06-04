@@ -8,7 +8,7 @@ import { ChatInput } from "./chat/chat-input";
 import { IUser } from "@/models/User";
 
 
-export async function DashboardClient({
+export function DashboardClient({
     initialAgreements,
     initialTransactions,
     expiringAgreements,
