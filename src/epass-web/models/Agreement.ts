@@ -1,41 +1,20 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
+import { SerializedAgreement } from "@/types/agreement";
 
-export interface IAgreement extends Document {
-    // Parties
+export interface IAgreement extends Omit<SerializedAgreement, "_id" | "clubUserId" | "playerSignature" | "clubSignature" | "attorneySignature" | "mintTxHash" | "nftTokenId" | "vaultAddress" | "nonce" | "deadline" | "createdAt" | "updatedAt">, Document {
     clubUserId: mongoose.Types.ObjectId;
-    playerWalletAddress: string;
-    playerEmail: string;
-    clubWalletAddress: string;
-    clubEmail: string;
-    attorneyWalletAddress: string;
-    attorneyEmail: string;
-
-    // Agreement Data
-    title: string;
-    description: string;
-    tokenURI: string;
-    cautionAmount: string; // BigInt as string (wei)
-
-    // EIP-712 Signatures (collected progressively)
     playerSignature?: string;
     clubSignature?: string;
     attorneySignature?: string;
-
-    // Lifecycle
-    status: "draft" | "pending_signatures" | "ready" | "minted" | "vault_created" | "pending_deposit" | "active" | "rescinded" | "expired";
-
-    // On-chain references
     mintTxHash?: string;
     nftTokenId?: number;
     vaultAddress?: string;
-
-    // EIP-712 parameters
     nonce?: number;
     deadline?: Date;
-
     createdAt: Date;
     updatedAt: Date;
 }
+
 
 const AgreementSchema = new Schema<IAgreement>({
     clubUserId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
@@ -50,6 +29,9 @@ const AgreementSchema = new Schema<IAgreement>({
     description: { type: String, required: true, trim: true },
     tokenURI: { type: String, required: true },
     cautionAmount: { type: String, required: true },
+    tokenName: { type: String, required: true, trim: true },
+    tokenSymbol: { type: String, required: true, trim: true },
+
 
     playerSignature: { type: String, default: null },
     clubSignature: { type: String, default: null },
