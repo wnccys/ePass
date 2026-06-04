@@ -16,10 +16,13 @@ export type CreateAgreementPayload = {
     attorneyEmail: string;
     tokenURI: string;
     cautionAmount: string;
+    tokenName: string;
+    tokenSymbol: string;
     nonce: number;
     deadline: string; // ISO date
     clubWalletAddress: string;
 };
+
 
 export async function createAgreement(data: CreateAgreementPayload) {
     const session = await getServerSession(authOptions);
@@ -32,7 +35,7 @@ export async function createAgreement(data: CreateAgreementPayload) {
         return { success: false, error: "Club user not found" };
     }
 
-    const { title, description, playerWalletAddress, playerEmail, attorneyWalletAddress, attorneyEmail, tokenURI, cautionAmount, nonce, deadline, clubWalletAddress } = data;
+    const { title, description, playerWalletAddress, playerEmail, attorneyWalletAddress, attorneyEmail, tokenURI, cautionAmount, tokenName, tokenSymbol, nonce, deadline, clubWalletAddress } = data;
 
     // Server-side title & description validations
     if (!title || title.trim().length < 5) {
@@ -41,6 +44,15 @@ export async function createAgreement(data: CreateAgreementPayload) {
     if (!description || description.trim().length < 10) {
         return { success: false, error: "Description must be at least 10 characters long" };
     }
+
+    // Token validations
+    if (!tokenName || tokenName.trim().length === 0 || tokenName.length > 10 || /\s/.test(tokenName)) {
+        return { success: false, error: "Token Name must be between 1 and 10 characters long with no spaces" };
+    }
+    if (!tokenSymbol || !tokenSymbol.startsWith('$') || tokenSymbol.length > 10 || tokenSymbol.length < 2 || /\s/.test(tokenSymbol) || !/^\$[A-Za-z0-9]+$/.test(tokenSymbol)) {
+        return { success: false, error: "Token Symbol must start with $, contain only letters/numbers, have no spaces, and be between 2 and 10 characters long (e.g. $TOKEN_E)" };
+    }
+
 
     // Addr validation
     if (!isAddress(playerWalletAddress) || !isAddress(attorneyWalletAddress) || !isAddress(clubWalletAddress)) {
@@ -79,10 +91,13 @@ export async function createAgreement(data: CreateAgreementPayload) {
             description,
             tokenURI,
             cautionAmount,
+            tokenName,
+            tokenSymbol: tokenSymbol.toUpperCase(),
             nonce,
             deadline: rawDeadline,
             status: 'pending_signatures'
         });
+
 
         // Assign agreement to the contracts list of the correct user accounts
         await User.findByIdAndUpdate(session.user.id, {
@@ -224,3 +239,79 @@ export async function excludeAgreementFromAccount(agreementId: string) {
         return { success: false, error: "Failed to exclude agreement from account." };
     }
 }
+
+export async function getExpiringAgreements() {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) return { success: false, error: "Unauthorized" };
+
+    await dbConnect();
+    try {
+        const user = await User.findById(session.user.id).select("contracts").lean();
+        if (!user || !user.contracts || user.contracts.length === 0) {
+            return { success: true, agreements: [] };
+        }
+
+        const now = new Date();
+        const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+        const agreements = await Agreement.find({
+            _id: { $in: user.contracts },
+            status: 'active',
+            deadline: { $gte: now, $lte: thirtyDaysFromNow }
+        }).lean().sort({ deadline: 1 });
+
+        const serialized = JSON.parse(JSON.stringify(agreements));
+        return { success: true, agreements: serialized };
+    } catch (err) {
+        console.error(err);
+        return { success: false, error: "Failed to fetch expiring agreements" };
+    }
+}
+
+export async function getPendingSignatures() {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) return { success: false, error: "Unauthorized" };
+
+    const email = session.user.email?.toLowerCase();
+    const role = session.user.role;
+
+    await dbConnect();
+    try {
+        const user = await User.findById(session.user.id).select("contracts").lean();
+        if (!user || !user.contracts || user.contracts.length === 0) {
+            return { success: true, agreements: [] };
+        }
+
+        // Fetch all agreements pending signatures in user's contracts
+        const agreements = await Agreement.find({
+            _id: { $in: user.contracts },
+            status: 'pending_signatures'
+        }).lean().sort({ createdAt: -1 });
+
+        // Filter the agreements to only those where this specific user has a signature pending
+        const pending = agreements.filter(agreement => {
+            let isPending = false;
+            
+            // Check based on role/email
+            if (role === 'club' && agreement.clubEmail === email && !agreement.clubSignature) {
+                isPending = true;
+            } else if (role === 'player' && agreement.playerEmail === email && !agreement.playerSignature) {
+                isPending = true;
+            }
+
+            // Check if they are the attorney (can be player or club role acting as attorney)
+            if (agreement.attorneyEmail === email && !agreement.attorneySignature) {
+                isPending = true;
+            }
+
+            return isPending;
+        });
+
+        const serialized = JSON.parse(JSON.stringify(pending));
+        return { success: true, agreements: serialized };
+    } catch (err) {
+        console.error(err);
+        return { success: false, error: "Failed to fetch pending signatures" };
+    }
+}
+
