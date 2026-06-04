@@ -5,11 +5,10 @@ import { LeftSidebar } from "./sidebar/left-sidebar";
 import { RightSidebar } from "./sidebar/right-sidebar";
 import { FeedContainer } from "./feed/feed-container";
 import { ChatInput } from "./chat/chat-input";
-import { Sparkles, MessageSquare } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { getCurrentUser } from "@/services/user";
 
 
-export function DashboardClient({
+export async function DashboardClient({
     initialAgreements,
     initialTransactions,
     expiringAgreements,
@@ -22,9 +21,11 @@ export function DashboardClient({
     pendingSignatures: any[];
     stats: any;
 }) {
+    const user = await getCurrentUser();
     const { data: session } = useSession();
-    const userRole = session?.user?.role || 'player';
-    const walletAddress = session?.user?.walletAddress;
+    const walletAddress = session?.user.walletAddress;
+
+    if (!user) throw Error("Could not find user");
 
     // Filter transactions to get confirmed ones for the right sidebar
     const recentConfirmedTxs = initialTransactions.filter(
@@ -32,12 +33,12 @@ export function DashboardClient({
     );
 
     return (
-        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div className="w-full max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-24">
             <div className="grid grid-cols-1 lg:grid-cols-[230px_minmax(0,1fr)_256px] xl:grid-cols-[260px_minmax(0,1fr)_304px] gap-6 xl:gap-8 items-start">
-                
+
                 {/* Left Sidebar - Sticky */}
                 <div className="lg:sticky lg:top-24 space-y-6 order-2 lg:order-1">
-                    <LeftSidebar 
+                    <LeftSidebar
                         walletAddress={walletAddress}
                         expiringAgreements={expiringAgreements}
                         pendingSignatures={pendingSignatures}
@@ -49,7 +50,7 @@ export function DashboardClient({
                     {/* Welcome Header */}
                     <div className="space-y-1">
                         <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                            Welcome back, <span suppressHydrationWarning className="text-primary font-semibold">{session?.user?.name || 'User'}</span>
+                            Welcome back, <span suppressHydrationWarning className="text-primary font-semibold">{user?.name || "User"}</span>
                         </h1>
                         <p className="text-sm text-muted-foreground">
                             Here is the status of your football image rights escrow agreements and actions.
@@ -61,19 +62,19 @@ export function DashboardClient({
 
 
                     {/* Infinite Activity Feed */}
-                    <FeedContainer 
+                    <FeedContainer
                         initialAgreements={initialAgreements}
                         initialTransactions={initialTransactions}
-                        userRole={userRole}
+                        userRole={user.role}
                     />
                 </div>
 
                 {/* Right Sidebar - Sticky */}
                 <div className="lg:sticky lg:top-24 space-y-6 order-3">
-                    <RightSidebar 
+                    <RightSidebar
                         stats={stats}
                         recentTransactions={recentConfirmedTxs}
-                        userRole={userRole}
+                        userRole={user.role}
                     />
                 </div>
 
