@@ -1,4 +1,5 @@
- import { playerRightsMasterAbi } from '@/src/generated';
+ import { env } from '@/env';
+import { playerRightsMasterAbi } from '@/src/generated';
 import { NextResponse } from 'next/server';
 import { createWalletClient, http, publicActions } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
@@ -8,15 +9,15 @@ export async function POST(req: Request) {
     try {
         const { vaultAddress } = await req.json();
 
-        const account = privateKeyToAccount(process.env.ADMIN_PRIVATE_KEY as `0x${string}`);
+        const account = privateKeyToAccount(env.ADMIN_PRIVATE_KEY as `0x${string}`);
 
         const client = createWalletClient({
             account,
             chain: foundry,
-            transport: http(process.env.NEXT_PUBLIC_FOUNDRY_RPC_URL),
+            transport: http(env.NEXT_PUBLIC_APP_NETWORK),
         }).extend(publicActions)
 
-        const masterNftAddress = process.env.NEXT_PUBLIC_PLAYER_RIGHTS_MASTER_ADDRESS as `0x${string}`;
+        const masterNftAddress = env.NEXT_PUBLIC_PLAYER_RIGHTS_MASTER_ADDRESS as `0x${string}`;
 
         const { request } = await client.simulateContract({
             address: masterNftAddress,

@@ -7,14 +7,20 @@ import {
   RainbowKitProvider,
 } from "@rainbow-me/rainbowkit";
 import { injectedWallet, safeWallet } from '@rainbow-me/rainbowkit/wallets';
-import { foundry } from "wagmi/chains";
+import { foundry, sepolia } from "wagmi/chains";
 import { WagmiProvider, createStorage, http, noopStorage } from "wagmi";
+import { env } from "@/env";
 
 export function Web3Providers({ children }: { children: React.ReactNode }) {
     // Instantiate inside the component to prevent SSR data leaks!
     const [queryClient] = useState(() => new QueryClient());
-    const foundryRpcUrl = process.env.NEXT_PUBLIC_FOUNDRY_RPC_URL;
-    if (!foundryRpcUrl) { throw Error("No foundry RPC was found. Check .env") }
+
+    const chainMap =  {
+        foundry: foundry,
+        sepolia: sepolia
+    }
+
+    const activeChain = chainMap[env.NEXT_PUBLIC_APP_NETWORK];
 
     const [config] = useState(() => {
         const storage = createStorage({
@@ -24,8 +30,8 @@ export function Web3Providers({ children }: { children: React.ReactNode }) {
 
         return getDefaultConfig({
             appName: 'Football Transfer Portal',
-            projectId: 'ba9cdaa4859ae0262a0ecdc00bd534f1',
-            chains: [foundry],
+            projectId: env.NEXT_PUBLIC_RAINBOW_PROJECT_ID,
+            chains: [activeChain],
             wallets: [
                 {
                     groupName: 'Recommended',
@@ -35,7 +41,8 @@ export function Web3Providers({ children }: { children: React.ReactNode }) {
             ssr: true,
             storage,
             transports: {
-                [foundry.id]: http(foundryRpcUrl),
+                [foundry.id]: http(env.NEXT_PUBLIC_FOUNDRY_RPC_URL),
+                [sepolia.id]: http(), // Uses Wagmi's public RPC endpoint or your Sepolia RPC env
             },
         });
     });

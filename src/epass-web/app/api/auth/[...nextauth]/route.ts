@@ -1,12 +1,12 @@
+import { env } from "@/env";
 import dbConnect from "@/lib/db";
-import "@/lib/env"; // <-- This forces the Zod validation check instantly on startup
 import User from "@/models/User";
 import { Agent } from "https"; // <-- 1. Import this native Node module
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
 // Prevent auth bug on production
-const isDev = process.env.NODE_ENV === "development";
+const isDev = env.NODE_ENV === "development";
 const ipv4Agent = isDev ? new Agent({ family: 4 }) : undefined;
 
 export const authOptions: NextAuthOptions = {
@@ -55,6 +55,7 @@ export const authOptions: NextAuthOptions = {
             }
 
             if (trigger === "update" && session) {
+                // Matches two possible objects (*, *.user)
                 if ("walletAddress" in session) {
                     token.walletAddress = session.walletAddress || undefined;
                 } else if (session.user && "walletAddress" in session.user) {
