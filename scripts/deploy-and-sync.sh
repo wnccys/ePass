@@ -11,12 +11,12 @@ fi
 echo "✅ Anvil is running. Deploying contracts..."
 
 # Capture the output of forge script
-OUTPUT=$(forge script script/Deploy.s.sol:Deploy --broadcast --rpc-url http://127.0.0.1:8545)
+OUTPUT=$(cd ../src/smart-contracts && forge script script/Deploy.s.sol:Deploy --broadcast --rpc-url http://127.0.0.1:8545)
 echo "$OUTPUT"
 
 echo "=== Syncing to .env ==="
 
-ENV_FILE="../epass-web/.env"
+ENV_FILE="../src/epass-web/.env"
 
 # Ensure .env exists, if not, copy from .env.example
 if [ ! -f "$ENV_FILE" ]; then
