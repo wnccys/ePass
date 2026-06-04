@@ -54,4 +54,7 @@ export const contractSchema = z.object({
   }, {
     message: "Invalid Caution Amount",
   }),
+  tokenName: z.string().min(1, { message: "Token Name is required" }).max(10, { message: "Token Name must be 10 characters or less" }).regex(/^\S+$/, { message: "Token Name cannot contain spaces" }),
+  tokenSymbol: z.string().min(2, { message: "Token Symbol must be at least 2 characters long" }).max(10, { message: "Token Symbol must be 10 characters or less" }).regex(/^\$[A-Za-z0-9]+$/, { message: "Token Symbol must start with $ and contain only letters/numbers with no spaces" }),
 });
+
