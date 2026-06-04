@@ -67,11 +67,19 @@ export function ContractCard({ agreement, userRole }: { agreement: any, userRole
             </p>
           </div>
           
-          <div className="pt-2 border-t border-border">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Caution Amount</p>
-            <p className="font-semibold text-foreground mt-1">
-              {formatUnits(BigInt(agreement.cautionAmount), 6)} USDC
-            </p>
+          <div className="pt-2 border-t border-border flex items-center justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Caution Amount</p>
+              <p className="font-semibold text-foreground mt-1">
+                {formatUnits(BigInt(agreement.cautionAmount), 6)} USDC
+              </p>
+            </div>
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Rights Token</span>
+              <Badge variant="outline" className="glass-badge px-2.5 py-1 text-xs text-foreground/85 font-mono tracking-wider font-medium">
+                {agreement.tokenSymbol}
+              </Badge>
+            </div>
           </div>
         </div>
 
