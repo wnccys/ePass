@@ -11,7 +11,7 @@ export interface ITransaction extends Document {
   status: "submitted" | "confirmed" | "failed";
   blockNumber?: number;
   confirmedAt?: Date;
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,18 +21,18 @@ const TransactionSchema = new Schema<ITransaction>({
   agreementId: { type: Schema.Types.ObjectId, ref: 'Agreement', default: null },
   txHash: { type: String, required: true, unique: true },
   chainId: { type: Number, required: true },
-  actionType: { 
-    type: String, 
+  actionType: {
+    type: String,
     enum: ['execute_mint', 'create_vault', 'fractionalize', 'approve_token', 'deposit_caution', 'rescind_player', 'rescind_club', 'expire_contract'],
-    required: true 
+    required: true
   },
   contractAddress: { type: String, required: true, lowercase: true },
   walletAddress: { type: String, required: true, lowercase: true },
-  status: { 
-    type: String, 
+  status: {
+    type: String,
     enum: ['submitted', 'confirmed', 'failed'],
     default: 'submitted',
-    required: true 
+    required: true
   },
   blockNumber: { type: Number, default: null },
   confirmedAt: { type: Date, default: null },

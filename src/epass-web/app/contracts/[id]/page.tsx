@@ -479,7 +479,7 @@ export default function ContractDetailPage() {
                 await recordTransaction({
                     txHash,
                     chainId,
-                    actionType: 'approve_nft_to_vault',
+                    actionType: 'approve_token',
                     contractAddress: PLAYER_RIGHTS_MASTER.address,
                     walletAddress: address,
                     agreementId: id
@@ -500,14 +500,19 @@ export default function ContractDetailPage() {
                 }
             } else {
                 // Step 2: Fractionalize
-                const authResponse = await fetch('/api/authorize-vault', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ vaultAddress: agreement.vaultAddress }),
-                });
+                if (!isVaultAuthorized) {
+                    setActionStatus('submitting');
+                    const authResponse = await fetch('/api/authorize-vault', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ vaultAddress: agreement.vaultAddress }),
+                    });
 
-                if (!authResponse.ok) {
-                    throw new Error("Failed to automatically authorize vault via Admin API.");
+                    if (!authResponse.ok) {
+                        const errorData = await authResponse.json().catch(() => ({}));
+                        throw new Error(errorData.error || "Failed to automatically authorize vault via Admin API.");
+                    }
+                    await refetchAuthorized();
                 }
 
                 const supply = 1_000_000n * 10n**18n; // 1M tokens with 18 decimals
@@ -527,7 +532,7 @@ export default function ContractDetailPage() {
                 await recordTransaction({
                     txHash,
                     chainId,
-                    actionType: 'fractionalize_nft',
+                    actionType: 'fractionalize',
                     contractAddress: agreement.vaultAddress,
                     walletAddress: address,
                     agreementId: id
@@ -1174,7 +1179,27 @@ export default function ContractDetailPage() {
 
                     {agreement.status === 'vault_created' && (
                         <div className="space-y-4">
-                            {!isVaultAuthorized ? (
+                            {isClub ? (
+                                <ActionCard
+                                    title="Lock & Fractionalize NFT"
+                                    description={approvedAddress?.toLowerCase() === agreement.vaultAddress?.toLowerCase()
+                                        ? (!isVaultAuthorized
+                                            ? "Step 2 of 2: Authorize vault automatically and lock the Player Rights NFT into the Vault to fractionalize it into 1,000,000 $P_IMAGE tokens."
+                                            : "Step 2 of 2: Lock the Player Rights NFT into the Vault and fractionalize it into 1,000,000 $P_IMAGE tokens."
+                                          )
+                                        : "Step 1 of 2: Approve the Vault Escrow clone to transfer the Player Rights NFT."
+                                    }
+                                    actionName={approvedAddress?.toLowerCase() === agreement.vaultAddress?.toLowerCase()
+                                        ? "Lock & Fractionalize NFT"
+                                        : "Approve NFT to Vault"
+                                    }
+                                    onAction={handleFractionalize}
+                                    status={actionStatus}
+                                    errorMsg={actionErrorMsg}
+                                    txHash={actionTxHash}
+                                    expectedChainId={31337}
+                                />
+                            ) : !isVaultAuthorized ? (
                                 address?.toLowerCase() === nftContractOwner?.toLowerCase() ? (
                                     <ActionCard
                                         title="Authorize Vault (Admin Only)"
@@ -1205,26 +1230,7 @@ export default function ContractDetailPage() {
                                         </div>
                                     </div>
                                 )
-                            ) : (
-                                isClub && (
-                                    <ActionCard
-                                        title="Lock & Fractionalize NFT"
-                                        description={approvedAddress?.toLowerCase() === agreement.vaultAddress?.toLowerCase()
-                                            ? "Step 2 of 2: Lock the Player Rights NFT into the Vault and fractionalize it into 1,000,000 $P_IMAGE tokens."
-                                            : "Step 1 of 2: Approve the Vault Escrow clone to transfer the Player Rights NFT."
-                                        }
-                                        actionName={approvedAddress?.toLowerCase() === agreement.vaultAddress?.toLowerCase()
-                                            ? "Lock & Fractionalize NFT"
-                                            : "Approve NFT to Vault"
-                                        }
-                                        onAction={handleFractionalize}
-                                        status={actionStatus}
-                                        errorMsg={actionErrorMsg}
-                                        txHash={actionTxHash}
-                                        expectedChainId={31337}
-                                    />
-                                )
-                            )}
+                            ) : null}
                         </div>
                     )}
 

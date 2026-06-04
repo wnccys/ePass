@@ -13,10 +13,10 @@ export async function POST(req: Request) {
         const client = createWalletClient({
             account,
             chain: foundry,
-            transport: http(process.env.RPC_URL)
+            transport: http(process.env.NEXT_PUBLIC_FOUNDRY_RPC_URL),
         }).extend(publicActions)
 
-        const masterNftAddress = process.env.NEXT_PUBLIC_PLAYER_RIGHTS_MASTER as `0x${string}`;
+        const masterNftAddress = process.env.NEXT_PUBLIC_PLAYER_RIGHTS_MASTER_ADDRESS as `0x${string}`;
 
         const { request } = await client.simulateContract({
             address: masterNftAddress,
