@@ -32,7 +32,7 @@ export const env = createEnv({
     // AI & Web3 Server Configurations
     ADMIN_PRIVATE_KEY: z.string().startsWith("0x", { message: "Private key must start with 0x" }),
     GROQ_API_KEY: z.string().min(1),
-    GROQ_MODEL: z.string().min(1),
+    GROQ_MODEL: z.string().default("llama-3.1-8b-instant"),
   },
 
   /*

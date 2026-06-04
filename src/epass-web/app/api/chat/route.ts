@@ -7,6 +7,7 @@ import Transaction from "@/models/Transaction";
 import { groq } from "@ai-sdk/groq";
 import { streamText, tool, stepCountIs, convertToModelMessages } from "ai";
 import { z } from "zod";
+import { env } from "@/env";
 
 export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
@@ -21,8 +22,7 @@ export async function POST(req: Request) {
     const role = session.user.role;
     const email = session.user.email;
 
-    // llama-3.3-70b-versatile is higher quality but has a much lower daily token limit.
-    const modelId = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+    const modelId = env.GROQ_MODEL;
 
     try {
         const result = streamText({
