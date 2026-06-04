@@ -14,6 +14,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from 'next/link';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export function ChatInput() {
     const {
@@ -56,7 +57,7 @@ export function ChatInput() {
     }, [messages, assistantIsTyping]);
 
     return (
-        <Card className="glass-panel p-4 flex flex-col space-y-4 border border-primary/10 bg-primary/[0.01]">
+        <Card className="glass-panel p-4 flex flex-col space-y-4 border border-primary/10 bg-primary/1">
 
             {/* Header / Info line */}
             <div className="flex items-center justify-between">
@@ -75,9 +76,9 @@ export function ChatInput() {
 
             {/* Chat History Area (Only visible when there are messages) */}
             {messages.length > 0 && (
-                <div
+                <ScrollArea
                     ref={chatContainerRef}
-                    className="max-h-72 overflow-y-auto pr-1 space-y-4 text-sm pb-2 border-b border-border/40"
+                    className="max-h-72 overflow-y-hidden pr-1 space-y-4 text-sm pb-2 border-b border-border/40 h-[calc(100vh-8rem)]"
                 >
                     {messages.map((message) => {
                         const isUser = message.role === 'user';
@@ -172,7 +173,7 @@ export function ChatInput() {
                             </div>
                         </div>
                     )}
-                </div>
+                </ScrollArea>
             )}
 
             {/* Error Message banner — shows the real, actionable reason */}
