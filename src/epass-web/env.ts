@@ -1,6 +1,12 @@
 import { createEnv } from "next-env-safe";
 import z from "zod";
 
+const ethAddressSchema = z
+  .string()
+  .startsWith("0x", { message: "Address must start with 0x" })
+  .length(42, { message: "Address must be exactly 42 characters long" })
+  .transform((val) => val as `0x${string}`);
+
 export const env = createEnv({
     /*
    * 🔒 Server-side Environment Variables
@@ -24,7 +30,7 @@ export const env = createEnv({
     PINATA_JWT: z.string().min(1),
 
     // AI & Web3 Server Configurations
-    ADMIN_PRIVATE_KEY: z.string().min(1),
+    ADMIN_PRIVATE_KEY: z.string().startsWith("0x", { message: "Private key must start with 0x" }),
     GROQ_API_KEY: z.string().min(1),
     GROQ_MODEL: z.string().min(1),
   },
@@ -44,10 +50,10 @@ export const env = createEnv({
     NEXT_PUBLIC_FOUNDRY_RPC_URL: z.url().default("http://127.0.0.1:8545"),
 
     // Web3 Contract Addresses
-    NEXT_PUBLIC_MOCK_USDC_ADDRESS: z.string().min(1),
-    NEXT_PUBLIC_RIGHTS_MINTER_ADDRESS: z.string().min(1),
-    NEXT_PUBLIC_PLAYER_RIGHTS_MASTER_ADDRESS: z.string().min(1),
-    NEXT_PUBLIC_VAULT_FACTORY_ADDRESS: z.string().min(1),
+    NEXT_PUBLIC_MOCK_USDC_ADDRESS: ethAddressSchema,
+    NEXT_PUBLIC_RIGHTS_MINTER_ADDRESS: ethAddressSchema,
+    NEXT_PUBLIC_PLAYER_RIGHTS_MASTER_ADDRESS: ethAddressSchema,
+    NEXT_PUBLIC_VAULT_FACTORY_ADDRESS: ethAddressSchema,
   },
 
   /*
