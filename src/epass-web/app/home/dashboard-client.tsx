@@ -5,7 +5,7 @@ import { LeftSidebar } from "./sidebar/left-sidebar";
 import { RightSidebar } from "./sidebar/right-sidebar";
 import { FeedContainer } from "./feed/feed-container";
 import { ChatInput } from "./chat/chat-input";
-import { getCurrentUser } from "@/services/user";
+import { IUser } from "@/models/User";
 
 
 export async function DashboardClient({
@@ -13,15 +13,16 @@ export async function DashboardClient({
     initialTransactions,
     expiringAgreements,
     pendingSignatures,
+    user,
     stats,
 }: {
     initialAgreements: any[];
     initialTransactions: any[];
     expiringAgreements: any[];
     pendingSignatures: any[];
+    user: IUser;
     stats: any;
 }) {
-    const user = await getCurrentUser();
     const { data: session } = useSession();
     const walletAddress = session?.user.walletAddress;
 

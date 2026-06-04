@@ -36,7 +36,7 @@ export default async function Home() {
     const initialTransactions = transactionsRes.success ? transactionsRes.transactions || [] : [];
     const expiringAgreements = expiringRes.success ? expiringRes.agreements || [] : [];
     const pendingSignatures = pendingRes.success ? pendingRes.agreements || [] : [];
-    
+
     const stats = statsRes.success && statsRes.stats ? statsRes.stats : {
         totalContracts: 0,
         activeContracts: 0,
@@ -49,6 +49,7 @@ export default async function Home() {
     return (
         <DashboardClient
             initialAgreements={initialAgreements}
+            user={user}
             initialTransactions={initialTransactions}
             expiringAgreements={expiringAgreements}
             pendingSignatures={pendingSignatures}
