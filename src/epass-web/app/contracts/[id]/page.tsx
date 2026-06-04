@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getAgreement, submitSignature, updateAgreementOnChain, excludeAgreementFromAccount } from "@/app/actions/agreements";
 import { useConnection, useChainId, usePublicClient } from "wagmi";
@@ -78,10 +78,14 @@ export default function ContractDetailPage() {
     const [actionTxHash, setActionTxHash] = useState<string | null>(null);
     const [faucetLoading, setFaucetLoading] = useState(false);
 
-    // Read hooks
+    // Read hooks memoized arguments
+    const getApprovedArgs = useMemo(() => {
+        return agreement?.nftTokenId ? [BigInt(agreement.nftTokenId)] as const : undefined;
+    }, [agreement?.nftTokenId]);
+
     const { data: approvedAddress, refetch: refetchApproved } = useReadPlayerRightsMasterGetApproved({
         address: PLAYER_RIGHTS_MASTER.address,
-        args: agreement?.nftTokenId ? [BigInt(agreement.nftTokenId)] : undefined,
+        args: getApprovedArgs,
         query: {
             enabled: !!agreement?.nftTokenId
         }
@@ -91,25 +95,37 @@ export default function ContractDetailPage() {
         address: PLAYER_RIGHTS_MASTER.address
     });
 
+    const authorizedOperatorsArgs = useMemo(() => {
+        return agreement?.vaultAddress ? [agreement.vaultAddress as `0x${string}`] as const : undefined;
+    }, [agreement?.vaultAddress]);
+
     const { data: isVaultAuthorized, refetch: refetchAuthorized } = useReadPlayerRightsMasterAuthorizedOperators({
         address: PLAYER_RIGHTS_MASTER.address,
-        args: agreement?.vaultAddress ? [agreement.vaultAddress as `0x${string}`] : undefined,
+        args: authorizedOperatorsArgs,
         query: {
             enabled: !!agreement?.vaultAddress
         }
     });
 
+    const usdcAllowanceArgs = useMemo(() => {
+        return address && agreement?.vaultAddress ? [address as `0x${string}`, agreement.vaultAddress as `0x${string}`] as const : undefined;
+    }, [address, agreement?.vaultAddress]);
+
     const { data: usdcAllowance, refetch: refetchAllowance } = useReadMockUsdcAllowance({
         address: MOCK_USDC.address,
-        args: address && agreement?.vaultAddress ? [address as `0x${string}`, agreement.vaultAddress as `0x${string}`] : undefined,
+        args: usdcAllowanceArgs,
         query: {
             enabled: !!address && !!agreement?.vaultAddress
         }
     });
 
+    const usdcBalanceArgs = useMemo(() => {
+        return address ? [address as `0x${string}`] as const : undefined;
+    }, [address]);
+
     const { data: usdcBalance, refetch: refetchUsdcBalance } = useReadMockUsdcBalanceOf({
         address: MOCK_USDC.address,
-        args: address ? [address as `0x${string}`] : undefined,
+        args: usdcBalanceArgs,
         query: {
             enabled: !!address
         }

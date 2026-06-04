@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useConnection } from "wagmi";
@@ -40,6 +40,8 @@ export default function NewContractPage() {
             attorneyEmail: "",
             tokenURI: "",
             cautionAmountUSDC: "",
+            tokenName: "",
+            tokenSymbol: "",
         },
         onSubmit: async ({ value }) => {
             setIsSubmitting(true);
@@ -76,6 +78,37 @@ export default function NewContractPage() {
             }
         },
     });
+
+    const prefilledRef = useRef(false);
+    useEffect(() => {
+        if (prefilledRef.current) return;
+        if (typeof window !== "undefined") {
+            const urlParams = new URLSearchParams(window.location.search);
+            const prefillStr = urlParams.get("prefill");
+            if (prefillStr) {
+                try {
+                    const decodedJSON = decodeURIComponent(escape(window.atob(prefillStr)));
+                    const decoded = JSON.parse(decodedJSON);
+                    
+                    if (decoded.title) form.setFieldValue("title", decoded.title);
+                    if (decoded.description) form.setFieldValue("description", decoded.description);
+                    if (decoded.playerWalletAddress) form.setFieldValue("playerWalletAddress", decoded.playerWalletAddress);
+                    if (decoded.playerEmail) form.setFieldValue("playerEmail", decoded.playerEmail);
+                    if (decoded.attorneyWalletAddress) form.setFieldValue("attorneyWalletAddress", decoded.attorneyWalletAddress);
+                    if (decoded.attorneyEmail) form.setFieldValue("attorneyEmail", decoded.attorneyEmail);
+                    if (decoded.tokenURI) form.setFieldValue("tokenURI", decoded.tokenURI);
+                    if (decoded.cautionAmountUSDC) form.setFieldValue("cautionAmountUSDC", decoded.cautionAmountUSDC);
+                    if (decoded.tokenName) form.setFieldValue("tokenName", decoded.tokenName);
+                    if (decoded.tokenSymbol) form.setFieldValue("tokenSymbol", decoded.tokenSymbol);
+                    prefilledRef.current = true;
+                } catch (e) {
+                    console.error("Failed to decode prefill params in useEffect:", e);
+                }
+            } else {
+                prefilledRef.current = true;
+            }
+        }
+    }, [form]);
 
     const handleFileUpload = async (file: File, handleChange: (value: string) => void) => {
         if (!file) return;
@@ -356,7 +389,7 @@ export default function NewContractPage() {
                                                     onBlur={field.handleBlur}
                                                     onChange={(e) => field.handleChange(e.target.value)}
                                                     placeholder="1000.00"
-                                                    className="bg-transparent flex-1 outline-none text-foreground"
+                                                    className="bg-transparent flex-1 outline-none text-foreground text-sm"
                                                     required
                                                 />
                                             </div>
@@ -366,6 +399,80 @@ export default function NewContractPage() {
                                                 </p>
                                             )}
                                             <p className="text-xs text-muted-foreground ml-1">This amount will be locked in the RightsVault.</p>
+                                        </div>
+                                    )}
+                                />
+
+                                <form.Field
+                                    name="tokenName"
+                                    validators={{
+                                        onChange: ({ value }) => {
+                                            const res = contractSchema.shape.tokenName.safeParse(value);
+                                            return res.success ? undefined : res.error.issues?.[0]?.message || "Invalid input";
+                                        }
+                                    }}
+                                    children={(field) => (
+                                        <div className="space-y-2">
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Rights Token Name</label>
+                                            <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
+                                                <input
+                                                    id={field.name}
+                                                    name={field.name}
+                                                    value={field.state.value ?? ""}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(e) => field.handleChange(e.target.value)}
+                                                    placeholder="e.g. PlayerRights"
+                                                    className="bg-transparent flex-1 outline-none text-foreground text-sm"
+                                                    required
+                                                    maxLength={10}
+                                                />
+                                            </div>
+                                            {field.state.meta.errors.length > 0 && (
+                                                <p className="text-xs text-destructive ml-1">
+                                                    {field.state.meta.errors.join(', ')}
+                                                </p>
+                                            )}
+                                            <p className="text-xs text-muted-foreground ml-1">The name of the rights fractionalized ERC20 token (max 10 chars, no spaces).</p>
+                                        </div>
+                                    )}
+                                />
+
+                                <form.Field
+                                    name="tokenSymbol"
+                                    validators={{
+                                        onChange: ({ value }) => {
+                                            const res = contractSchema.shape.tokenSymbol.safeParse(value);
+                                            return res.success ? undefined : res.error.issues?.[0]?.message || "Invalid input";
+                                        }
+                                    }}
+                                    children={(field) => (
+                                        <div className="space-y-2">
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Rights Token Symbol</label>
+                                            <div className="glass-input rounded-2xl px-4 py-3 flex items-center gap-1.5">
+                                                <span className="text-muted-foreground font-semibold font-mono text-sm">$</span>
+                                                <input
+                                                    id={field.name}
+                                                    name={field.name}
+                                                    value={(field.state.value ?? "").replace(/^\$/, "")}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(e) => {
+                                                        let val = e.target.value;
+                                                        // Strip spaces and special chars, uppercase
+                                                        val = val.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                                                        if (val.length > 9) val = val.slice(0, 9);
+                                                        field.handleChange(val ? '$' + val : '');
+                                                    }}
+                                                    placeholder="TOKEN_E"
+                                                    className="bg-transparent flex-1 outline-none text-foreground text-sm font-mono uppercase"
+                                                    required
+                                                />
+                                            </div>
+                                            {field.state.meta.errors.length > 0 && (
+                                                <p className="text-xs text-destructive ml-1">
+                                                    {field.state.meta.errors.join(', ')}
+                                                </p>
+                                            )}
+                                            <p className="text-xs text-muted-foreground ml-1">The symbol for the ERC20 rights token (max 10 chars including $, no spaces).</p>
                                         </div>
                                     )}
                                 />
