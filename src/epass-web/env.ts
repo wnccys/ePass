@@ -14,7 +14,7 @@ export const env = createEnv({
 
     // NextAuth Global Settings
     NEXTAUTH_SECRET: z.string().min(1),
-    NEXTAUTH_URL: z.string().url(),
+    NEXTAUTH_URL: z.url(),
 
     // Google OAuth Credentials
     GOOGLE_CLIENT_ID: z.string().min(1),
