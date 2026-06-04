@@ -500,6 +500,16 @@ export default function ContractDetailPage() {
                 }
             } else {
                 // Step 2: Fractionalize
+                const authResponse = await fetch('/api/authorize-vault', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ vaultAddress: agreement.vaultAddress }),
+                });
+
+                if (!authResponse.ok) {
+                    throw new Error("Failed to automatically authorize vault via Admin API.");
+                }
+
                 const supply = 1_000_000n * 10n**18n; // 1M tokens with 18 decimals
                 const txHash = await fractionalizeNft({
                     address: agreement.vaultAddress as `0x${string}`,
