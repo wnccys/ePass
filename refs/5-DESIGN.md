@@ -20,6 +20,7 @@ https://21st.dev/
 ## Fonts
 
 * Rodin Pro B
+* Merriweather
 * Segoe UI Font (still don't implemented)
 * DaVinci (still don't implemented)
 

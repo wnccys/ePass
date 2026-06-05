@@ -2,8 +2,28 @@
 
 Este arquivo explica como o projeto funciona nesta branch de estudo específica.
 
+// DAI -> Study
 // ERC-1155
 // ERC-6909
+
+Alguns clubes de menor porte na Europa e na América Latina começaram a usar plataformas DeFi (Finanças Descentralizadas) para dar como garantia os contratos de venda de seus jogadores
+
+```
+[Contrato de Venda Tradicional (PDF)]
+       │
+       ▼ (Tokenização em plataforma RWA)
+[Smart Contract na Blockchain] ──> Garante o colateral (Recebível futuro)
+       │
+       ▼ (Execução automatizada)
+[Pool de Liquidez DeFi] ──> Libera capital imediato para o clube em Stablecoins
+```
+
+Se o clube comprador atrasar a parcela, o smart contract pode executar travas automáticas ou redirecionar outras receitas tokenizadas do clube devedor diretamente para os investidores da pool.
+
+Por que os Smart Contracts ainda não dominam as transferências?
+A barreira não é tecnológica, é regulatória.
+
+Para que a venda do Endrick ocorresse em um contrato inteligente, o Real Madrid e o Palmeiras precisariam de wallets institucionais, e o Banco Central do Brasil precisaria aceitar uma transação em blockchain (como o DREX, que está em desenvolvimento) para validar a entrada de divisas estrangeiras. Além disso, as regras de conformidade ("Know Your Customer" ou KYC) impostas pela FIFA para evitar que o futebol seja usado para lavagem de dinheiro hoje rodam dentro do ecossistema fechado do FIFA TMS, que é totalmente Web2.
 
 ## Rights Minter
 
