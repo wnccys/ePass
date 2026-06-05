@@ -1,9 +1,9 @@
- import { env } from '@/env';
+ import { chainMap } from '@/components/web3-providers';
+import { env } from '@/env';
 import { playerRightsMasterAbi } from '@/src/generated';
 import { NextResponse } from 'next/server';
 import { createWalletClient, http, publicActions } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { foundry } from 'viem/chains';
 
 export async function POST(req: Request) {
     try {
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
         const client = createWalletClient({
             account,
-            chain: foundry,
+            chain: chainMap[env.NEXT_PUBLIC_APP_NETWORK],
             transport: http(env.NEXT_PUBLIC_APP_NETWORK),
         }).extend(publicActions)
 

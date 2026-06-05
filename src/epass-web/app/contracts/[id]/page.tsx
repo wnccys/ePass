@@ -401,13 +401,21 @@ export default function ContractDetailPage() {
         setActionTxHash(null);
 
         try {
-            const txHash = await setAuthorizedOperator({
-                address: PLAYER_RIGHTS_MASTER.address,
-                args: [
-                    agreement.vaultAddress as `0x${string}`,
-                    true
-                ]
+            if (isVaultAuthorized) { return };
+
+            setActionStatus('submitting');
+            const authResponse = await fetch('/api/authorize-vault', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ vaultAddress: agreement.vaultAddress }),
             });
+
+            if (!authResponse.ok) {
+                const errorData = await authResponse.json().catch(() => ({}));
+                throw new Error(errorData.error || "Failed to automatically authorize vault via Automatic API.");
+            }
+
+            const txHash = (await authResponse.json()).hash;
 
             if (!txHash) throw new Error("Transaction hash was not returned.");
 
@@ -1191,19 +1199,13 @@ export default function ContractDetailPage() {
                                         expectedChainId={31337}
                                     />
                                 ) : (
-                                    <div className="glass-panel p-6 rounded-xl border-amber-500/20 bg-amber-500/5 space-y-3">
+                                    <div className="glass-panel p-6 rounded-xl border-primary bg-primary/10 space-y-3">
                                         <div className="flex items-start gap-3">
-                                            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                                            <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                                             <div className="space-y-1">
-                                                <p className="text-sm font-medium text-amber-400">Pending Admin Authorization</p>
+                                                <p className="text-sm font-medium text-primary/80">Ready to Go</p>
                                                 <p className="text-xs text-muted-foreground">
-                                                    The Vault Escrow contract clone must be authorized on the master NFT contract before fractionalization can proceed.
-                                                </p>
-                                                <p className="text-xs text-muted-foreground font-mono mt-2">
-                                                    Required Admin: <span className="text-foreground">{nftContractOwner || "Loading..."}</span>
-                                                </p>
-                                                <p className="text-xs text-amber-400/80 mt-1">
-                                                    Please connect the Admin wallet (Anvil Account #0) to authorize this Vault.
+                                                    Done! Now you just rest and wait for the Club to authorize the contract.
                                                 </p>
                                             </div>
                                         </div>

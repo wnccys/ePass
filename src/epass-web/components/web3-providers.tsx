@@ -11,14 +11,14 @@ import { foundry, sepolia } from "wagmi/chains";
 import { WagmiProvider, createStorage, http, noopStorage } from "wagmi";
 import { env } from "@/env";
 
+export const chainMap =  {
+    foundry: foundry,
+    sepolia: sepolia
+};
+
 export function Web3Providers({ children }: { children: React.ReactNode }) {
     // Instantiate inside the component to prevent SSR data leaks!
     const [queryClient] = useState(() => new QueryClient());
-
-    const chainMap =  {
-        foundry: foundry,
-        sepolia: sepolia
-    }
 
     const activeChain = chainMap[env.NEXT_PUBLIC_APP_NETWORK];
 
