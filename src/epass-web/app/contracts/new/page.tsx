@@ -403,79 +403,6 @@ export default function NewContractPage() {
                                     )}
                                 />
 
-                                <form.Field
-                                    name="tokenName"
-                                    validators={{
-                                        onChange: ({ value }) => {
-                                            const res = contractSchema.shape.tokenName.safeParse(value);
-                                            return res.success ? undefined : res.error.issues?.[0]?.message || "Invalid input";
-                                        }
-                                    }}
-                                    children={(field) => (
-                                        <div className="space-y-2">
-                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Rights Token Name</label>
-                                            <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
-                                                <input
-                                                    id={field.name}
-                                                    name={field.name}
-                                                    value={field.state.value ?? ""}
-                                                    onBlur={field.handleBlur}
-                                                    onChange={(e) => field.handleChange(e.target.value)}
-                                                    placeholder="e.g. PlayerRights"
-                                                    className="bg-transparent flex-1 outline-none text-foreground text-sm"
-                                                    required
-                                                    maxLength={10}
-                                                />
-                                            </div>
-                                            {field.state.meta.errors.length > 0 && (
-                                                <p className="text-xs text-destructive ml-1">
-                                                    {field.state.meta.errors.join(', ')}
-                                                </p>
-                                            )}
-                                            <p className="text-xs text-muted-foreground ml-1">The name of the rights fractionalized ERC20 token (max 10 chars, no spaces).</p>
-                                        </div>
-                                    )}
-                                />
-
-                                <form.Field
-                                    name="tokenSymbol"
-                                    validators={{
-                                        onChange: ({ value }) => {
-                                            const res = contractSchema.shape.tokenSymbol.safeParse(value);
-                                            return res.success ? undefined : res.error.issues?.[0]?.message || "Invalid input";
-                                        }
-                                    }}
-                                    children={(field) => (
-                                        <div className="space-y-2">
-                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Rights Token Symbol</label>
-                                            <div className="glass-input rounded-2xl px-4 py-3 flex items-center gap-1.5">
-                                                <span className="text-muted-foreground font-semibold font-mono text-sm">$</span>
-                                                <input
-                                                    id={field.name}
-                                                    name={field.name}
-                                                    value={(field.state.value ?? "").replace(/^\$/, "")}
-                                                    onBlur={field.handleBlur}
-                                                    onChange={(e) => {
-                                                        let val = e.target.value;
-                                                        // Strip spaces and special chars, uppercase
-                                                        val = val.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-                                                        if (val.length > 9) val = val.slice(0, 9);
-                                                        field.handleChange(val ? '$' + val : '');
-                                                    }}
-                                                    placeholder="TOKEN_E"
-                                                    className="bg-transparent flex-1 outline-none text-foreground text-sm font-mono uppercase"
-                                                    required
-                                                />
-                                            </div>
-                                            {field.state.meta.errors.length > 0 && (
-                                                <p className="text-xs text-destructive ml-1">
-                                                    {field.state.meta.errors.join(', ')}
-                                                </p>
-                                            )}
-                                            <p className="text-xs text-muted-foreground ml-1">The symbol for the ERC20 rights token (max 10 chars including $, no spaces).</p>
-                                        </div>
-                                    )}
-                                />
                             </div>
 
                             {/* Right Column: IPFS Upload Section */}
@@ -653,6 +580,80 @@ export default function NewContractPage() {
                                                     Please upload a contract document to IPFS.
                                                 </p>
                                             )}
+                                        </div>
+                                    )}
+                                />
+
+                                <form.Field
+                                    name="tokenName"
+                                    validators={{
+                                        onChange: ({ value }) => {
+                                            const res = contractSchema.shape.tokenName.safeParse(value);
+                                            return res.success ? undefined : res.error.issues?.[0]?.message || "Invalid input";
+                                        }
+                                    }}
+                                    children={(field) => (
+                                        <div className="space-y-2">
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Rights Token Name</label>
+                                            <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
+                                                <input
+                                                    id={field.name}
+                                                    name={field.name}
+                                                    value={field.state.value ?? ""}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(e) => field.handleChange(e.target.value)}
+                                                    placeholder="e.g. PlayerRights"
+                                                    className="bg-transparent flex-1 outline-none text-foreground text-sm"
+                                                    required
+                                                    maxLength={10}
+                                                />
+                                            </div>
+                                            {field.state.meta.errors.length > 0 && (
+                                                <p className="text-xs text-destructive ml-1">
+                                                    {field.state.meta.errors.join(', ')}
+                                                </p>
+                                            )}
+                                            <p className="text-xs text-muted-foreground ml-1">The name of the rights fractionalized ERC20 token (max 10 chars, no spaces).</p>
+                                        </div>
+                                    )}
+                                />
+
+                                <form.Field
+                                    name="tokenSymbol"
+                                    validators={{
+                                        onChange: ({ value }) => {
+                                            const res = contractSchema.shape.tokenSymbol.safeParse(value);
+                                            return res.success ? undefined : res.error.issues?.[0]?.message || "Invalid input";
+                                        }
+                                    }}
+                                    children={(field) => (
+                                        <div className="space-y-2">
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Rights Token Symbol</label>
+                                            <div className="glass-input rounded-2xl px-4 py-3 flex items-center gap-1.5">
+                                                <span className="text-muted-foreground font-semibold font-mono text-sm">$</span>
+                                                <input
+                                                    id={field.name}
+                                                    name={field.name}
+                                                    value={(field.state.value ?? "").replace(/^\$/, "")}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(e) => {
+                                                        let val = e.target.value;
+                                                        // Strip spaces and special chars, uppercase
+                                                        val = val.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                                                        if (val.length > 9) val = val.slice(0, 9);
+                                                        field.handleChange(val ? '$' + val : '');
+                                                    }}
+                                                    placeholder="TOKEN_E"
+                                                    className="bg-transparent flex-1 outline-none text-foreground text-sm font-mono uppercase"
+                                                    required
+                                                />
+                                            </div>
+                                            {field.state.meta.errors.length > 0 && (
+                                                <p className="text-xs text-destructive ml-1">
+                                                    {field.state.meta.errors.join(', ')}
+                                                </p>
+                                            )}
+                                            <p className="text-xs text-muted-foreground ml-1">The symbol for the ERC20 rights token (max 10 chars including $, no spaces).</p>
                                         </div>
                                     )}
                                 />
