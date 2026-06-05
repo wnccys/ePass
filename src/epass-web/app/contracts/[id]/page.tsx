@@ -403,7 +403,6 @@ export default function ContractDetailPage() {
         try {
             if (isVaultAuthorized) { return };
 
-            setActionStatus('submitting');
             const authResponse = await fetch('/api/authorize-vault', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1167,38 +1166,41 @@ export default function ContractDetailPage() {
                     {agreement.status === 'vault_created' && (
                         <div className="space-y-4">
                             {isClub ? (
-                                <ActionCard
-                                    title="Lock & Fractionalize NFT"
-                                    description={approvedAddress?.toLowerCase() === agreement.vaultAddress?.toLowerCase()
-                                        ? (!isVaultAuthorized
-                                            ? `Step 2 of 2: Authorize vault automatically and lock the Player Rights NFT into the Vault to fractionalize it into 1,000,000 ${agreement.tokenSymbol} tokens.`
-                                            : `Step 2 of 2: Lock the Player Rights NFT into the Vault and fractionalize it into 1,000,000 ${agreement.tokenSymbol} tokens.`
-                                          )
-                                        : "Step 1 of 2: Approve the Vault Escrow clone to transfer the Player Rights NFT."
-                                    }
-                                    actionName={approvedAddress?.toLowerCase() === agreement.vaultAddress?.toLowerCase()
-                                        ? "Lock & Fractionalize NFT"
-                                        : "Approve NFT to Vault"
-                                    }
-                                    onAction={handleFractionalize}
-                                    status={actionStatus}
-                                    errorMsg={actionErrorMsg}
-                                    txHash={actionTxHash}
-                                    expectedChainId={31337}
-                                />
-                            ) : !isVaultAuthorized ? (
-                                address?.toLowerCase() === nftContractOwner?.toLowerCase() ? (
-                                    <ActionCard
-                                        title="Authorize Vault (Admin Only)"
-                                        description="As the owner of PlayerRightsMaster, you must authorize the Vault Escrow contract clone as an operator before it can fractionalize the NFT."
-                                        actionName="Authorize Vault Clone"
-                                        onAction={handleAuthorizeVault}
-                                        status={actionStatus}
-                                        errorMsg={actionErrorMsg}
-                                        txHash={actionTxHash}
-                                        expectedChainId={31337}
-                                    />
-                                ) : (
+                                <>
+                                    {isVaultAuthorized ? (
+                                        <ActionCard
+                                            title="Lock & Fractionalize NFT"
+                                            description={approvedAddress?.toLowerCase() === agreement.vaultAddress?.toLowerCase()
+                                                ? (!isVaultAuthorized
+                                                    ? `Step 2 of 2: Authorize vault automatically and lock the Player Rights NFT into the Vault to fractionalize it into 1,000,000 ${agreement.tokenSymbol} tokens.`
+                                                    : `Step 2 of 2: Lock the Player Rights NFT into the Vault and fractionalize it into 1,000,000 ${agreement.tokenSymbol} tokens.`
+                                                )
+                                                : "Step 1 of 2: Approve the Vault Escrow clone to transfer the Player Rights NFT."
+                                            }
+                                            actionName={approvedAddress?.toLowerCase() === agreement.vaultAddress?.toLowerCase()
+                                                ? "Lock & Fractionalize NFT"
+                                                : "Approve NFT to Vault"
+                                            }
+                                            onAction={handleFractionalize}
+                                            status={actionStatus}
+                                            errorMsg={actionErrorMsg}
+                                            txHash={actionTxHash}
+                                            expectedChainId={31337}
+                                        />
+                                    ) : (
+                                        <ActionCard
+                                            title="Authorize Vault (Admin Only)"
+                                            description="As the owner of PlayerRightsMaster, you must authorize the Vault Escrow contract clone as an operator before it can fractionalize the NFT."
+                                            actionName="Authorize Vault Clone"
+                                            onAction={handleAuthorizeVault}
+                                            status={actionStatus}
+                                            errorMsg={actionErrorMsg}
+                                            txHash={actionTxHash}
+                                            expectedChainId={31337}
+                                        />
+                                    )}
+                                </>
+                            ) : (
                                     <div className="glass-panel p-6 rounded-xl border-primary bg-primary/10 space-y-3">
                                         <div className="flex items-start gap-3">
                                             <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
@@ -1210,8 +1212,7 @@ export default function ContractDetailPage() {
                                             </div>
                                         </div>
                                     </div>
-                                )
-                            ) : null}
+                                )}
                         </div>
                     )}
 
