@@ -89,7 +89,7 @@ export default function NewContractPage() {
                 try {
                     const decodedJSON = decodeURIComponent(escape(window.atob(prefillStr)));
                     const decoded = JSON.parse(decodedJSON);
-                    
+
                     if (decoded.title) form.setFieldValue("title", decoded.title);
                     if (decoded.description) form.setFieldValue("description", decoded.description);
                     if (decoded.playerWalletAddress) form.setFieldValue("playerWalletAddress", decoded.playerWalletAddress);
