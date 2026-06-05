@@ -6,8 +6,11 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+    color-scheme: light;
     /* Default Shadcn colors */
     --background: oklch(1 0 0);
+    --scrollbar-thumb: oklch(0.553 0.013 58.071 / 45%);
+    --scrollbar-thumb-hover: oklch(0.553 0.013 58.071 / 65%);
     --foreground: oklch(0.147 0.004 49.25);
     --card: oklch(1 0 0);
     --card-foreground: oklch(0.147 0.004 49.25);
@@ -149,7 +152,10 @@
 }
 
 .dark {
+    color-scheme: dark;
     --background: oklch(0.147 0.004 49.25);
+    --scrollbar-thumb: oklch(0.709 0.01 56.259 / 45%);
+    --scrollbar-thumb-hover: oklch(0.709 0.01 56.259 / 65%);
     --foreground: oklch(0.985 0.001 106.423);
     --card: oklch(0.216 0.006 56.043);
     --card-foreground: oklch(0.985 0.001 106.423);
@@ -191,6 +197,31 @@
     }
     html {
         @apply font-serif;
+        scrollbar-width: thin;
+        scrollbar-color: var(--scrollbar-thumb) transparent;
+    }
+
+    /* Custom scrollbar styling (Shadcn style) */
+    ::-webkit-scrollbar {
+        width: 14px;
+        height: 14px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--scrollbar-thumb);
+        border-radius: 9999px;
+        border: 2px solid transparent;
+        background-clip: padding-box;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--scrollbar-thumb-hover);
+        border: 2px solid transparent;
+        background-clip: padding-box;
     }
 }
 
