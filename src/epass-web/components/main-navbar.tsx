@@ -7,6 +7,7 @@ import { AnimatedThemeToggler } from "./ui/animated-theme-toggler";
 import { useSession } from "next-auth/react";
 import { FadeInDown } from "./ui/fade-in-down";
 import { useTranslation } from "react-i18next";
+import { LanguageSelector } from "./language-selector";
 
 export function MainNavbar() {
     const { data: session, status } = useSession();
@@ -49,7 +50,8 @@ export function MainNavbar() {
                         )}
                     </div>
                 </div>
-                <div className='flex items-center ml-4 text-foreground dark:text-white'>
+                <div className='flex items-center gap-3 ml-4 text-foreground dark:text-white'>
+                    <LanguageSelector />
                     <AnimatedThemeToggler />
                 </div>
             </LiquidGlassNavbar>

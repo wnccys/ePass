@@ -36,7 +36,8 @@ const StatItem = ({ value, label }: { value: string; label: string }) => (
 
 // --- MAIN COMPONENT ---
 export default function HeroSection() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isPt = i18n.language.startsWith("pt");
 
   const greetings = [
     t("hero.smart"),
@@ -78,22 +79,37 @@ export default function HeroSection() {
         className="absolute inset-0 z-0"
       />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-24 pb-12 sm:px-6 md:pt-32 md:pb-20 lg:px-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-20 pb-8 sm:px-6 lg:px-8 lg:pt-24 lg:pb-12 xl:pt-32 xl:pb-20">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8 items-start">
 
           {/* --- LEFT COLUMN --- */}
-          <div className="lg:col-span-7 flex flex-col justify-center space-y-8 pt-8">
+          <div className="lg:col-span-7 flex flex-col justify-center space-y-6 pt-4 lg:pt-6 xl:space-y-8 xl:pt-8">
 
             {/* Heading */}
-            <h1
-              className="animate-fade-in delay-200 text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-medium tracking-tighter leading-[0.9]"
-            >
-              {t("hero.crafting")} <AnimatedTextRoller greetings={greetings}  /><br />
-              <span className="bg-gradient-to-br from-white via-white to-[#ffcd75] bg-clip-text text-transparent">
-                {t("hero.contractsThatWork")}
-              </span><br />
-              {t("hero.thatWork")}
-            </h1>
+            {isPt ? (
+              <h1
+                className="animate-fade-in delay-200 text-4xl sm:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-medium tracking-tighter leading-[1.05] 2xl:leading-[1.0]"
+              >
+                {t("hero.crafting")}{" "}
+                <span className="bg-gradient-to-br from-white via-white to-[#ffcd75] bg-clip-text text-transparent">
+                  {t("hero.contractsThatWork")}
+                </span><br />
+                <span className="inline-block pt-1.5 xl:pt-2.5">
+                  <AnimatedTextRoller greetings={greetings} />
+                </span><br />
+                {t("hero.thatWork")}
+              </h1>
+            ) : (
+              <h1
+                className="animate-fade-in delay-200 text-4xl sm:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-medium tracking-tighter leading-[0.9]"
+              >
+                {t("hero.crafting")} <AnimatedTextRoller greetings={greetings}  /><br />
+                <span className="bg-gradient-to-br from-white via-white to-[#ffcd75] bg-clip-text text-transparent">
+                  {t("hero.contractsThatWork")}
+                </span><br />
+                {t("hero.thatWork")}
+              </h1>
+            )}
 
             <p className="animate-fade-in delay-300 max-w-xl text-lg text-evergreen-50 leading-relaxed">
                 {t("hero.subheading")}
@@ -116,10 +132,10 @@ export default function HeroSection() {
           </div>
 
           {/* --- RIGHT COLUMN --- */}
-          <div className="lg:col-span-5 space-y-6 lg:mt-12">
+          <div className="lg:col-span-5 space-y-4 lg:space-y-6 lg:mt-6 xl:space-y-8 xl:mt-12">
 
             {/* Stats Card */}
-            <div className="animate-fade-in delay-500 relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl shadow-2xl">
+            <div className="animate-fade-in delay-500 relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 lg:p-8 backdrop-blur-xl shadow-2xl">
               {/* Card Glow Effect */}
               <div className="absolute top-0 right-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-white/5 blur-3xl pointer-events-none" />
 
@@ -129,13 +145,13 @@ export default function HeroSection() {
                     <Target className="h-6 w-6 text-lime-400" />
                   </div>
                   <div>
-                    <div className="text-3xl font-bold tracking-tight text-white">4.000.000+</div>
+                    <div className="text-3xl font-bold tracking-tight text-white">{t("hero.txsValue")}</div>
                     <div className="text-sm text-zinc-300">{t("hero.txsExecuted")}</div>
                   </div>
                 </div>
 
                 {/* Progress Bar Section */}
-                <div className="space-y-3 mb-8">
+                <div className="space-y-3 mb-6 lg:mb-8">
                   <div className="flex justify-between text-sm">
                     <span className="text-zinc-400">{t("hero.satisfaction")}</span>
                     <span className="text-white font-medium">98%</span>
@@ -145,7 +161,7 @@ export default function HeroSection() {
                   </div>
                 </div>
 
-                <div className="h-px w-full bg-white/10 mb-6" />
+                <div className="h-px w-full bg-white/10 mb-5 lg:mb-6" />
 
                 {/* Mini Stats Grid */}
                 <div className="grid grid-cols-3 gap-4 text-center">
@@ -160,8 +176,8 @@ export default function HeroSection() {
 
 
             {/* Marquee Card */}
-            <div className="animate-fade-in delay-500 relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 py-8 backdrop-blur-xl">
-              <h3 className="mb-6 px-8 text-sm font-medium text-zinc-400">Trusted by Industry Leaders</h3>
+            <div className="animate-fade-in delay-500 relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 py-6 lg:py-8 backdrop-blur-xl">
+              <h3 className="mb-6 px-8 text-sm font-medium text-zinc-400">{t("hero.trustedBy")}</h3>
 
               <div
                 className="relative flex overflow-hidden"

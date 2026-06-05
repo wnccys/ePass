@@ -16,19 +16,19 @@ const AnimatedTextRoller = ({ greetings }: { greetings: string[] }) => {
   return (
     <span
       className="inline-flex flex-col overflow-hidden align-bottom"
-      style={{ height: "1.1em" }}
+      style={{ height: "1.25em" }}
     >
       <span
         className="transition-transform duration-700 ease-in-out flex flex-col"
-        style={{ transform: `translateY(calc(-${index} * 1.1em))` }}
+        style={{ transform: `translateY(calc(-${index} * 1.25em))` }}
       >
         {greetings.map((g, i) => (
           <span
             key={i}
             className={cn(
-              "text-lime-400 whitespace-nowrap flex items-center justify-start"
+              "text-lime-400 whitespace-nowrap flex items-center justify-start pb-0.5"
             )}
-            style={{ height: "1.1em", lineHeight: "1.1em" }}
+            style={{ height: "1.25em", lineHeight: "1.25em" }}
           >
             {g}
           </span>

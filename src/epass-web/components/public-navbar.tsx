@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { FadeInDown } from "./ui/fade-in-down";
 import { useTranslation } from "react-i18next";
+import { LanguageSelector } from "./language-selector";
 
 interface PublicNavbarProps {
     forceLight?: boolean;
@@ -35,7 +36,7 @@ export function PublicNavbar({ forceLight = false }: PublicNavbarProps) {
                         />
                         <Link href="/" className={`font-light ${textColor} text-xl`}>ePass</Link>
                     </div>
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-4">
                         <a
                             href="https://epass.gitbook.io/epass-docs/"
                             target="_blank"
@@ -52,6 +53,7 @@ export function PublicNavbar({ forceLight = false }: PublicNavbarProps) {
                             {t("nav.enterApp")}
                             <ArrowRight className={`w-4 h-4 transition-transform group-hover:translate-x-1 ${textColor}`} />
                         </Link>
+                        <LanguageSelector />
                     </div>
                 </div>
             </LiquidGlassNavbar>
