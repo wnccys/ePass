@@ -1,7 +1,4 @@
 src/smart-contracts/Fluxograma em ACSII.txt
 .vscode
 .antigravitycli
-node_modules/
-.DS_Store
-*.lock
-pnpm-lock.yaml
+/anvil/anvil_state.json
