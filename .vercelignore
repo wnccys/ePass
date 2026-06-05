@@ -1,0 +1,14 @@
+# Ignore non-frontend projects and files not needed for the Vercel deployment
+/explorer
+/anvil
+/docs
+/mock-data
+/refs
+/scripts
+/src/smart-contracts
+/src/docker-compose.yml
+/.excalidraw/
+
+# Ignore documentation/project files at the root
+.gitbook.yaml
+book.json
