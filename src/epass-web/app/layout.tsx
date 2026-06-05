@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { AppProviders } from "@/components/providers";
 import { MainNavbar } from "@/components/main-navbar";
 import { Web3Providers } from "@/components/web3-providers";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const notoSerifHeading = Noto_Serif({subsets:['latin'],variable:'--font-heading'});
 
@@ -50,12 +51,19 @@ export default async function RootLayout({
             suppressHydrationWarning
         >
             <body className="min-h-full flex flex-col selection:bg-lime-200/80">
-                <AppProviders>
-                    <Web3Providers>
-                        <MainNavbar />
-                        {children}
-                    </Web3Providers>
-                </AppProviders>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    <AppProviders>
+                        <Web3Providers>
+                            <MainNavbar />
+                            {children}
+                        </Web3Providers>
+                    </AppProviders>
+                </ThemeProvider>
             </body>
         </html>
     );
