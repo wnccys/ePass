@@ -131,14 +131,14 @@ export default function ContractDetailPage() {
         }
     });
 
-    const { data: timeRemaining, refetch: refetchTimeRemaining } = useReadRightsVaultImplTimeRemaining({
+    const { data: timeRemaining, refetch: refetchTimeRemaining, isError: isTimeRemainingError } = useReadRightsVaultImplTimeRemaining({
         address: agreement?.vaultAddress as `0x${string}`,
         query: {
             enabled: !!agreement?.vaultAddress && agreement?.status === 'active'
         }
     });
 
-    const { data: isBeforeHalfTime, refetch: refetchHalfTime } = useReadRightsVaultImplIsBeforeHalfTime({
+    const { data: isBeforeHalfTime, refetch: refetchHalfTime, isError: isHalfTimeError } = useReadRightsVaultImplIsBeforeHalfTime({
         address: agreement?.vaultAddress as `0x${string}`,
         query: {
             enabled: !!agreement?.vaultAddress && agreement?.status === 'active'
@@ -150,17 +150,16 @@ export default function ContractDetailPage() {
         fetchAgreement();
     }, [id]);
     const fetchAgreement = async () => {
-        const res = await getAgreement(id);
-        if (res.success) {
-            setAgreement(res.agreement);
-            refetchApproved?.();
-            refetchAuthorized?.();
-            refetchAllowance?.();
-            refetchUsdcBalance?.();
-            refetchTimeRemaining?.();
-            refetchHalfTime?.();
+        try {
+            const res = await getAgreement(id);
+            if (res.success) {
+                setAgreement(res.agreement);
+            }
+        } catch (err) {
+            console.error("Error fetching agreement:", err);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     // Submit the signature
@@ -1298,7 +1297,9 @@ export default function ContractDetailPage() {
                                     <div className="bg-foreground/5 p-4 rounded-xl border border-foreground/5 space-y-1">
                                         <p className="text-xs text-muted-foreground/80">Time Remaining:</p>
                                         <p className="font-semibold text-foreground text-base">
-                                            {timeRemaining !== undefined ? (
+                                            {isTimeRemainingError ? (
+                                                <span className="text-destructive text-sm font-sans">Error reading contract</span>
+                                            ) : timeRemaining !== undefined ? (
                                                 timeRemaining > 0n ? (
                                                     `${(timeRemaining / 86400n).toString()} Days, ${((timeRemaining % 86400n) / 3600n).toString()} Hours`
                                                 ) : (
@@ -1312,7 +1313,9 @@ export default function ContractDetailPage() {
                                     <div className="bg-foreground/5 p-4 rounded-xl border border-foreground/5 space-y-1">
                                         <p className="text-xs text-muted-foreground/80">Contract Phase:</p>
                                         <p className="font-semibold text-foreground text-base">
-                                            {isBeforeHalfTime !== undefined ? (
+                                            {isHalfTimeError ? (
+                                                <span className="text-destructive text-sm font-sans">Error reading contract</span>
+                                            ) : isBeforeHalfTime !== undefined ? (
                                                 isBeforeHalfTime ? (
                                                     <span className="text-amber-400">1st Half (Penalty Period)</span>
                                                 ) : (
