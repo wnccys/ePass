@@ -150,16 +150,17 @@ export default function ContractDetailPage() {
         fetchAgreement();
     }, [id]);
     const fetchAgreement = async () => {
-        try {
-            const res = await getAgreement(id);
-            if (res.success) {
-                setAgreement(res.agreement);
-            }
-        } catch (err) {
-            console.error("Error fetching agreement:", err);
-        } finally {
-            setLoading(false);
+        const res = await getAgreement(id);
+        if (res.success) {
+            setAgreement(res.agreement);
+            refetchApproved?.();
+            refetchAuthorized?.();
+            refetchAllowance?.();
+            refetchUsdcBalance?.();
+            refetchTimeRemaining?.();
+            refetchHalfTime?.();
         }
+        setLoading(false);
     };
 
     // Submit the signature
@@ -1116,7 +1117,7 @@ export default function ContractDetailPage() {
                                         title="Copy IPFS URI"
                                     >
                                         {isCopied ? (
-                                            <Check className="w-4 h-4 text-green-500 animate-pulse" />
+                                            <Check className="w-4 h-4 text-lime-500 animate-pulse" />
                                         ) : (
                                             <Copy className="w-4 h-4" />
                                         )}
@@ -1288,8 +1289,8 @@ export default function ContractDetailPage() {
                                         <h3 className="font-semibold text-foreground text-lg">Active Escrow & Agreement</h3>
                                         <p className="text-xs text-muted-foreground mt-0.5">The image rights agreement is active on-chain</p>
                                     </div>
-                                    <Badge variant="outline" className="font-mono bg-green-500/10 text-green-400 text-xs border-green-500/20 px-3 py-1 animate-pulse">
-                                        ● Live
+                                    <Badge variant="outline" className="font-mono bg-green-500/10 text-lime-400 text-xs border-green-500/20 px-3 py-1 animate-pulse">
+                                        ● Active
                                     </Badge>
                                 </div>
 
@@ -1414,15 +1415,15 @@ export default function ContractDetailPage() {
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <span className="text-sm">Club</span>
-                                {agreement.clubSignature ? <CheckCircle2 className="text-green-500 w-5 h-5" /> : <Clock className="text-amber-500 w-5 h-5" />}
+                                {agreement.clubSignature ? <CheckCircle2 className="text-lime-500 w-5 h-5" /> : <Clock className="text-amber-500 w-5 h-5" />}
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-sm">Player</span>
-                                {agreement.playerSignature ? <CheckCircle2 className="text-green-500 w-5 h-5" /> : <Clock className="text-amber-500 w-5 h-5" />}
+                                {agreement.playerSignature ? <CheckCircle2 className="text-lime-500 w-5 h-5" /> : <Clock className="text-amber-500 w-5 h-5" />}
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-sm">Attorney</span>
-                                {agreement.attorneySignature ? <CheckCircle2 className="text-green-500 w-5 h-5" /> : <Clock className="text-amber-500 w-5 h-5" />}
+                                {agreement.attorneySignature ? <CheckCircle2 className="text-lime-500 w-5 h-5" /> : <Clock className="text-amber-500 w-5 h-5" />}
                             </div>
                         </div>
 
