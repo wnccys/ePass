@@ -1,6 +1,7 @@
 import { useChainId, useConnection } from "wagmi";
-import { Loader, AlertCircle, CheckCircle2, Link as LinkIcon } from "lucide-react";
+import { Loader, AlertCircle, CheckCircle2, Link as LinkIcon, HelpCircle } from "lucide-react";
 import SiweButton from "@/components/siwe-sign";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 interface ActionCardProps {
   title: string;
@@ -12,6 +13,17 @@ interface ActionCardProps {
   txHash?: string | null;
   expectedChainId?: number;
 }
+
+const STEP_EXPLANATIONS: Record<string, string> = {
+  "Ready to Mint": "RightsMinter validates the EIP-712 signatures from all 3 parties (Player, Club, Attorney) and mints the Player Rights Master (PRM) NFT to the club.",
+  "Deploy Vault Escrow": "RightsVaultFactory deploys a gas-efficient proxy clone of the vault implementation to manage the escrow lifecycle and fractionalized ERC20 tokens.",
+  "Lock & Fractionalize NFT": "Locks the Master NFT in the vault and mints fractionalized ERC20 rights tokens distributed to the Player, Club, and Attorney based on their agreed share percentage.",
+  "Authorize Vault (Admin Only)": "Authorizes the newly deployed Vault Escrow clone to interact with the PlayerRightsMaster NFT registry so it can safely lock the NFT.",
+  "Deposit Caution": "Deposits USDC caution money into the vault. 50% is locked as a guarantee (caution) and 50% is added to the redeemable reserve for share liquidity, changing status to ACTIVE.",
+  "Rescind Agreement (as Player)": "Prematurely terminates the contract. If done before 6 months (HALF_TIME), a 65% penalty of the caution deposit is applied, distributing the funds to the other party.",
+  "Rescind Agreement (as Club)": "Prematurely terminates the contract. If done before 6 months (HALF_TIME), a 65% penalty of the caution deposit is applied, distributing the funds to the other party.",
+  "Expire Agreement": "Concludes the active contract after the 365-day duration, returning 100% of the locked caution deposit back to the Club."
+};
 
 /**
  * Generic component that acts like a bridge between the entire flow and contract execution
@@ -31,11 +43,31 @@ export function ActionCard({
   const isWrongChain = chainId !== expectedChainId;
 
   const isBusy = status !== 'idle' && status !== 'error' && status !== 'success';
+  const explanation = STEP_EXPLANATIONS[title] || Object.entries(STEP_EXPLANATIONS).find(([key]) => title.includes(key))?.[1];
 
   return (
     <div className="glass-panel p-6 rounded-xl flex flex-col gap-4">
       <div>
-        <h3 className="font-semibold">{title}</h3>
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="font-semibold">{title}</h3>
+          {explanation && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className="text-muted-foreground hover:text-foreground transition-colors cursor-help inline-flex items-center justify-center p-0.5 rounded-full hover:bg-muted"
+                  >
+                    <HelpCircle className="w-3.5 h-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs text-xs p-3 bg-popover text-popover-foreground border border-border/40 shadow-xl rounded-xl leading-relaxed text-center">
+                  {explanation}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
 
