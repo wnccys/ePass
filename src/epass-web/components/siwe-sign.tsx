@@ -62,13 +62,15 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
         };
     }, [foundryClient]);
 
-    // Update address on parent component
+    // Update address on parent component and session (only if changed)
     useEffect(() => {
         onAddressChange?.(address);
-        if (session) {
-            update({ walletAddress: address || null });
+        const currentWallet = session?.user?.walletAddress;
+        const targetWallet = address || null;
+        if (session && currentWallet !== targetWallet) {
+            update({ walletAddress: targetWallet });
         }
-    }, [address, onAddressChange, session, update]);
+    }, [address, onAddressChange, session?.user?.walletAddress, update]);
 
     return (
         /** Connect wallet button */

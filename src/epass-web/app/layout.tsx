@@ -45,18 +45,20 @@ export default async function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html
-            lang="en"
-            className={cn("h-full", "antialiased", rodinProB.variable, "font-serif", merriweather.variable, notoSerifHeading.variable)}
-            suppressHydrationWarning
-        >
-            <body className="min-h-full flex flex-col selection:bg-lime-200/80">
-                <ThemeProvider
-                    attribute="class"
-                    defaultTheme="system"
-                    enableSystem
-                    disableTransitionOnChange
-                >
+        <>
+        <head>
+            {/* React Scan -- DevTool */}
+            <script
+                crossOrigin="anonymous"
+                src="//unpkg.com/react-scan/dist/auto.global.js"
+            ></script>
+        </head>
+            <html
+                lang="en"
+                className={cn("h-full", "antialiased", rodinProB.variable, "font-serif", merriweather.variable, notoSerifHeading.variable)}
+                suppressHydrationWarning
+            >
+                <body className="min-h-full flex flex-col selection:bg-lime-200/80">
                     <AppProviders>
                         <Web3Providers>
                             <MainNavbar />
