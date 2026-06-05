@@ -13,8 +13,10 @@ import { Card } from "@/components/ui/card";
 import { FadeIn } from "@/components/ui/fade-in";
 import { contractSchema } from "@/lib/validations";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export default function NewContractPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const { data: session } = useSession();
     const { address } = useConnection();
@@ -55,7 +57,7 @@ export default function NewContractPage() {
                 const deadline = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
                 if (!address) {
-                    throw new Error("You must connect your wallet to propose a contract");
+                    throw new Error(t("contracts.new.walletError"));
                 }
 
                 const res = await createAgreement({
@@ -67,7 +69,7 @@ export default function NewContractPage() {
                 });
 
                 if (!res.success) {
-                    throw new Error(res.error || "Failed to create agreement");
+                    throw new Error(res.error || t("contracts.new.failedCreate"));
                 }
 
                 router.push(`/contracts/${res.agreementId}`);
@@ -115,13 +117,13 @@ export default function NewContractPage() {
 
         // Check file type
         if (file.type !== "application/pdf") {
-            setUploadError("Only PDF files are supported.");
+            setUploadError(t("contracts.new.pdfError"));
             return;
         }
 
         // Check file size (5MB limit)
         if (file.size > 5 * 1024 * 1024) {
-            setUploadError("Max file size is 5MB.");
+            setUploadError(t("contracts.new.sizeError"));
             return;
         }
 
@@ -134,10 +136,10 @@ export default function NewContractPage() {
                 handleChange(res.ipfsUrl);
                 setUploadedFileName(file.name);
             } else {
-                setUploadError(res.error || "Failed to upload file to IPFS.");
+                setUploadError(res.error || t("contracts.new.ipfsFail"));
             }
         } catch (err: any) {
-            setUploadError(err.message || "Failed to upload file to IPFS.");
+            setUploadError(err.message || t("contracts.new.ipfsFail"));
         } finally {
             setIsUploading(false);
         }
@@ -150,15 +152,15 @@ export default function NewContractPage() {
     };
 
     if (session?.user?.role !== 'club') {
-        return <div className="p-24 text-center">Only clubs can propose contracts.</div>;
+        return <div className="p-24 text-center">{t("contracts.new.onlyClubsCanPropose")}</div>;
     }
 
     return (
         <div className="container max-w-5xl mx-auto py-24 px-6">
             <FadeIn>
                 <div className="mb-8">
-                    <h1 className="text-4xl font-serif font-light tracking-tight">Propose Contract</h1>
-                    <p className="text-muted-foreground mt-2">Draft a new image rights agreement to be signed via EIP-712.</p>
+                    <h1 className="text-4xl font-serif font-light tracking-tight">{t("contracts.new.title")}</h1>
+                    <p className="text-muted-foreground mt-2">{t("contracts.new.subtitle")}</p>
                 </div>
 
                 <Card className="glass-panel p-8 md:p-12 rounded-3xl border-none">
@@ -183,7 +185,7 @@ export default function NewContractPage() {
                                     }}
                                     children={(field) => (
                                         <div className="space-y-2">
-                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Contract Title</label>
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">{t("contracts.new.contractTitle")}</label>
                                             <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
                                                 <input
                                                     id={field.name}
@@ -215,7 +217,7 @@ export default function NewContractPage() {
                                     }}
                                     children={(field) => (
                                         <div className="space-y-2">
-                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Description</label>
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">{t("contracts.new.description")}</label>
                                             <div className="glass-input rounded-2xl px-4 py-3 flex items-start">
                                                 <textarea
                                                     id={field.name}
@@ -247,7 +249,7 @@ export default function NewContractPage() {
                                     }}
                                     children={(field) => (
                                         <div className="space-y-2">
-                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Player Wallet Address</label>
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">{t("contracts.new.playerAddress")}</label>
                                             <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
                                                 <input
                                                     id={field.name}
@@ -279,7 +281,7 @@ export default function NewContractPage() {
                                     }}
                                     children={(field) => (
                                         <div className="space-y-2">
-                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Player Email</label>
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">{t("contracts.new.playerEmail")}</label>
                                             <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
                                                 <input
                                                     id={field.name}
@@ -312,7 +314,7 @@ export default function NewContractPage() {
                                     }}
                                     children={(field) => (
                                         <div className="space-y-2">
-                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Attorney Wallet Address</label>
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">{t("contracts.new.attorneyAddress")}</label>
                                             <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
                                                 <input
                                                     id={field.name}
@@ -344,7 +346,7 @@ export default function NewContractPage() {
                                     }}
                                     children={(field) => (
                                         <div className="space-y-2">
-                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Attorney Email</label>
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">{t("contracts.new.attorneyEmail")}</label>
                                             <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
                                                 <input
                                                     id={field.name}
@@ -377,7 +379,7 @@ export default function NewContractPage() {
                                     }}
                                     children={(field) => (
                                         <div className="space-y-2">
-                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Caution Amount (USDC)</label>
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">{t("contracts.new.cautionAmount")}</label>
                                             <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
                                                 <input
                                                     id={field.name}
@@ -398,7 +400,7 @@ export default function NewContractPage() {
                                                     {field.state.meta.errors.join(', ')}
                                                 </p>
                                             )}
-                                            <p className="text-xs text-muted-foreground ml-1">This amount will be locked in the RightsVault.</p>
+                                            <p className="text-xs text-muted-foreground ml-1">{t("contracts.new.cautionLockExplanation")}</p>
                                         </div>
                                     )}
                                 />
@@ -420,14 +422,14 @@ export default function NewContractPage() {
                                             <div>
                                                 <div className="flex items-center gap-1.5 mb-2 select-none">
                                                     <label className="text-sm font-medium text-foreground ml-1 block">
-                                                        Contract Document (PDF)
+                                                        {t("contracts.new.contractDocument")}
                                                     </label>
                                                     <div className="relative inline-block group z-40">
                                                         <HelpCircle className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground transition-colors cursor-help" />
                                                         <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 p-3.5 rounded-2xl bg-card/95 backdrop-blur-md border border-foreground/10 text-[11px] text-muted-foreground shadow-2xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 origin-top z-[9999] leading-relaxed text-center">
                                                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-card/95" />
-                                                            <span className="font-semibold text-foreground block mb-1 text-xs">Decentralized IPFS Storage</span>
-                                                            Your contract PDF is cryptographically hashed and uploaded to Pinata IPFS, ensuring tamper-proof, permanent, and decentralized hosting.
+                                                            <span className="font-semibold text-foreground block mb-1 text-xs">{t("contracts.new.ipfsStorage")}</span>
+                                                            {t("contracts.new.ipfsHelpText")}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -477,14 +479,14 @@ export default function NewContractPage() {
                                                         </div>
                                                         <div className="space-y-1">
                                                             <p className="text-sm font-semibold text-foreground">
-                                                                Drag & drop contract PDF here
+                                                                {t("contracts.new.dragDrop")}
                                                             </p>
                                                             <p className="text-xs text-primary underline font-medium">
-                                                                or click to browse files
+                                                                {t("contracts.new.browse")}
                                                             </p>
                                                         </div>
                                                         <p className="text-[10px] text-muted-foreground">
-                                                            Only PDF format is supported (Max 5MB)
+                                                            {t("contracts.new.pdfOnly")}
                                                         </p>
                                                     </div>
                                                 ) : isUploading ? (
@@ -492,10 +494,10 @@ export default function NewContractPage() {
                                                         <Loader className="w-8 h-8 animate-spin text-primary" />
                                                         <div className="space-y-1">
                                                             <p className="text-sm font-semibold text-foreground">
-                                                                Uploading contract to IPFS...
+                                                                {t("contracts.new.uploading")}
                                                             </p>
                                                             <p className="text-xs text-muted-foreground">
-                                                                Securing your document on Pinata storage
+                                                                {t("contracts.new.securing")}
                                                             </p>
                                                         </div>
                                                         <div className="w-full max-w-[200px] h-1 bg-muted rounded-full overflow-hidden mt-2">
@@ -513,7 +515,7 @@ export default function NewContractPage() {
                                                                 {uploadedFileName || "contract.pdf"}
                                                             </p>
                                                             <p className="text-xs text-emerald-500 font-medium">
-                                                                Successfully uploaded to IPFS!
+                                                                {t("contracts.new.uploadSuccess")}
                                                             </p>
                                                         </div>
 
@@ -532,7 +534,7 @@ export default function NewContractPage() {
                                                                             setTimeout(() => setIsCopied(false), 2000);
                                                                         }}
                                                                         className="p-1.5 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors"
-                                                                        title="Copy IPFS URI"
+                                                                        title={t("contracts.detail.copyIpfs")}
                                                                     >
                                                                         {isCopied ? (
                                                                             <Check className="w-4 h-4 text-emerald-500" />
@@ -546,7 +548,7 @@ export default function NewContractPage() {
                                                                         rel="noopener noreferrer"
                                                                         onClick={(e) => e.stopPropagation()}
                                                                         className="p-1.5 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors"
-                                                                        title="View Document"
+                                                                        title={t("common.view")}
                                                                     >
                                                                         <ExternalLink className="w-4 h-4" />
                                                                     </a>
@@ -561,7 +563,7 @@ export default function NewContractPage() {
                                                                 className="text-xs text-destructive hover:text-destructive/80 font-medium flex items-center justify-center gap-1.5 mx-auto py-1 px-3 rounded-full hover:bg-destructive/10 transition-colors"
                                                             >
                                                                 <Trash2 className="w-3.5 h-3.5" />
-                                                                Replace Document
+                                                                {t("contracts.new.replaceDoc")}
                                                             </button>
                                                         </div>
                                                     </div>
@@ -577,7 +579,7 @@ export default function NewContractPage() {
 
                                             {field.state.meta.errors.length > 0 && (
                                                 <p className="text-xs text-destructive ml-1 mt-1">
-                                                    Please upload a contract document to IPFS.
+                                                    {t("contracts.new.uploadRequired")}
                                                 </p>
                                             )}
                                         </div>
@@ -594,7 +596,7 @@ export default function NewContractPage() {
                                     }}
                                     children={(field) => (
                                         <div className="space-y-2">
-                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Rights Token Name</label>
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">{t("contracts.new.tokenNameLabel")}</label>
                                             <div className="glass-input rounded-2xl px-4 py-3 flex items-center">
                                                 <input
                                                     id={field.name}
@@ -613,7 +615,7 @@ export default function NewContractPage() {
                                                     {field.state.meta.errors.join(', ')}
                                                 </p>
                                             )}
-                                            <p className="text-xs text-muted-foreground ml-1">The name of the rights fractionalized ERC20 token (max 10 chars, no spaces).</p>
+                                            <p className="text-xs text-muted-foreground ml-1">{t("contracts.new.tokenNameHelp")}</p>
                                         </div>
                                     )}
                                 />
@@ -628,7 +630,7 @@ export default function NewContractPage() {
                                     }}
                                     children={(field) => (
                                         <div className="space-y-2">
-                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Rights Token Symbol</label>
+                                            <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">{t("contracts.new.tokenSymbolLabel")}</label>
                                             <div className="glass-input rounded-2xl px-4 py-3 flex items-center gap-1.5">
                                                 <span className="text-muted-foreground font-semibold font-mono text-sm">$</span>
                                                 <input
@@ -653,7 +655,7 @@ export default function NewContractPage() {
                                                     {field.state.meta.errors.join(', ')}
                                                 </p>
                                             )}
-                                            <p className="text-xs text-muted-foreground ml-1">The symbol for the ERC20 rights token (max 10 chars including $, no spaces).</p>
+                                            <p className="text-xs text-muted-foreground ml-1">{t("contracts.new.tokenSymbolHelp")}</p>
                                         </div>
                                     )}
                                 />
@@ -674,7 +676,7 @@ export default function NewContractPage() {
                                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                             >
                                 {isSubmitting ? <Loader className="w-5 h-5 animate-spin" /> : null}
-                                Create Draft Agreement
+                                {t("contracts.new.createDraft")}
                             </button>
                         </div>
                     </form>

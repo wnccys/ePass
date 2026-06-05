@@ -15,8 +15,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useTranslation } from 'react-i18next';
 
 export function ChatInput() {
+    const { t } = useTranslation();
     const {
         messages,
         sendMessage,
@@ -42,8 +44,8 @@ export function ChatInput() {
     // back to a generic message for transport/network failures.
     const errorText = error
         ? /failed to fetch|networkerror|load failed/i.test(error.message || "")
-            ? "Couldn't reach the AI service. Check your connection and try again."
-            : error.message || "The AI service is unavailable right now. Please try again."
+            ? t('dashboard.chat.errorReach')
+            : error.message || t('dashboard.chat.errorUnavailable')
         : null;
 
     // Scroll to bottom on message updates
@@ -63,12 +65,12 @@ export function ChatInput() {
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground select-none">
                     <Sparkles className="w-3.5 h-3.5 text-primary" />
                     <span className="font-semibold text-foreground">ePass AI</span>
-                    <span>• Ask to query contracts, txs, or draft an agreement</span>
+                    <span>• {t('dashboard.chat.askQuery')}</span>
                 </div>
                 {isLoading && (
                     <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-[10px] animate-pulse">
                         <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                        AI is thinking...
+                        {t('dashboard.chat.aiThinking')}
                     </Badge>
                 )}
             </div>
@@ -116,19 +118,19 @@ export function ChatInput() {
                                                         <div className="flex items-center gap-2 pb-2 border-b border-border/40">
                                                             <FileText className="w-4 h-4 text-primary" />
                                                             <span className="font-semibold text-xs text-foreground uppercase tracking-wider">
-                                                                Draft: {preview.title}
+                                                                {t('dashboard.chat.draftTitle', { title: preview.title })}
                                                             </span>
                                                         </div>
 
                                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-muted-foreground">
                                                             <div>
-                                                                <span className="font-medium text-foreground">Caution:</span> {preview.cautionAmountUSDC} USDC
+                                                                <span className="font-medium text-foreground">{t('dashboard.chat.cautionLabel')}</span> {preview.cautionAmountUSDC} USDC
                                                             </div>
                                                             <div>
-                                                                <span className="font-medium text-foreground">Player Email:</span> {preview.playerEmail}
+                                                                <span className="font-medium text-foreground">{t('dashboard.chat.playerEmailLabel')}</span> {preview.playerEmail}
                                                             </div>
                                                             <div>
-                                                                <span className="font-medium text-foreground">Token:</span> {preview.tokenName} ({preview.tokenSymbol})
+                                                                <span className="font-medium text-foreground">{t('dashboard.chat.tokenLabel')}</span> {preview.tokenName} ({preview.tokenSymbol})
                                                             </div>
                                                         </div>
 
@@ -137,7 +139,7 @@ export function ChatInput() {
                                                             className="flex items-center justify-center gap-1.5 w-full py-2 px-3 text-xs bg-primary hover:bg-primary-hover text-primary-foreground font-semibold rounded-lg transition-colors text-center"
                                                         >
                                                             <LinkIcon className="w-3.5 h-3.5" />
-                                                            Review & Submit Proposal
+                                                            {t('dashboard.chat.reviewSubmit')}
                                                         </Link>
                                                     </div>
                                                 );
@@ -198,7 +200,7 @@ export function ChatInput() {
                     <input
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Message ePass AI..."
+                        placeholder={t('dashboard.chat.messageAiPlaceholder')}
                         className="bg-transparent flex-1 outline-none text-foreground text-sm placeholder:text-muted-foreground"
                         disabled={isLoading}
                     />

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { ContractCard } from "./contract-card";
 import { FadeIn } from "@/components/ui/fade-in";
+import { useTranslation } from "react-i18next";
 
 interface ContractsListProps {
     agreements: any[];
@@ -13,6 +14,7 @@ interface ContractsListProps {
 export function ContractsList({ agreements, userRole }: ContractsListProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedQuery, setDebouncedQuery] = useState("");
+    const { t } = useTranslation();
 
     // Debounce searchQuery with 300ms safety limit
     useEffect(() => {
@@ -43,7 +45,7 @@ export function ContractsList({ agreements, userRole }: ContractsListProps) {
                     <Search className="w-5 h-5 text-muted-foreground shrink-0" />
                     <input
                         type="text"
-                        placeholder="Search contracts by ID or Title..."
+                        placeholder={t("contracts.searchPlaceholder")}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="bg-transparent flex-1 outline-none text-foreground text-sm placeholder:text-muted-foreground/60"
@@ -54,7 +56,7 @@ export function ContractsList({ agreements, userRole }: ContractsListProps) {
                             onClick={() => setSearchQuery("")}
                             className="text-xs text-muted-foreground hover:text-foreground shrink-0 cursor-pointer transition-colors px-2 py-1 rounded-md hover:bg-muted/10"
                         >
-                            Clear
+                            {t("common.clear")}
                         </button>
                     )}
                 </div>
@@ -65,7 +67,7 @@ export function ContractsList({ agreements, userRole }: ContractsListProps) {
                 {filteredAgreements.length === 0 ? (
                     <div className="glass-panel p-12 text-center rounded-3xl flex flex-col items-center justify-center border-dashed">
                         <p className="text-muted-foreground">
-                            {searchQuery ? "No contracts match your search ID." : "No contracts found."}
+                            {searchQuery ? t("contracts.noMatch") : t("contracts.noContracts")}
                         </p>
                     </div>
                 ) : (

@@ -5,6 +5,7 @@ import { formatUnits } from "viem";
 import { AlertTriangle, Clock, ShieldAlert, CheckCircle2, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 
 export function LeftSidebar({
     walletAddress,
@@ -15,6 +16,8 @@ export function LeftSidebar({
     expiringAgreements: any[];
     pendingSignatures: any[];
 }) {
+    const { t } = useTranslation();
+
     return (
         <aside className="w-full space-y-6 lg:max-h-[calc(100vh-8rem)] overflow-y-auto pr-1">
             {/* Warning: No Wallet Connected */}
@@ -23,9 +26,9 @@ export function LeftSidebar({
                     <div className="flex items-start gap-2.5">
                         <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                         <div>
-                            <h5 className="font-semibold text-sm">Wallet Disconnected</h5>
+                            <h5 className="font-semibold text-sm">{t("dashboard.sidebar.walletDisconnected")}</h5>
                             <p className="text-xs opacity-95 leading-relaxed mt-0.5">
-                                Connect your Web3 wallet to authorize vault transactions and sign agreements on-chain.
+                                {t("dashboard.sidebar.walletDisconnectedDesc")}
                             </p>
                         </div>
                     </div>
@@ -36,7 +39,7 @@ export function LeftSidebar({
             <div className="space-y-3">
                 <div className="flex items-center justify-between pb-1 border-b border-border/40">
                     <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        Pending Actions
+                        {t("dashboard.sidebar.pendingActions")}
                     </h3>
                     {pendingSignatures.length > 0 && (
                         <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20 font-mono text-[10px]">
@@ -47,7 +50,7 @@ export function LeftSidebar({
 
                 {pendingSignatures.length === 0 ? (
                     <Card className="glass-card p-4 text-center rounded-xl">
-                        <p className="text-xs text-muted-foreground">No signatures pending.</p>
+                        <p className="text-xs text-muted-foreground">{t("dashboard.sidebar.noPending")}</p>
                     </Card>
                 ) : (
                     <div className="space-y-3">
@@ -65,7 +68,7 @@ export function LeftSidebar({
                                     href={`/contracts/${ag._id}`}
                                     className="flex items-center justify-between text-[11px] font-medium text-amber-500 hover:text-amber-400 transition-colors w-full"
                                 >
-                                    <span>Sign Contract</span>
+                                    <span>{t("contracts.detail.signAction")}</span>
                                     <ArrowRight className="w-3.5 h-3.5" />
                                 </Link>
                             </Card>
@@ -78,7 +81,7 @@ export function LeftSidebar({
             <div className="space-y-3">
                 <div className="flex items-center justify-between pb-1 border-b border-border/40">
                     <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        Expiring Soon
+                        {t("dashboard.sidebar.expiringSoon")}
                     </h3>
                     {expiringAgreements.length > 0 && (
                         <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20 font-mono text-[10px]">
@@ -89,7 +92,7 @@ export function LeftSidebar({
 
                 {expiringAgreements.length === 0 ? (
                     <Card className="glass-card p-4 text-center rounded-xl">
-                        <p className="text-xs text-muted-foreground">No expiring contracts.</p>
+                        <p className="text-xs text-muted-foreground">{t("dashboard.sidebar.noExpiring")}</p>
                     </Card>
                 ) : (
                     <div className="space-y-3">
@@ -104,13 +107,13 @@ export function LeftSidebar({
                                     </h4>
                                     <div className="flex items-center justify-between text-[10px]">
                                         <span className="text-red-500 font-medium">
-                                            {daysLeft <= 0 ? 'Expired' : `${daysLeft} day${daysLeft > 1 ? 's' : ''} left`}
+                                            {daysLeft <= 0 ? t("contracts.status.expired") : t("dashboard.sidebar.daysLeft", { count: daysLeft })}
                                         </span>
                                         <Link 
                                             href={`/contracts/${ag._id}`}
                                             className="text-primary hover:underline"
                                         >
-                                            View
+                                            {t("common.view")}
                                         </Link>
                                     </div>
                                 </Card>

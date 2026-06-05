@@ -6,9 +6,11 @@ import { LiquidGlassNavbar } from "./ui/liquid-glass-navbar";
 import { AnimatedThemeToggler } from "./ui/animated-theme-toggler";
 import { useSession } from "next-auth/react";
 import { FadeInDown } from "./ui/fade-in-down";
+import { useTranslation } from "react-i18next";
 
 export function MainNavbar() {
     const { data: session, status } = useSession();
+    const { t } = useTranslation();
     const role = session?.user?.role;
 
     // Just renders when logged
@@ -31,18 +33,18 @@ export function MainNavbar() {
                     <div className='flex items-center gap-6 text-sm [&_a]:cursor-default [&_a]:select-none text-muted-foreground dark:text-zinc-300'>
                         {role === 'player' && (
                             <>
-                                <Link href="/home" className='transition-colors hover:text-foreground dark:hover:text-white'>Home</Link>
-                                <Link href="/contracts" className='transition-colors hover:text-foreground dark:hover:text-white'>Contracts</Link>
-                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>Find Clubs</Link>
-                                <Link href="/profile" className='transition-colors hover:text-foreground dark:hover:text-white'>My Profile</Link>
+                                <Link href="/home" className='transition-colors hover:text-foreground dark:hover:text-white'>{t("nav.home")}</Link>
+                                <Link href="/contracts" className='transition-colors hover:text-foreground dark:hover:text-white'>{t("nav.contracts")}</Link>
+                                <Link href="#" className='transition-colors hover:text-foreground dark:hover:text-white'>{t("nav.findClubs")}</Link>
+                                <Link href="/profile" className='transition-colors hover:text-foreground dark:hover:text-white'>{t("nav.myProfile")}</Link>
                             </>
                         )}
                         {role === 'club' && (
                             <>
-                                <Link href="/home" className='transition-colors hover:text-foreground dark:hover:text-white'>Home</Link>
-                                <Link href="/contracts" className='transition-colors hover:text-foreground dark:hover:text-white'>Contracts</Link>
-                                <Link href="/contracts/new" className='transition-colors hover:text-foreground dark:hover:text-white'>Propose Contract</Link>
-                                <Link href="/profile" className='transition-colors hover:text-foreground dark:hover:text-white'>Club Profile</Link>
+                                <Link href="/home" className='transition-colors hover:text-foreground dark:hover:text-white'>{t("nav.home")}</Link>
+                                <Link href="/contracts" className='transition-colors hover:text-foreground dark:hover:text-white'>{t("nav.contracts")}</Link>
+                                <Link href="/contracts/new" className='transition-colors hover:text-foreground dark:hover:text-white'>{t("nav.proposeContract")}</Link>
+                                <Link href="/profile" className='transition-colors hover:text-foreground dark:hover:text-white'>{t("nav.clubProfile")}</Link>
                             </>
                         )}
                     </div>

@@ -15,6 +15,8 @@ import SiweButton from "@/components/siwe-sign";
 import { onboardingSchema } from "@/lib/validations";
 import { FadeIn } from "@/components/ui/fade-in";
 import { Card } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
+
 
 export function OnBoardingForm({
   user
@@ -23,10 +25,12 @@ export function OnBoardingForm({
 }) {
   const router = useRouter();
   const { data: session, update } = useSession();
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.image || null);
   const [walletAddress, setWalletAddress] = useState<string | undefined>(undefined);
+
 
   useEffect(() => {
     if (session?.user?.walletAddress && !walletAddress) {
@@ -64,18 +68,19 @@ export function OnBoardingForm({
           setIsSubmitting(false);
         }
       } catch (err) {
-        setSubmitError("Failed to complete onboarding. Please try again.");
+        setSubmitError(t("onboarding.setupFailed"));
         setIsSubmitting(false);
       }
     },
   });
 
+
   return (
     <Card className="flex w-full flex-1 min-h-screen items-center justify-center border-none rounded-none shadow-none py-12 relative overflow-hidden px-4">
       <FadeIn className="glass-panel p-8 rounded-3xl w-full max-w-md z-10 mx-4 flex flex-col gap-6">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-serif font-light text-foreground">You're almost there!</h1>
-          <p className="text-sm text-muted-foreground">Let's finish your account setup.</p>
+          <h1 className="text-3xl font-serif font-light text-foreground">{t("onboarding.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("onboarding.subtitle")}</p>
         </div>
 
         <form
@@ -115,7 +120,7 @@ export function OnBoardingForm({
                     }}
                   />
                 </div>
-                <p className="text-xs font-medium text-muted-foreground">Upload profile picture</p>
+                <p className="text-xs font-medium text-muted-foreground">{t("onboarding.uploadPhoto")}</p>
               </div>
             )}
           />
@@ -125,7 +130,7 @@ export function OnBoardingForm({
             children={(field) => (
               <div className="space-y-2">
                 <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">
-                  Your Name
+                  {t("onboarding.legalName")}
                 </label>
                 <div className="glass-input rounded-full px-4 py-3 flex items-center gap-3 mt-2">
                   <input
@@ -159,7 +164,7 @@ export function OnBoardingForm({
             children={(field) => (
               <div className="space-y-3">
                 <label className="text-sm font-medium text-foreground ml-1 block">
-                  Account Type
+                  {t("common.role")}
                 </label>
                 <div className="flex items-center justify-between glass-input rounded-2xl p-4">
                   <div
@@ -170,8 +175,8 @@ export function OnBoardingForm({
                       <UserIcon className="w-5 h-5" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm font-semibold text-foreground">Player</span>
-                      <span className="text-xs text-muted-foreground">Join as an athlete</span>
+                      <span className="text-sm font-semibold text-foreground">{t("common.player")}</span>
+                      <span className="text-xs text-muted-foreground">{t("profile.joinAsAthlete")}</span>
                     </div>
                   </div>
 
@@ -186,8 +191,8 @@ export function OnBoardingForm({
                     onClick={() => field.handleChange('club')}
                   >
                     <div className="flex flex-col">
-                      <span className="text-sm font-semibold text-foreground">Club</span>
-                      <span className="text-xs text-muted-foreground">Join as a team</span>
+                      <span className="text-sm font-semibold text-foreground">{t("common.club")}</span>
+                      <span className="text-xs text-muted-foreground">{t("profile.joinAsTeam")}</span>
                     </div>
                     <div className={cn("p-2 rounded-full transition-colors", field.state.value === 'club' ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground group-hover:bg-muted/80")}>
                       <Building2 className="w-5 h-5" />
@@ -201,12 +206,12 @@ export function OnBoardingForm({
           {/* SIWE Wallet Connection */}
           <div className="space-y-3">
             <label className="text-sm font-medium text-foreground ml-1 block">
-              Web3 Connection (Optional)
+              {t("profile.web3Connection")}
             </label>
             <div className="glass-input rounded-2xl p-4 flex items-center justify-between">
               <div className="flex flex-col">
-                <span className="text-sm font-semibold text-foreground">Link Wallet</span>
-                <span className="text-xs text-muted-foreground">Sign in with Ethereum</span>
+                <span className="text-sm font-semibold text-foreground">{t("profile.linkWallet")}</span>
+                <span className="text-xs text-muted-foreground">{t("profile.signInWithEthereum")}</span>
               </div>
               <SiweButton onAddressChange={setWalletAddress} />
             </div>
@@ -237,11 +242,11 @@ export function OnBoardingForm({
                 {isSubmitting || isFormSubmitting ? (
                   <>
                     <Loader className="w-5 h-5 animate-spin" />
-                    Saving...
+                    {t("common.saving")}
                   </>
                 ) : (
                   <>
-                    Complete Setup
+                    {t("onboarding.completeSetup")}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </>
                 )}

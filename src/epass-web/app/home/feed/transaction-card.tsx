@@ -17,27 +17,29 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 
 export function TransactionCard({ transaction }: { transaction: any }) {
     const [copied, setCopied] = useState(false);
+    const { t } = useTranslation();
 
     const getActionTypeConfig = (type: string) => {
         switch (type) {
             case 'execute_mint':
-                return { icon: Sparkles, label: 'Mint NFT Rights', color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' };
+                return { icon: Sparkles, label: t('dashboard.feed.transactions.mintNftRights'), color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' };
             case 'create_vault':
-                return { icon: Lock, label: 'Create Escrow Vault', color: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/20' };
+                return { icon: Lock, label: t('dashboard.feed.transactions.createEscrowVault'), color: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/20' };
             case 'fractionalize':
-                return { icon: Grid, label: 'Fractionalize Rights', color: 'text-sky-500 bg-sky-500/10 border-sky-500/20' };
+                return { icon: Grid, label: t('dashboard.feed.transactions.fractionalizeRights'), color: 'text-sky-500 bg-sky-500/10 border-sky-500/20' };
             case 'approve_token':
-                return { icon: CheckSquare, label: 'Approve Token Allowance', color: 'text-blue-500 bg-blue-500/10 border-blue-500/20' };
+                return { icon: CheckSquare, label: t('dashboard.feed.transactions.approveTokenAllowance'), color: 'text-blue-500 bg-blue-500/10 border-blue-500/20' };
             case 'deposit_caution':
-                return { icon: ArrowDownCircle, label: 'Deposit Caution USDC', color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' };
+                return { icon: ArrowDownCircle, label: t('dashboard.feed.transactions.depositCautionUsdc'), color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' };
             case 'rescind_player':
             case 'rescind_club':
-                return { icon: ShieldAlert, label: 'Rescind Contract', color: 'text-red-500 bg-red-500/10 border-red-500/20' };
+                return { icon: ShieldAlert, label: t('dashboard.feed.transactions.rescindContract'), color: 'text-red-500 bg-red-500/10 border-red-500/20' };
             case 'expire_contract':
-                return { icon: Hourglass, label: 'Contract Expired', color: 'text-zinc-500 bg-zinc-500/10 border-zinc-500/20' };
+                return { icon: Hourglass, label: t('dashboard.feed.transactions.contractExpired'), color: 'text-zinc-500 bg-zinc-500/10 border-zinc-500/20' };
             default:
                 return { icon: Sparkles, label: type, color: 'text-zinc-500 bg-zinc-500/10 border-zinc-500/20' };
         }
@@ -46,11 +48,11 @@ export function TransactionCard({ transaction }: { transaction: any }) {
     const getStatusConfig = (status: string) => {
         switch (status) {
             case 'confirmed':
-                return { icon: Check, label: 'Confirmed', className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' };
+                return { icon: Check, label: t('dashboard.feed.transactions.confirmed'), className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' };
             case 'submitted':
-                return { icon: Loader2, label: 'Submitted', className: 'bg-amber-500/10 text-amber-500 border-amber-500/20 animate-pulse' };
+                return { icon: Loader2, label: t('dashboard.feed.transactions.submitted'), className: 'bg-amber-500/10 text-amber-500 border-amber-500/20 animate-pulse' };
             case 'failed':
-                return { icon: AlertCircle, label: 'Failed', className: 'bg-red-500/10 text-red-500 border-red-500/20' };
+                return { icon: AlertCircle, label: t('dashboard.feed.transactions.failed'), className: 'bg-red-500/10 text-red-500 border-red-500/20' };
             default:
                 return { icon: Loader2, label: status, className: 'bg-zinc-500/10 text-zinc-500 border-zinc-500/20' };
         }
@@ -81,15 +83,15 @@ export function TransactionCard({ transaction }: { transaction: any }) {
                         </h4>
                         {transaction.agreementId?.title && (
                             <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                                Contract: {transaction.agreementId.title}
+                                {t('dashboard.feed.transactions.contractLabel', { title: transaction.agreementId.title })}
                             </p>
                         )}
                     </div>
                 </div>
 
                 <Badge variant="outline" className={`flex items-center gap-1 text-[11px] font-medium py-0.5 ${statusConfig.className}`}>
-                    {statusConfig.label === 'Submitted' && <StatusIcon className="w-3 h-3 animate-spin" />}
-                    {statusConfig.label !== 'Submitted' && <StatusIcon className="w-3 h-3" />}
+                    {transaction.status === 'submitted' && <StatusIcon className="w-3 h-3 animate-spin" />}
+                    {transaction.status !== 'submitted' && <StatusIcon className="w-3 h-3" />}
                     {statusConfig.label}
                 </Badge>
             </div>
@@ -103,7 +105,7 @@ export function TransactionCard({ transaction }: { transaction: any }) {
                     <button 
                         onClick={copyTxHash}
                         className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                        title="Copy Tx Hash"
+                        title={t('dashboard.feed.transactions.copyTxHash')}
                     >
                         {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
                     </button>
@@ -112,7 +114,7 @@ export function TransactionCard({ transaction }: { transaction: any }) {
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                        title="View on Explorer"
+                        title={t('dashboard.feed.transactions.viewOnExplorer')}
                     >
                         <ExternalLink className="w-3 h-3" />
                     </a>

@@ -41,3 +41,12 @@ export async function updateProfile(data: ProfilePayload) {
         return { success: false, error: "Failed to update profile." };
     }
 }
+
+export async function getServerUser() {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) return null;
+    await dbConnect();
+    const userDoc = await User.findById(session.user.id).lean();
+    if (!userDoc) return null;
+    return JSON.parse(JSON.stringify(userDoc));
+}

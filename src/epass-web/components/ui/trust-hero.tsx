@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Target,
   Scroll,
@@ -11,13 +13,7 @@ import {
 } from "lucide-react";
 import AnimatedTextRoller from "./animated-text";
 import { LoginButton } from "./login-button";
-
-const greetings = [
-    "Smart",
-    "Secure",
-    "Decentralized",
-    "Compliant"
-];
+import { useTranslation } from "react-i18next";
 
 // --- MOCK BRANDS ---
 // Replaced PNGs with Lucide icons to simulate tech logos
@@ -40,6 +36,15 @@ const StatItem = ({ value, label }: { value: string; label: string }) => (
 
 // --- MAIN COMPONENT ---
 export default function HeroSection() {
+  const { t } = useTranslation();
+
+  const greetings = [
+    t("hero.smart"),
+    t("hero.secure"),
+    t("hero.decentralized"),
+    t("hero.compliant")
+  ];
+
   return (
     <div className="relative w-full bg-transparent text-white overflow-hidden font-sans">
       {/*
@@ -63,7 +68,7 @@ export default function HeroSection() {
         }
         .delay-100 { animation-delay: 0.1s; }
         .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
+        .delay-300 { animation-delay: 0.2s; }
         .delay-400 { animation-delay: 0.4s; }
         .delay-500 { animation-delay: 0.5s; }
       `}</style>
@@ -79,30 +84,19 @@ export default function HeroSection() {
           {/* --- LEFT COLUMN --- */}
           <div className="lg:col-span-7 flex flex-col justify-center space-y-8 pt-8">
 
-            {/* Badge */}
-            {/* <div className="animate-fade-in delay-100">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-md transition-colors hover:bg-white/10">
-                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-300 flex items-center gap-2">
-                  Award-Winning Product
-                  <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-                </span>
-              </div>
-            </div> */}
-
             {/* Heading */}
             <h1
               className="animate-fade-in delay-200 text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-medium tracking-tighter leading-[0.9]"
             >
-              Crafting <AnimatedTextRoller greetings={greetings}  /><br />
+              {t("hero.crafting")} <AnimatedTextRoller greetings={greetings}  /><br />
               <span className="bg-gradient-to-br from-white via-white to-[#ffcd75] bg-clip-text text-transparent">
-                Contracts
+                {t("hero.contractsThatWork")}
               </span><br />
-              That Works
+              {t("hero.thatWork")}
             </h1>
 
             <p className="animate-fade-in delay-300 max-w-xl text-lg text-evergreen-50 leading-relaxed">
-                We enhance the experience between football players and clubs by bringing confidence and correctness as it should be,
-                on the light of decentralization, security and compliance.
+                {t("hero.subheading")}
              </p>
 
             {/* CTA Buttons */}
@@ -116,7 +110,7 @@ export default function HeroSection() {
                 className="group inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-8 py-4 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10 hover:border-white/20"
               >
                 <Scroll className="w-4 h-4 fill-current" />
-                Read More
+                {t("hero.readMore")}
               </a>
             </div>
           </div>
@@ -136,14 +130,14 @@ export default function HeroSection() {
                   </div>
                   <div>
                     <div className="text-3xl font-bold tracking-tight text-white">4.000.000+</div>
-                    <div className="text-sm text-zinc-300">Transactions Executed</div>
+                    <div className="text-sm text-zinc-300">{t("hero.txsExecuted")}</div>
                   </div>
                 </div>
 
                 {/* Progress Bar Section */}
                 <div className="space-y-3 mb-8">
                   <div className="flex justify-between text-sm">
-                    <span className="text-zinc-400">Client Satisfaction</span>
+                    <span className="text-zinc-400">{t("hero.satisfaction")}</span>
                     <span className="text-white font-medium">98%</span>
                   </div>
                   <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-800/50">
@@ -155,14 +149,15 @@ export default function HeroSection() {
 
                 {/* Mini Stats Grid */}
                 <div className="grid grid-cols-3 gap-4 text-center">
-                  <StatItem value="15+" label="Clubs" />
+                  <StatItem value="15+" label={t("hero.clubs")} />
                   <div className="w-px h-full bg-white/10 mx-auto" />
-                  <StatItem value="24/7" label="Support" />
+                  <StatItem value="24/7" label={t("hero.support")} />
                   <div className="w-px h-full bg-white/10 mx-auto" />
-                  <StatItem value="100%" label="Contract Compliance" />
+                  <StatItem value="100%" label={t("hero.compliance")} />
                 </div>
               </div>
             </div>
+
 
             {/* Marquee Card */}
             <div className="animate-fade-in delay-500 relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 py-8 backdrop-blur-xl">

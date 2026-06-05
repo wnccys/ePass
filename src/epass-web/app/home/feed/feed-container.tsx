@@ -6,6 +6,7 @@ import { ContractStatusCard } from "./contract-status-card";
 import { VaultCard } from "./vault-card";
 import { getMyTransactions } from "@/app/actions/transactions";
 import { Loader2, Layers, Link2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type FeedItem =
     | { type: 'transaction'; id: string; timestamp: number; data: any }
@@ -20,6 +21,7 @@ export function FeedContainer({
     initialTransactions: any[];
     userRole: string;
 }) {
+    const { t } = useTranslation();
     const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
     const [offset, setOffset] = useState(initialTransactions.length);
     const [hasMore, setHasMore] = useState(initialTransactions.length >= 10);
@@ -128,13 +130,13 @@ export function FeedContainer({
             <div className="flex items-center gap-2 pb-2 border-b border-border/40">
                 <Layers className="w-4 h-4 text-primary" />
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-foreground">
-                    Activity Feed
+                    {t("dashboard.feed.title")}
                 </h2>
             </div>
 
             {feedItems.length === 0 ? (
                 <div className="text-center py-12 border border-dashed border-border rounded-xl bg-black/5 dark:bg-white/5">
-                    <p className="text-sm text-muted-foreground">No recent activity found.</p>
+                    <p className="text-sm text-muted-foreground">{t("dashboard.feed.empty")}</p>
                 </div>
             ) : (
                 <div className="space-y-4">

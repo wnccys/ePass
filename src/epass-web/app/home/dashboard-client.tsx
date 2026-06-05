@@ -6,6 +6,7 @@ import { RightSidebar } from "./sidebar/right-sidebar";
 import { FeedContainer } from "./feed/feed-container";
 import { ChatInput } from "./chat/chat-input";
 import { IUser } from "@/models/User";
+import { useTranslation } from "react-i18next";
 
 
 export function DashboardClient({
@@ -25,6 +26,7 @@ export function DashboardClient({
 }) {
     const { data: session } = useSession();
     const walletAddress = session?.user.walletAddress;
+    const { t } = useTranslation();
 
     if (!user) throw Error("Could not find user");
 
@@ -51,10 +53,10 @@ export function DashboardClient({
                     {/* Welcome Header */}
                     <div className="space-y-1">
                         <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                            Welcome back, <span suppressHydrationWarning className="text-primary font-semibold">{user?.name || "User"}</span>
+                            {t("dashboard.welcome")}<span suppressHydrationWarning className="text-primary font-semibold">{user?.name || "User"}</span>
                         </h1>
                         <p className="text-sm text-muted-foreground">
-                            Here is the status of your football image rights escrow agreements and actions.
+                            {t("dashboard.subtitle")}
                         </p>
                     </div>
 

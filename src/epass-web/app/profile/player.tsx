@@ -15,6 +15,8 @@ import { profileSchema } from "@/lib/validations";
 import { LogoutButton } from "../home/logout-button";
 import { FadeIn } from "@/components/ui/fade-in";
 import { Card } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
+
 
 export function PlayerProfile({
   user
@@ -23,7 +25,9 @@ export function PlayerProfile({
 }) {
   const router = useRouter();
   const { data: session, update } = useSession();
+  const { t } = useTranslation();
   const [walletAddress, setWalletAddress] = useState<string | undefined>(undefined);
+
 
   // Set wallet address if present on session and not in react state yet
   useEffect(() => {
@@ -60,15 +64,16 @@ export function PlayerProfile({
           } else {
             await update();
           }
-          setSubmitMessage({ type: 'success', text: 'Profile updated successfully!' });
+          setSubmitMessage({ type: 'success', text: t("profile.successMsg") });
           form.reset(value as any);
           router.refresh();
         } else {
-          setSubmitMessage({ type: 'error', text: result.error || 'Failed to save changes.' });
+          setSubmitMessage({ type: 'error', text: result.error || t("profile.errorMsg") });
         }
       } catch (err) {
-        setSubmitMessage({ type: 'error', text: "A network error occurred. Please try again." });
+        setSubmitMessage({ type: 'error', text: t("profile.networkError") });
       } finally {
+
         setIsSubmitting(false);
         // Clear success message after 3 seconds
         setTimeout(() => setSubmitMessage(null), 3000);
@@ -116,30 +121,30 @@ export function PlayerProfile({
                     />
                   </div>
                   <div className="text-center">
-                    <h3 className="font-semibold text-foreground">{user?.name || 'User Profile'}</h3>
-                    <p className="text-xs text-muted-foreground">Click image to upload new avatar</p>
+                    <h3 className="font-semibold text-foreground">{user?.name || t("common.name")}</h3>
+                    <p className="text-xs text-muted-foreground">{t("profile.clickToUpload")}</p>
                   </div>
                 </div>
               )}
             </form.Field>
 
             <div className="space-y-4">
-              <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">Connected Accounts</h4>
+              <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">{t("profile.connectedAccounts")}</h4>
 
               <div className="glass-input rounded-xl p-3 flex items-center gap-3 opacity-60">
                 <div className="p-2 bg-muted rounded-lg">
                   <Mail className="w-4 h-4 text-muted-foreground" />
                 </div>
                 <div className="flex flex-col overflow-hidden">
-                  <span className="text-xs font-medium text-foreground">Email</span>
+                  <span className="text-xs font-medium text-foreground">{t("common.email")}</span>
                   <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
                 </div>
               </div>
 
               <div className="glass-input rounded-xl p-3 flex flex-col gap-3">
                 <div className="flex flex-col">
-                  <span className="text-xs font-medium text-foreground">Web3 Wallet</span>
-                  <span className="text-[10px] text-muted-foreground">Required for on-chain actions</span>
+                  <span className="text-xs font-medium text-foreground">{t("profile.web3Wallet")}</span>
+                  <span className="text-[10px] text-muted-foreground">{t("profile.requiredForActions")}</span>
                 </div>
                 <SiweButton onAddressChange={setWalletAddress} />
               </div>
@@ -149,15 +154,15 @@ export function PlayerProfile({
           {/* RIGHT COLUMN: Form Fields */}
           <div className="flex flex-col gap-8 w-full md:w-2/3">
             <div className="space-y-2">
-              <h2 className="text-2xl font-serif font-light text-foreground">Profile Settings</h2>
-              <p className="text-sm text-muted-foreground">Manage your public information and account details.</p>
+              <h2 className="text-2xl font-serif font-light text-foreground">{t("profile.settingsTitle")}</h2>
+              <p className="text-sm text-muted-foreground">{t("profile.settingsSubtitle")}</p>
             </div>
 
             <div className="space-y-6">
               <form.Field name="name">
                 {(field) => (
                   <div className="space-y-2">
-                    <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Full Name</label>
+                    <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">{t("common.name")}</label>
                     <div className="glass-input rounded-2xl px-4 py-3 flex items-center gap-3">
                       <input
                         id={field.name}
@@ -177,7 +182,7 @@ export function PlayerProfile({
               <form.Field name="bio">
                 {(field) => (
                   <div className="space-y-2">
-                    <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">Bio</label>
+                    <label htmlFor={field.name} className="text-sm font-medium text-foreground ml-1">{t("common.bio")}</label>
                     <div className="glass-input rounded-2xl px-4 py-3 flex items-center gap-3">
                       <textarea
                         id={field.name}
@@ -185,7 +190,7 @@ export function PlayerProfile({
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="Tell the community about yourself..."
+                        placeholder={t("profile.bioPlaceholder")}
                         className="bg-transparent flex-1 outline-none text-foreground placeholder:text-foreground/50 resize-none"
                       />
                     </div>
@@ -196,19 +201,19 @@ export function PlayerProfile({
               <form.Field name="role">
                 {(field) => (
                   <div className="space-y-3">
-                    <label className="text-sm font-medium text-foreground ml-1 block">Account Type</label>
+                    <label className="text-sm font-medium text-foreground ml-1 block">{t("common.role")}</label>
                     <div className="flex items-center justify-between glass-input rounded-2xl p-4 max-w-sm">
                       <div className="flex items-center gap-3 cursor-pointer group" onClick={() => field.handleChange('player')}>
                         <div className={cn("p-2 rounded-full", field.state.value === 'player' ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground")}>
-                          <UserIcon className="w-5 h-5" />
+                           <UserIcon className="w-5 h-5" />
                         </div>
-                        <span className="text-sm font-semibold">Player</span>
+                        <span className="text-sm font-semibold">{t("common.player")}</span>
                       </div>
                       <Switch disabled={true} checked={field.state.value === 'club'} onCheckedChange={(checked) => field.handleChange(checked ? 'club' : 'player')} />
                       <div className="flex items-center gap-3 cursor-pointer group" onClick={() => field.handleChange('club')}>
-                        <span className="text-sm font-semibold">Club</span>
+                        <span className="text-sm font-semibold">{t("common.club")}</span>
                         <div className={cn("p-2 rounded-full", field.state.value === 'club' ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground")}>
-                          <Building2 className="w-5 h-5" />
+                           <Building2 className="w-5 h-5" />
                         </div>
                       </div>
                     </div>
@@ -249,7 +254,7 @@ export function PlayerProfile({
                             ) : (
                                 <Save className="w-5 h-5" />
                             )}
-                            Save Changes
+                            {t("common.saveChanges")}
                         </button>
                         )}
                     />

@@ -21,6 +21,7 @@ import {
     Area,
     Tooltip
 } from "recharts";
+import { useTranslation } from "react-i18next";
 
 const COLORS = [
     'oklch(from var(--primary) l c h)',      // Active
@@ -46,6 +47,7 @@ export function RightSidebar({
     userRole: string;
 }) {
     const [mounted, setMounted] = useState(false);
+    const { t } = useTranslation();
 
     useEffect(() => {
         setMounted(true);
@@ -56,9 +58,9 @@ export function RightSidebar({
 
     // Prepare data for the status distribution donut chart
     const chartData = [
-        { name: 'Active', value: stats.activeContracts },
-        { name: 'Pending Signatures', value: stats.pendingSignatures },
-        { name: 'Drafts/Others', value: Math.max(0, stats.totalContracts - stats.activeContracts - stats.pendingSignatures) }
+        { name: t("contracts.status.active"), value: stats.activeContracts },
+        { name: t("contracts.status.pending_signatures"), value: stats.pendingSignatures },
+        { name: t("dashboard.sidebar.draftsOthers"), value: Math.max(0, stats.totalContracts - stats.activeContracts - stats.pendingSignatures) }
     ].filter(item => item.value > 0);
 
     // Mock timeline data for recent transaction frequency (AreaChart)
@@ -81,13 +83,13 @@ export function RightSidebar({
                     <div className="flex items-center gap-1.5 pb-1 border-b border-border/40">
                         <Activity className="w-4 h-4 text-primary" />
                         <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                            Quick Stats
+                            {t("dashboard.sidebar.quickStats")}
                         </h3>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                         <Card className="glass-card p-3.5 flex flex-col justify-between space-y-1">
-                            <span className="text-[10px] text-muted-foreground uppercase font-semibold">Total Contracts</span>
+                            <span className="text-[10px] text-muted-foreground uppercase font-semibold">{t("dashboard.stats.totalContracts")}</span>
                             <div className="flex items-baseline gap-1.5">
                                 <span className="text-xl font-bold font-mono">{stats.totalContracts}</span>
                                 <FileText className="w-3.5 h-3.5 text-muted-foreground" />
@@ -95,7 +97,7 @@ export function RightSidebar({
                         </Card>
 
                         <Card className="glass-card p-3.5 flex flex-col justify-between space-y-1">
-                            <span className="text-[10px] text-muted-foreground uppercase font-semibold">Active Agreements</span>
+                            <span className="text-[10px] text-muted-foreground uppercase font-semibold">{t("dashboard.stats.activeAgreement")}</span>
                             <div className="flex items-baseline gap-1.5">
                                 <span className="text-xl font-bold font-mono text-emerald-500">{stats.activeContracts}</span>
                                 <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
@@ -112,14 +114,14 @@ export function RightSidebar({
                         </div>
                         <div className="space-y-1">
                             <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
-                                Total Caution Escrowed
+                                {t("dashboard.sidebar.totalCautionEscrowed")}
                             </span>
                             <h4 className="text-xl font-bold font-mono text-foreground">
                                 {cautionUSD} USDC
                             </h4>
                         </div>
                         <p className="text-[10px] text-muted-foreground leading-relaxed">
-                            Total funds locked within active PlayerRightsMaster Escrow Vaults.
+                            {t("dashboard.sidebar.totalCautionEscrowedDesc")}
                         </p>
                     </Card>
                 )}
@@ -130,7 +132,7 @@ export function RightSidebar({
                         <div className="flex items-center gap-1.5 pb-1 border-b border-border/40">
                             <TrendingUp className="w-4 h-4 text-primary" />
                             <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                                Contract Distribution
+                                {t("dashboard.sidebar.contractDistribution")}
                             </h3>
                         </div>
 
@@ -199,7 +201,7 @@ export function RightSidebar({
                         <div className="flex items-center gap-1.5 pb-1 border-b border-border/40">
                             <TrendingUp className="w-4 h-4 text-primary" />
                             <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                                Activity Trend
+                                {t("dashboard.sidebar.activityTrend")}
                             </h3>
                         </div>
 
@@ -247,13 +249,13 @@ export function RightSidebar({
                     <div className="flex items-center gap-1.5 pb-1 border-b border-border/40">
                         <Activity className="w-4 h-4 text-primary" />
                         <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                            Recent Confirmations
+                            {t("dashboard.sidebar.recentConfirmations")}
                         </h3>
                     </div>
 
                     {recentTransactions.length === 0 ? (
                         <Card className="glass-card p-4 text-center rounded-xl">
-                            <p className="text-xs text-muted-foreground">No recent confirmations.</p>
+                            <p className="text-xs text-muted-foreground">{t("dashboard.sidebar.noRecentConfirmations")}</p>
                         </Card>
                     ) : (
                         <div className="space-y-2">
@@ -261,7 +263,7 @@ export function RightSidebar({
                                 <Card key={tx._id} className="glass-card p-3 flex items-center justify-between gap-3 text-xs">
                                     <div className="space-y-0.5 min-w-0">
                                         <h5 className="font-semibold text-foreground capitalize truncate leading-tight">
-                                            {tx.actionType.replace('_', ' ')}
+                                            {t("actionType." + tx.actionType, { defaultValue: tx.actionType.replace('_', ' ') })}
                                         </h5>
                                         <p className="text-[10px] text-muted-foreground font-mono truncate">
                                             {tx.txHash.slice(0, 6)}...{tx.txHash.slice(-4)}

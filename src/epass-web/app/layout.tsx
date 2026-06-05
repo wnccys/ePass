@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { AppProviders } from "@/components/providers";
 import { MainNavbar } from "@/components/main-navbar";
 import { Web3Providers } from "@/components/web3-providers";
-import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const notoSerifHeading = Noto_Serif({subsets:['latin'],variable:'--font-heading'});
 
@@ -61,6 +61,7 @@ export default async function RootLayout({
                         <Web3Providers>
                             <MainNavbar />
                             {children}
+                            <Toaster />
                         </Web3Providers>
                     </AppProviders>
                 </ThemeProvider>

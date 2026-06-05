@@ -34,10 +34,12 @@ import {
 import { recordTransaction, confirmTransaction, failTransaction } from "@/app/actions/transactions";
 import { useSession } from "next-auth/react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTranslation } from "react-i18next";
 
 import { SerializedAgreement } from "@/types/agreement";
 
 export default function ContractDetailPage() {
+    const { t } = useTranslation();
     const { data: session } = useSession();
     const params = useParams();
     const router = useRouter();
@@ -840,24 +842,24 @@ export default function ContractDetailPage() {
 
     // Exclude db contract representation
     const handleExclude = async () => {
-        if (!confirm("Are you sure you want to exclude this contract from your account? This won't delete the contract on-chain or for other signers, but it will hide it from your dashboard.")) return;
+        if (!confirm(t("contracts.detail.confirmExclude"))) return;
         setIsExcluding(true);
         try {
             const res = await excludeAgreementFromAccount(id);
             if (res.success) {
                 router.push("/contracts");
             } else {
-                alert(res.error || "Failed to exclude agreement.");
+                alert(res.error || t("contracts.detail.failedExclude"));
             }
         } catch (err: any) {
-            alert(err.message || "Failed to exclude agreement.");
+            alert(err.message || t("contracts.detail.failedExclude"));
         } finally {
             setIsExcluding(false);
         }
     };
 
-    if (loading) return <div className="p-24 flex justify-center"><Loader className="animate-spin" /></div>;
-    if (!agreement) return <div className="p-24 text-center">Agreement not found.</div>;
+    if (loading) return <div className="p-24 flex justify-center"><Loader className="animate-spin text-primary" /></div>;
+    if (!agreement) return <div className="p-24 text-center">{t("contracts.detail.notFound")}</div>;
 
     // Checks for signature availability (connected wallet)
     const isClub = address?.toLowerCase() === agreement.clubWalletAddress.toLowerCase();
@@ -889,7 +891,7 @@ export default function ContractDetailPage() {
         <div className="container max-w-4xl mx-auto py-24 px-6">
             <div className="flex items-start justify-between mb-8">
                 <div>
-                    <h1 className="text-4xl font-serif font-light tracking-tight">Contract Inspection</h1>
+                    <h1 className="text-4xl font-serif font-light tracking-tight">{t("contracts.detail.contractInspection")}</h1>
                     <p className="text-muted-foreground mt-2 font-mono text-sm">ID: {agreement._id}</p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -900,7 +902,7 @@ export default function ContractDetailPage() {
                         onClick={handleExclude}
                         disabled={isExcluding}
                         className="p-2.5 rounded-xl glass-input border border-destructive/20 text-destructive hover:bg-destructive/10 hover:border-destructive/30 hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center shrink-0"
-                        title="Exclude Contract from My Account"
+                        title={t("contracts.detail.excludeTooltip")}
                     >
                         {isExcluding ? <Loader className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                     </button>
@@ -916,16 +918,16 @@ export default function ContractDetailPage() {
                         <div className="flex items-center gap-2 text-primary">
                             <FileText className="w-4 h-4 text-primary" />
                             <span className="text-xs uppercase font-mono tracking-widest font-medium">
-                                On-Chain Image Rights Agreement
+                                {t("contracts.detail.onChainAgreement")}
                             </span>
                         </div>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground font-mono">
                             <div className="flex items-center gap-1.5 bg-foreground/5 px-2.5 py-1 rounded-md border border-foreground/5">
-                                <span className="text-muted-foreground/60">Nonce:</span>
+                                <span className="text-muted-foreground/60">{t("contracts.detail.nonce")}</span>
                                 <span className="font-semibold text-foreground">{agreement.nonce}</span>
                             </div>
                             <div className="flex items-center gap-1.5 bg-foreground/5 px-2.5 py-1 rounded-md border border-foreground/5">
-                                <span className="text-muted-foreground/60">Created:</span>
+                                <span className="text-muted-foreground/60">{t("contracts.detail.created")}</span>
                                 <span className="font-semibold text-foreground" suppressHydrationWarning>
                                     {new Date(agreement.createdAt).toLocaleDateString(undefined, {
                                         year: 'numeric',
@@ -940,7 +942,7 @@ export default function ContractDetailPage() {
                     {/* Title and Description */}
                     <div className="space-y-4">
                         <h2 className="text-3xl md:text-4xl font-serif font-light tracking-tight text-foreground">
-                            {agreement.title || "Image Rights Agreement"}
+                            {agreement.title || t("contracts.detail.onChainAgreement")}
                         </h2>
                         {agreement.description && (
                             <div className="relative pl-5 mt-4">
@@ -961,13 +963,13 @@ export default function ContractDetailPage() {
                         <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
                             <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                             <div className="space-y-1">
-                                <p className="text-sm font-medium text-amber-400">Club wallet mismatch</p>
+                                <p className="text-sm font-medium text-amber-400">{t("contracts.detail.clubWalletMismatch")}</p>
                                 <p className="text-xs text-muted-foreground">
-                                    Your synced wallet does not match the club wallet registered on this contract.
+                                    {t("contracts.detail.clubWalletMismatchDesc")}
                                 </p>
                                 <div className="text-xs font-mono text-muted-foreground space-y-0.5 mt-1">
-                                    <p>Expected: <span className="text-foreground/70">{agreement.clubWalletAddress}</span></p>
-                                    <p>Your wallet: <span className="text-amber-400/80">{sessionWallet || 'Not synced'}</span></p>
+                                    <p>{t("contracts.detail.expected")} <span className="text-foreground/70">{agreement.clubWalletAddress}</span></p>
+                                    <p>{t("contracts.detail.yourWallet")} <span className="text-amber-400/80">{sessionWallet || t("contracts.detail.notSynced")}</span></p>
                                 </div>
                             </div>
                         </div>
@@ -976,13 +978,13 @@ export default function ContractDetailPage() {
                         <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
                             <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                             <div className="space-y-1">
-                                <p className="text-sm font-medium text-amber-400">Player wallet mismatch</p>
+                                <p className="text-sm font-medium text-amber-400">{t("contracts.detail.playerWalletMismatch")}</p>
                                 <p className="text-xs text-muted-foreground">
-                                    Your synced wallet does not match the player wallet registered on this contract.
+                                    {t("contracts.detail.playerWalletMismatchDesc")}
                                 </p>
                                 <div className="text-xs font-mono text-muted-foreground space-y-0.5 mt-1">
-                                    <p>Expected: <span className="text-foreground/70">{agreement.playerWalletAddress}</span></p>
-                                    <p>Your wallet: <span className="text-amber-400/80">{sessionWallet || 'Not synced'}</span></p>
+                                    <p>{t("contracts.detail.expected")} <span className="text-foreground/70">{agreement.playerWalletAddress}</span></p>
+                                    <p>{t("contracts.detail.yourWallet")} <span className="text-amber-400/80">{sessionWallet || t("contracts.detail.notSynced")}</span></p>
                                 </div>
                             </div>
                         </div>
@@ -991,13 +993,13 @@ export default function ContractDetailPage() {
                         <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
                             <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                             <div className="space-y-1">
-                                <p className="text-sm font-medium text-amber-400">Attorney wallet mismatch</p>
+                                <p className="text-sm font-medium text-amber-400">{t("contracts.detail.attorneyWalletMismatch")}</p>
                                 <p className="text-xs text-muted-foreground">
-                                    Your synced wallet does not match the attorney wallet registered on this contract.
+                                    {t("contracts.detail.attorneyWalletMismatchDesc")}
                                 </p>
                                 <div className="text-xs font-mono text-muted-foreground space-y-0.5 mt-1">
-                                    <p>Expected: <span className="text-foreground/70">{agreement.attorneyWalletAddress}</span></p>
-                                    <p>Your wallet: <span className="text-amber-400/80">{sessionWallet || 'Not synced'}</span></p>
+                                    <p>{t("contracts.detail.expected")} <span className="text-foreground/70">{agreement.attorneyWalletAddress}</span></p>
+                                    <p>{t("contracts.detail.yourWallet")} <span className="text-amber-400/80">{sessionWallet || t("contracts.detail.notSynced")}</span></p>
                                 </div>
                             </div>
                         </div>
@@ -1008,11 +1010,11 @@ export default function ContractDetailPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 space-y-6">
                     <div className="glass-panel p-6 rounded-xl hover:border-primary/30 transition-all duration-300">
-                        <h3 className="font-semibold mb-4">Agreement Information</h3>
+                        <h3 className="font-semibold mb-4">{t("contracts.detail.agreementInformation")}</h3>
                         <div className="space-y-4">
                             <div>
                                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Player</p>
+                                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t("contracts.detail.player")}</p>
                                     {agreement.playerEmail && (
                                         <span className="text-[11px] font-mono text-primary/80 bg-primary/5 px-2.5 py-0.5 rounded-full border border-primary/10">
                                             {agreement.playerEmail}
@@ -1024,7 +1026,7 @@ export default function ContractDetailPage() {
                                                 <TooltipTrigger asChild>
                                                     <KeyRound className="w-3.5 h-3.5 text-primary/60" />
                                                 </TooltipTrigger>
-                                                <TooltipContent>Your account is responsible for signing as Player</TooltipContent>
+                                                <TooltipContent>{t("contracts.detail.responsiblePlayer")}</TooltipContent>
                                             </Tooltip>
                                         </TooltipProvider>
                                     )}
@@ -1033,7 +1035,7 @@ export default function ContractDetailPage() {
                             </div>
                             <div>
                                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Club</p>
+                                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t("contracts.detail.club")}</p>
                                     {agreement.clubEmail && (
                                         <span className="text-[11px] font-mono text-primary/80 bg-primary/5 px-2.5 py-0.5 rounded-full border border-primary/10">
                                             {agreement.clubEmail}
@@ -1045,7 +1047,7 @@ export default function ContractDetailPage() {
                                                 <TooltipTrigger asChild>
                                                     <KeyRound className="w-3.5 h-3.5 text-primary/60" />
                                                 </TooltipTrigger>
-                                                <TooltipContent>Your account is responsible for signing as Club</TooltipContent>
+                                                <TooltipContent>{t("contracts.detail.responsibleClub")}</TooltipContent>
                                             </Tooltip>
                                         </TooltipProvider>
                                     )}
@@ -1054,7 +1056,7 @@ export default function ContractDetailPage() {
                             </div>
                             <div>
                                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Attorney</p>
+                                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t("contracts.detail.attorney")}</p>
                                     {agreement.attorneyEmail && (
                                         <span className="text-[11px] font-mono text-primary/80 bg-primary/5 px-2.5 py-0.5 rounded-full border border-primary/10">
                                             {agreement.attorneyEmail}
@@ -1066,7 +1068,7 @@ export default function ContractDetailPage() {
                                                 <TooltipTrigger asChild>
                                                     <KeyRound className="w-3.5 h-3.5 text-primary/60" />
                                                 </TooltipTrigger>
-                                                <TooltipContent>Your account is responsible for signing as Attorney</TooltipContent>
+                                                <TooltipContent>{t("contracts.detail.responsibleAttorney")}</TooltipContent>
                                             </Tooltip>
                                         </TooltipProvider>
                                     )}
@@ -1074,17 +1076,17 @@ export default function ContractDetailPage() {
                                 <p className="font-mono text-sm break-all text-foreground pl-1">{agreement.attorneyWalletAddress}</p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground uppercase">Token URI</p>
+                                <p className="text-xs text-muted-foreground uppercase">{t("contracts.detail.tokenUri")}</p>
                                 <a href={agreement.tokenURI} target="_blank" rel="noreferrer" className="text-primary hover:underline break-all text-sm font-mono">
                                     {agreement.tokenURI}
                                 </a>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground uppercase">Caution Amount</p>
+                                <p className="text-xs text-muted-foreground uppercase">{t("contracts.cautionAmount")}</p>
                                 <p className="font-semibold">{formatUnits(BigInt(agreement.cautionAmount), 6)} USDC</p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground uppercase">Deadline</p>
+                                <p className="text-xs text-muted-foreground uppercase">{t("contracts.detail.deadline")}</p>
                                 <p className="font-semibold text-sm" suppressHydrationWarning>{new Date(agreement.deadline!).toLocaleString()}</p>
                             </div>
                         </div>
@@ -1094,11 +1096,11 @@ export default function ContractDetailPage() {
                     <div className="glass-panel p-6 rounded-xl hover:border-primary/30 transition-all duration-300">
                         <h3 className="font-semibold mb-4 flex items-center gap-2 text-foreground">
                             <FileText className="w-5 h-5 text-primary animate-pulse" />
-                            Decentralized Storage (IPFS)
+                            {t("contracts.detail.decentralizedStorage")}
                         </h3>
                         <div className="space-y-4">
                             <p className="text-xs text-muted-foreground leading-relaxed">
-                                This legally binding contract document is cryptographically secured on the decentralized IPFS network via Pinata storage.
+                                {t("contracts.detail.ipfsExplanation")}
                             </p>
                             <div className="glass-input rounded-xl p-3 flex items-center justify-between gap-3 text-left w-full">
                                 <span className="text-xs font-mono text-muted-foreground truncate flex-1 select-all">
@@ -1114,7 +1116,7 @@ export default function ContractDetailPage() {
                                             setTimeout(() => setIsCopied(false), 2000);
                                         }}
                                         className="p-1.5 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center"
-                                        title="Copy IPFS URI"
+                                        title={t("contracts.detail.copyIpfs")}
                                     >
                                         {isCopied ? (
                                             <Check className="w-4 h-4 text-lime-500 animate-pulse" />
@@ -1127,7 +1129,7 @@ export default function ContractDetailPage() {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="p-1.5 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center"
-                                        title="View on Pinata Gateway"
+                                        title={t("contracts.detail.viewPinata")}
                                     >
                                         <ExternalLink className="w-4 h-4" />
                                     </a>
@@ -1205,9 +1207,9 @@ export default function ContractDetailPage() {
                                         <div className="flex items-start gap-3">
                                             <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                                             <div className="space-y-1">
-                                                <p className="text-sm font-medium text-primary/80">Ready to Go</p>
+                                                <p className="text-sm font-medium text-primary/80">{t("contracts.detail.readyToGo")}</p>
                                                 <p className="text-xs text-muted-foreground">
-                                                    Done! Now you just rest and wait for the Club to authorize the contract.
+                                                    {t("contracts.detail.readyToGoDesc")}
                                                 </p>
                                             </div>
                                         </div>
@@ -1222,21 +1224,21 @@ export default function ContractDetailPage() {
                             <div className="glass-panel p-6 rounded-xl space-y-4">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <h3 className="font-semibold text-foreground">USDC Stablecoin Faucet</h3>
-                                        <p className="text-xs text-muted-foreground mt-0.5">Mint test stablecoins to fund your caution deposit</p>
+                                        <h3 className="font-semibold text-foreground">{t("contracts.detail.faucetTitle")}</h3>
+                                        <p className="text-xs text-muted-foreground mt-0.5">{t("contracts.detail.faucetSubtitle")}</p>
                                     </div>
                                     <Badge variant="outline" className="font-mono bg-primary/5 text-primary text-xs border-primary/20">
-                                        Testnet Faucet
+                                        {t("contracts.detail.faucetBadge")}
                                     </Badge>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 bg-foreground/5 p-4 rounded-xl border border-foreground/5 font-mono text-sm">
                                     <div className="space-y-0.5">
-                                        <p className="text-xs text-muted-foreground/80">Required Deposit:</p>
+                                        <p className="text-xs text-muted-foreground/80">{t("contracts.detail.requiredDeposit")}</p>
                                         <p className="font-semibold text-foreground">{formatUnits(BigInt(agreement.cautionAmount), 6)} USDC</p>
                                     </div>
                                     <div className="space-y-0.5">
-                                        <p className="text-xs text-muted-foreground/80">Your Balance:</p>
+                                        <p className="text-xs text-muted-foreground/80">{t("contracts.detail.yourBalance")}</p>
                                         <p className="font-semibold text-foreground">
                                             {usdcBalance !== undefined ? formatUnits(usdcBalance, 18) : "0.0"} USDC
                                         </p>
@@ -1246,7 +1248,7 @@ export default function ContractDetailPage() {
                                 {usdcBalance !== undefined && usdcBalance < (BigInt(agreement.cautionAmount) * 10n**12n) && (
                                     <p className="text-xs text-amber-500 flex items-center gap-1.5 font-medium">
                                         <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                                        Your USDC balance is insufficient. Use the faucet below.
+                                        {t("contracts.detail.insufficientBalance")}
                                     </p>
                                 )}
 
@@ -1256,7 +1258,7 @@ export default function ContractDetailPage() {
                                     className="w-full py-2.5 rounded-xl border border-primary/20 hover:border-primary/40 text-primary font-medium text-sm flex items-center justify-center gap-2 hover:bg-primary/5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {faucetLoading && <Loader className="w-4 h-4 animate-spin" />}
-                                    Get 10,000 Mock USDC
+                                    {t("contracts.detail.getFaucet")}
                                 </button>
                             </div>
 
@@ -1286,44 +1288,44 @@ export default function ContractDetailPage() {
                             <div className="glass-panel p-6 rounded-xl space-y-6 border-primary/20 bg-primary/5">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <h3 className="font-semibold text-foreground text-lg">Active Escrow & Agreement</h3>
-                                        <p className="text-xs text-muted-foreground mt-0.5">The image rights agreement is active on-chain</p>
+                                        <h3 className="font-semibold text-foreground text-lg">{t("contracts.detail.activeEscrow")}</h3>
+                                        <p className="text-xs text-muted-foreground mt-0.5">{t("contracts.detail.activeEscrowDesc")}</p>
                                     </div>
                                     <Badge variant="outline" className="font-mono bg-green-500/10 text-lime-400 text-xs border-green-500/20 px-3 py-1 animate-pulse">
-                                        ● Active
+                                        ● {t("contracts.status.active")}
                                     </Badge>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-sm">
                                     <div className="bg-foreground/5 p-4 rounded-xl border border-foreground/5 space-y-1">
-                                        <p className="text-xs text-muted-foreground/80">Time Remaining:</p>
+                                        <p className="text-xs text-muted-foreground/80">{t("contracts.detail.timeRemaining")}</p>
                                         <p className="font-semibold text-foreground text-base">
                                             {isTimeRemainingError ? (
-                                                <span className="text-destructive text-sm font-sans">Error reading contract</span>
+                                                <span className="text-destructive text-sm font-sans">{t("contracts.detail.errorReading")}</span>
                                             ) : timeRemaining !== undefined ? (
                                                 timeRemaining > 0n ? (
-                                                    `${(timeRemaining / 86400n).toString()} Days, ${((timeRemaining % 86400n) / 3600n).toString()} Hours`
+                                                    `${(timeRemaining / 86400n).toString()}${t("contracts.detail.days")}${((timeRemaining % 86400n) / 3600n).toString()}${t("contracts.detail.hours")}`
                                                 ) : (
-                                                    "0 Days (Completed)"
+                                                    t("contracts.detail.completedDays")
                                                 )
                                             ) : (
-                                                "Loading..."
+                                                t("common.loading")
                                             )}
                                         </p>
                                     </div>
                                     <div className="bg-foreground/5 p-4 rounded-xl border border-foreground/5 space-y-1">
-                                        <p className="text-xs text-muted-foreground/80">Contract Phase:</p>
+                                        <p className="text-xs text-muted-foreground/80">{t("contracts.detail.contractPhase")}</p>
                                         <p className="font-semibold text-foreground text-base">
                                             {isHalfTimeError ? (
-                                                <span className="text-destructive text-sm font-sans">Error reading contract</span>
+                                                <span className="text-destructive text-sm font-sans">{t("contracts.detail.errorReading")}</span>
                                             ) : isBeforeHalfTime !== undefined ? (
                                                 isBeforeHalfTime ? (
-                                                    <span className="text-amber-400">1st Half (Penalty Period)</span>
+                                                    <span className="text-amber-400">{t("contracts.detail.firstHalf")}</span>
                                                 ) : (
-                                                    <span className="text-green-400">2nd Half (No Penalty Period)</span>
+                                                    <span className="text-green-400">{t("contracts.detail.secondHalf")}</span>
                                                 )
                                             ) : (
-                                                "Loading..."
+                                                t("common.loading")
                                             )}
                                         </p>
                                     </div>
@@ -1384,9 +1386,9 @@ export default function ContractDetailPage() {
                             <div className="flex items-start gap-3">
                                 <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
                                 <div className="space-y-1">
-                                    <p className="text-sm font-medium text-destructive">Agreement Rescinded</p>
+                                    <p className="text-sm font-medium text-destructive">{t("contracts.detail.rescindedTitle")}</p>
                                     <p className="text-xs text-muted-foreground">
-                                        This agreement has been prematurely terminated (rescinded) on-chain. The caution deposit has been distributed to the parties according to the contract's timing rules.
+                                        {t("contracts.detail.rescindedDesc")}
                                     </p>
                                 </div>
                             </div>
@@ -1398,9 +1400,9 @@ export default function ContractDetailPage() {
                             <div className="flex items-start gap-3">
                                 <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
                                 <div className="space-y-1">
-                                    <p className="text-sm font-medium text-green-400">Agreement Completed</p>
+                                    <p className="text-sm font-medium text-green-400">{t("contracts.detail.concludedTitle")}</p>
                                     <p className="text-xs text-muted-foreground">
-                                        This contract has naturally expired on-chain. The caution deposit has been fully returned to the Club.
+                                        {t("contracts.detail.concludedDesc")}
                                     </p>
                                 </div>
                             </div>
@@ -1410,19 +1412,19 @@ export default function ContractDetailPage() {
 
                 <div className="space-y-6">
                     <div className="glass-panel p-6 rounded-xl hover:border-primary/30 transition-all duration-300">
-                        <h3 className="font-semibold mb-4">Signatures</h3>
+                        <h3 className="font-semibold mb-4">{t("contracts.detail.signatures")}</h3>
 
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm">Club</span>
+                                <span className="text-sm">{t("contracts.detail.club")}</span>
                                 {agreement.clubSignature ? <CheckCircle2 className="text-lime-500 w-5 h-5" /> : <Clock className="text-amber-500 w-5 h-5" />}
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-sm">Player</span>
+                                <span className="text-sm">{t("contracts.detail.player")}</span>
                                 {agreement.playerSignature ? <CheckCircle2 className="text-lime-500 w-5 h-5" /> : <Clock className="text-amber-500 w-5 h-5" />}
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-sm">Attorney</span>
+                                <span className="text-sm">{t("contracts.detail.attorney")}</span>
                                 {agreement.attorneySignature ? <CheckCircle2 className="text-lime-500 w-5 h-5" /> : <Clock className="text-amber-500 w-5 h-5" />}
                             </div>
                         </div>
@@ -1435,13 +1437,13 @@ export default function ContractDetailPage() {
                                     className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {signStatus === 'awaiting_wallet' ? <Loader className="w-4 h-4 animate-spin" /> : null}
-                                    Sign Agreement
+                                    {t("contracts.detail.signAction")}
                                 </button>
                                 {signError && <p className="text-xs text-destructive mt-2">{signError}</p>}
                                 {hasAnyWalletMismatch && (
                                     <p className="text-xs text-amber-400/80 mt-2 flex items-center gap-1.5">
                                         <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                                        Signing is disabled due to wallet mismatch. Sync the correct wallet on your profile.
+                                        {t("contracts.detail.walletMismatchSigning")}
                                     </p>
                                 )}
                             </div>

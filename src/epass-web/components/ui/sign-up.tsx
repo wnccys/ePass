@@ -14,6 +14,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
+
 
 // --- BUILT-IN BLUR FADE ANIMATION COMPONENT ---
 interface BlurFadeProps { children: React.ReactNode; className?: string; variant?: { hidden: { y: number }; visible: { y: number } }; duration?: number; delay?: number; yOffset?: number; inView?: boolean; inViewMargin?: string; blur?: string; }
@@ -107,6 +109,7 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg {...props} x
 export const AuthComponent = () => {
   const { status } = useSession();
   const router = useRouter();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -127,8 +130,8 @@ export const AuthComponent = () => {
             <fieldset className="relative z-10 flex flex-col items-center gap-8 w-[280px] mx-auto p-4">
                 <AnimatePresence mode="wait">
                     <motion.div key="email-content" initial={{ y: 6, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3, ease: "easeOut" }} className="w-full flex flex-col items-center gap-4">
-                        <BlurFade delay={0.25 * 1} className="w-full"><div className="text-center"><p className="font-serif font-light text-4xl sm:text-5xl md:text-6xl tracking-tight text-foreground whitespace-nowrap">Get started with Us</p></div></BlurFade>
-                        <BlurFade delay={0.25 * 2}><p className="text-sm font-medium text-muted-foreground">Continue with</p></BlurFade>
+                        <BlurFade delay={0.25 * 1} className="w-full"><div className="text-center"><p className="font-serif font-light text-4xl sm:text-5xl md:text-6xl tracking-tight text-foreground whitespace-nowrap">{t("login.title")}</p></div></BlurFade>
+                        <BlurFade delay={0.25 * 2}><p className="text-sm font-medium text-muted-foreground">{t("login.subtitle")}</p></BlurFade>
                         <BlurFade delay={0.25 * 3}><div className="flex items-center justify-center gap-4 w-full">
                             {/* Google button — active */}
                             <GlassButton onClick={() => signIn("google", { callbackUrl: "/home" })} contentClassName="flex items-center justify-center gap-2" size="sm"><GoogleIcon /><span className="font-semibold text-foreground">Google</span></GlassButton>
