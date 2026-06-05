@@ -494,21 +494,6 @@ export default function ContractDetailPage() {
                 }
             } else {
                 // Step 2: Fractionalize
-                if (!isVaultAuthorized) {
-                    setActionStatus('submitting');
-                    const authResponse = await fetch('/api/authorize-vault', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ vaultAddress: agreement.vaultAddress }),
-                    });
-
-                    if (!authResponse.ok) {
-                        const errorData = await authResponse.json().catch(() => ({}));
-                        throw new Error(errorData.error || "Failed to automatically authorize vault via Admin API.");
-                    }
-                    await refetchAuthorized();
-                }
-
                 const supply = 1_000_000n * 10n**18n; // 1M tokens with 18 decimals
                 const txHash = await fractionalizeNft({
                     address: agreement.vaultAddress as `0x${string}`,
@@ -1178,8 +1163,8 @@ export default function ContractDetailPage() {
                                     title="Lock & Fractionalize NFT"
                                     description={approvedAddress?.toLowerCase() === agreement.vaultAddress?.toLowerCase()
                                         ? (!isVaultAuthorized
-                                            ? "Step 2 of 2: Authorize vault automatically and lock the Player Rights NFT into the Vault to fractionalize it into 1,000,000 $P_IMAGE tokens."
-                                            : "Step 2 of 2: Lock the Player Rights NFT into the Vault and fractionalize it into 1,000,000 $P_IMAGE tokens."
+                                            ? `Step 2 of 2: Authorize vault automatically and lock the Player Rights NFT into the Vault to fractionalize it into 1,000,000 ${agreement.tokenSymbol} tokens.`
+                                            : `Step 2 of 2: Lock the Player Rights NFT into the Vault and fractionalize it into 1,000,000 ${agreement.tokenSymbol} tokens.`
                                           )
                                         : "Step 1 of 2: Approve the Vault Escrow clone to transfer the Player Rights NFT."
                                     }
