@@ -16,6 +16,11 @@ export const chainMap =  {
     sepolia: sepolia
 };
 
+export const transports = {
+    [foundry.id]: http(env.NEXT_PUBLIC_FOUNDRY_RPC_URL),
+    [sepolia.id]: http(), // Uses Wagmi's public RPC endpoint or our Sepolia RPC env
+}
+
 export function Web3Providers({ children }: { children: React.ReactNode }) {
     // Instantiate inside the component to prevent SSR data leaks!
     const [queryClient] = useState(() => new QueryClient());
@@ -40,10 +45,7 @@ export function Web3Providers({ children }: { children: React.ReactNode }) {
             ],
             ssr: true,
             storage,
-            transports: {
-                [foundry.id]: http(env.NEXT_PUBLIC_FOUNDRY_RPC_URL),
-                [sepolia.id]: http(), // Uses Wagmi's public RPC endpoint or your Sepolia RPC env
-            },
+            transports
         });
     });
 
