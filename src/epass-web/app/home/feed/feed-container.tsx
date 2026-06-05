@@ -7,16 +7,16 @@ import { VaultCard } from "./vault-card";
 import { getMyTransactions } from "@/app/actions/transactions";
 import { Loader2, Layers, Link2 } from "lucide-react";
 
-type FeedItem = 
+type FeedItem =
     | { type: 'transaction'; id: string; timestamp: number; data: any }
     | { type: 'agreement'; id: string; timestamp: number; data: any };
 
-export function FeedContainer({ 
-    initialAgreements, 
+export function FeedContainer({
+    initialAgreements,
     initialTransactions,
-    userRole 
-}: { 
-    initialAgreements: any[]; 
+    userRole
+}: {
+    initialAgreements: any[];
     initialTransactions: any[];
     userRole: string;
 }) {
@@ -141,9 +141,9 @@ export function FeedContainer({
                     {feedItems.map((item) => {
                         if (item.type === 'transaction') {
                             return (
-                                <TransactionCard 
-                                    key={item.id} 
-                                    transaction={item.data} 
+                                <TransactionCard
+                                    key={item.id}
+                                    transaction={item.data}
                                 />
                             );
                         }
@@ -162,7 +162,7 @@ export function FeedContainer({
 
                                     {/* Connector: link icon centered on the seam, adds no spacing */}
                                     <div className="relative z-20 flex h-0 items-center justify-center pointer-events-none">
-                                        <div className="-translate-y-1/2 w-7 h-7 rounded-full bg-background ring-1 ring-primary/30 border border-primary/20 flex items-center justify-center shadow-sm">
+                                        <div className="w-7 h-7 rounded-full bg-background ring-1 ring-primary/30 border border-primary/20 flex items-center justify-center shadow-sm">
                                             <Link2 className="w-3.5 h-3.5 text-primary" />
                                         </div>
                                     </div>
@@ -173,10 +173,10 @@ export function FeedContainer({
                         }
 
                         return (
-                            <ContractStatusCard 
-                                key={item.id} 
-                                agreement={item.data} 
-                                userRole={userRole} 
+                            <ContractStatusCard
+                                key={item.id}
+                                agreement={item.data}
+                                userRole={userRole}
                             />
                         );
                     })}
@@ -185,8 +185,8 @@ export function FeedContainer({
 
             {/* Scroll Sentinel */}
             {hasMore && (
-                <div 
-                    ref={sentinelRef} 
+                <div
+                    ref={sentinelRef}
                     className="flex justify-center py-4 text-muted-foreground"
                 >
                     {loading && <Loader2 className="w-6 h-6 animate-spin text-primary" />}
