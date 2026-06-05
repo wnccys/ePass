@@ -107,7 +107,9 @@ export default function HeroSection() {
                 <span className="bg-gradient-to-br from-white via-white to-[#ffcd75] bg-clip-text text-transparent">
                   {t("hero.contractsThatWork")}
                 </span><br />
-                {t("hero.thatWork")}
+                <span className="inline-block pt-3 xl:pt-4">
+                  {t("hero.thatWork")}
+                </span>
               </h1>
             )}
 
