@@ -5,6 +5,7 @@ Este arquivo explica como o projeto funciona nesta branch de estudo específica.
 // DAI -> Study
 // ERC-1155
 // ERC-6909
+// README - autores
 
 Alguns clubes de menor porte na Europa e na América Latina começaram a usar plataformas DeFi (Finanças Descentralizadas) para dar como garantia os contratos de venda de seus jogadores
 
