@@ -18,7 +18,7 @@ export const chainMap =  {
 
 export const transports = {
     [foundry.id]: http(env.NEXT_PUBLIC_FOUNDRY_RPC_URL),
-    [sepolia.id]: http(), // Uses Wagmi's public RPC endpoint or our Sepolia RPC env
+    [sepolia.id]: http(env.SEPOLIA_RPC_URL), // Uses Wagmi's public RPC endpoint or our Sepolia RPC env
 }
 
 export function Web3Providers({ children }: { children: React.ReactNode }) {

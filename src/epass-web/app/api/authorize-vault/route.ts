@@ -17,12 +17,14 @@ export async function POST(req: Request) {
         const account = privateKeyToAccount(env.ADMIN_PRIVATE_KEY as `0x${string}`);
 
         const network = env.NEXT_PUBLIC_APP_NETWORK as keyof typeof chainMap;
-        const chain = chainMap[network] || foundry;
+        const chain = chainMap[network];
+
+        if (!chain) throw Error("Could not determine transport");
 
         // Dynamically get the transport
         const transport = network === 'foundry'
             ? http(env.NEXT_PUBLIC_FOUNDRY_RPC_URL)
-            : http();
+            : http(env.SEPOLIA_RPC_URL);
 
         const client = createWalletClient({
             account,
