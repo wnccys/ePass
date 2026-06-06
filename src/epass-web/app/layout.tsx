@@ -48,10 +48,10 @@ export default async function RootLayout({
         <>
         <head>
             {/* React Scan -- DevTool */}
-            <script
+            {/* <script
                 crossOrigin="anonymous"
                 src="//unpkg.com/react-scan/dist/auto.global.js"
-            ></script>
+            ></script> */}
         </head>
             <html
                 lang="en"
