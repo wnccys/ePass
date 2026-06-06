@@ -1,0 +1,71 @@
+### Fluxo off-chain
+
+
+[Contrato PDF] ──hash──► [IPFS] ──URI──► tokenURI do NFT
+
+       │
+       │ Jogador, Clube e Advogado
+       │ assinam digitalmente (EIP-712, sem gas)
+       ▼
+
+
+
+### Fluxo on-chain
+
+
++-------------------+        1. Definição do acordo        +-------------------+
+|      Jogador      | -----------------------------------> |                   |
++-------------------+                                      |                   |
+                                                           |                   |
++-------------------+        2. Definição do acordo        |                   |
+|       Clube       | -----------------------------------> | Documento legal   |
++-------------------+                                      |   off-chain       |
+                                                           | (contrato + URI)  |
++-------------------+        3. Definição do acordo        |                   |
+|     Advogado      | -----------------------------------> |                   |
++-------------------+                                      +---------+---------+
+                                                                     |
+                                                                     | 4. Geração da tokenURI
+                                                                     |    (IPFS / metadata)
+                                                                     v
+                                                           +-------------------+
+                                                           |   Frontend / App   |
+                                                           | monta MintAgreement|
+                                                           +---------+---------+
+                                                                     |
+                                                                     | 5. Assinaturas EIP-712
+                                                                     |    player + club + attorney
+                                                                     v
+                                                           +-------------------+
+                                                           |   RightsMinter    |
+                                                           | executeMint()      |
+                                                           +---------+---------+
+                                                                     |
+                          6. Verifica deadline ---------------------->|
+                          7. Verifica nonce ------------------------->|
+                          8. Recupera e valida 3 assinaturas ------->|
+                                                                     |
+                                                                     | 9. mintRights(req.club, tokenURI)
+                                                                     v
+                                                           +-------------------+
+                                                           | PlayerRightsMaster |
+                                                           |    ERC-721 NFT     |
+                                                           +---------+---------+
+                                                                     |
+                                                                     | 10. NFT mestre mintado
+                                                                     |     para o clube
+                                                                     v
++-------------------+      11. approve(tokenId)            +-------------------+
+|       Clube       | -----------------------------------> |    RightsVault    |
++-------------------+                                      | fractionalize()    |
+                                                           +---------+---------+
+                                                                     |
+                          12. Confere ownerOf(tokenId) ------------->|
+                          13. Transfere NFT para o cofre ----------->|
+                          14. Marca NFT como locked ---------------->|
+                          15. Minta ERC-20 fracionário ------------->|
+                                                                     v
+                                                           +-------------------+
+                                                           | Tokens P_IMAGE     |
+                                                           | enviados ao clube  |
+                                                           +-------------------+
