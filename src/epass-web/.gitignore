@@ -42,8 +42,6 @@ next-env.d.ts
 
 !.env.example
 
-src/generated.ts
-
 # playwright
 /playwright-report/
 /test-results/
