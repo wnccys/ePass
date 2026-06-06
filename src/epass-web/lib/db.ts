@@ -21,6 +21,8 @@ async function dbConnect() {
     if (!cached.promise) {
         const opts = {
             bufferCommands: false,
+            // CRITICAL: Keeps the connection footprint tiny per serverless function
+            maxPoolSize: 5,
             family: 4
         };
 
