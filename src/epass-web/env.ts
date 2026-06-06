@@ -72,7 +72,7 @@ export const env = createEnv({
     ADMIN_PRIVATE_KEY: process.env.ADMIN_PRIVATE_KEY,
     GROQ_API_KEY: process.env.GROQ_API_KEY,
     GROQ_MODEL: process.env.GROQ_MODEL,
-    SEPOLIA_RPC_URL: process.env.SEPOLIA_RPC,
+    SEPOLIA_RPC_URL: process.env.SEPOLIA_RPC_URL,
 
     NEXT_PUBLIC_RAINBOW_PROJECT_ID: process.env.NEXT_PUBLIC_RAINBOW_PROJECT_ID,
     NEXT_PUBLIC_APP_NETWORK: process.env.NEXT_PUBLIC_APP_NETWORK,
