@@ -24,7 +24,7 @@ export async function POST(req: Request) {
         // Dynamically get the transport
         const transport = network === 'foundry'
             ? http(env.NEXT_PUBLIC_FOUNDRY_RPC_URL)
-            : http(env.SEPOLIA_RPC_URL);
+            : http(env.NEXT_PUBLIC_SEPOLIA_RPC_URL);
 
         const client = createWalletClient({
             account,
