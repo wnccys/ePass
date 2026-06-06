@@ -16,10 +16,12 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     }, []);
 
     return (
-        <SessionProvider>
-            <TooltipProvider>
-                {children}
-            </TooltipProvider>
-        </SessionProvider>
+        <ThemeProvider>
+            <SessionProvider>
+                <TooltipProvider>
+                    {children}
+                </TooltipProvider>
+            </SessionProvider>
+        </ThemeProvider>
     );
 }
