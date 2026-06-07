@@ -5,10 +5,6 @@ import { Agent } from "https"; // <-- 1. Import this native Node module
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
-// Prevent auth bug on production
-const isDev = env.NODE_ENV === "development";
-const ipv4Agent = isDev ? new Agent({ family: 4 }) : undefined;
-
 export const authOptions: NextAuthOptions = {
     providers: [
         GoogleProvider({
@@ -16,7 +12,6 @@ export const authOptions: NextAuthOptions = {
             clientSecret: env.GOOGLE_CLIENT_SECRET as string,
             httpOptions: {
                 timeout: 10000,
-                ...(ipv4Agent && { agent: ipv4Agent })
             }
         })
     ],

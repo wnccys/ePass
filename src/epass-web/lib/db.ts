@@ -23,7 +23,7 @@ async function dbConnect() {
             bufferCommands: false,
             // CRITICAL: Keeps the connection footprint tiny per serverless function
             maxPoolSize: 5,
-            family: 4
+            // family: 4
         };
 
         cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongooseInstance) => {
