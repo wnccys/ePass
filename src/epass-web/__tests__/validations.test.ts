@@ -57,7 +57,6 @@ describe("profileSchema", () => {
   it("rejeita bio com mais de 160 caracteres", () => {
     const result = profileSchema.safeParse({
       name: "Joao Silva",
-      role: "player",
       bio: "a".repeat(161),
     });
     expect(result.success).to.be.false;
@@ -66,14 +65,13 @@ describe("profileSchema", () => {
   it("aceita bio dentro do limite", () => {
     const result = profileSchema.safeParse({
       name: "Joao Silva",
-      role: "player",
       bio: "Jogador profissional.",
     });
     expect(result.success).to.be.true;
   });
 
   it("aceita sem bio (campo opcional)", () => {
-    const result = profileSchema.safeParse({ name: "Joao Silva", role: "player" });
+    const result = profileSchema.safeParse({ name: "Joao Silva" });
     expect(result.success).to.be.true;
   });
 });

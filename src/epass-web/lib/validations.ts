@@ -32,7 +32,9 @@ export const baseProfileSchema = z.object({
 
 export const onboardingSchema = baseProfileSchema;
 
-export const profileSchema = baseProfileSchema.extend({
+export const profileSchema = z.object({
+  name: z.string().min(5, 'Name must be at least 5 characters long'),
+  avatar: avatarValidationSchema,
   bio: z.string().max(160, 'Bio must be under 160 characters').optional(),
 });
 
@@ -42,11 +44,11 @@ export const contractSchema = z.object({
   playerWalletAddress: z.string().refine((val) => isAddress(val), {
     message: "Invalid Player Wallet Address",
   }),
-  playerEmail: z.string().email({ message: "Invalid Player Email Address" }),
+  playerEmail: z.email({ message: "Invalid Player Email Address" }),
   attorneyWalletAddress: z.string().refine((val) => isAddress(val), {
     message: "Invalid Attorney Wallet Address",
   }),
-  attorneyEmail: z.string().email({ message: "Invalid Attorney Email Address" }),
+  attorneyEmail: z.email({ message: "Invalid Attorney Email Address" }),
   tokenURI: z.string().min(1, { message: "Token URI is required" }),
   cautionAmountUSDC: z.string().refine((val) => {
     const num = Number(val);

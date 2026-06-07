@@ -7,7 +7,6 @@ import User from "@/models/User";
 
 export type ProfilePayload = {
     name: string;
-    role: string;
     bio?: string;
     avatar?: File | null;
 };
@@ -16,7 +15,7 @@ export async function updateProfile(data: ProfilePayload) {
     const session = await getServerSession(authOptions);
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
-    const { name, role, bio, avatar } = data;
+    const { name, bio, avatar } = data;
 
     let imageUrl = undefined;
     if (avatar && avatar.size > 0) {
@@ -29,7 +28,7 @@ export async function updateProfile(data: ProfilePayload) {
     await dbConnect();
 
     try {
-        const updateData: any = { name, role };
+        const updateData: any = { name };
         if (bio !== undefined) updateData.bio = bio;
         if (imageUrl) updateData.image = imageUrl;
 

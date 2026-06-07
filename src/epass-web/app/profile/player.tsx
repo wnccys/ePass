@@ -44,7 +44,6 @@ export function PlayerProfile({
     defaultValues: {
       name: user?.name || '',
       bio: user?.bio || '',
-      role: user?.role || 'player',
       avatar: undefined as File | undefined,
     },
     validators: { onChange: profileSchema as any },
@@ -198,28 +197,24 @@ export function PlayerProfile({
                 )}
               </form.Field>
 
-              <form.Field name="role">
-                {(field) => (
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-foreground ml-1 block">{t("common.role")}</label>
-                    <div className="flex items-center justify-between glass-input rounded-2xl p-4 max-w-sm">
-                      <div className="flex items-center gap-3 cursor-pointer group" onClick={() => field.handleChange('player')}>
-                        <div className={cn("p-2 rounded-full", field.state.value === 'player' ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground")}>
-                           <UserIcon className="w-5 h-5" />
-                        </div>
-                        <span className="text-sm font-semibold">{t("common.player")}</span>
-                      </div>
-                      <Switch disabled={true} checked={field.state.value === 'club'} onCheckedChange={(checked) => field.handleChange(checked ? 'club' : 'player')} />
-                      <div className="flex items-center gap-3 cursor-pointer group" onClick={() => field.handleChange('club')}>
-                        <span className="text-sm font-semibold">{t("common.club")}</span>
-                        <div className={cn("p-2 rounded-full", field.state.value === 'club' ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground")}>
-                           <Building2 className="w-5 h-5" />
-                        </div>
-                      </div>
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-foreground ml-1 block">{t("common.role")}</label>
+                <div className="flex items-center justify-between glass-input rounded-2xl p-4 max-w-sm opacity-80 select-none">
+                  <div className="flex items-center gap-3">
+                    <div className={cn("p-2 rounded-full", user?.role === 'player' ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground")}>
+                       <UserIcon className="w-5 h-5" />
+                    </div>
+                    <span className="text-sm font-semibold">{t("common.player")}</span>
+                  </div>
+                  <Switch disabled={true} checked={user?.role === 'club'} />
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold">{t("common.club")}</span>
+                    <div className={cn("p-2 rounded-full", user?.role === 'club' ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground")}>
+                       <Building2 className="w-5 h-5" />
                     </div>
                   </div>
-                )}
-              </form.Field>
+                </div>
+              </div>
             </div>
 
             <div className="mt-auto pt-8 border-t border-foreground/10 flex flex-col sm:flex-row items-center justify-between gap-4">
