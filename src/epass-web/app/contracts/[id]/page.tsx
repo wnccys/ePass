@@ -1056,13 +1056,13 @@ export default function ContractDetailPage() {
 
     if (loading)
         return (
-            <div className="flex justify-center p-24">
+            <div className="flex min-h-screen items-center justify-center p-24">
                 <Loader className="animate-spin text-primary" />
             </div>
         );
     if (!agreement)
         return (
-            <div className="p-24 text-center">
+            <div className="flex min-h-screen items-center justify-center p-24 text-center">
                 {t("contracts.detail.notFound")}
             </div>
         );
@@ -1109,7 +1109,7 @@ export default function ContractDetailPage() {
         ((isAttorney || isAssignedAttorney) && !agreement.attorneySignature);
 
     return (
-        <div className="container mx-auto max-w-4xl px-6 py-24">
+        <div className="container mx-auto max-w-4xl px-6 py-24 min-h-screen">
             <div className="mb-8 flex items-start justify-between">
                 <div>
                     <h1 className="font-light font-serif text-4xl tracking-tight">

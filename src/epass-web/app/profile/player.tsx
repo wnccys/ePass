@@ -65,7 +65,19 @@ export function PlayerProfile({
             bio: user?.bio || "",
             avatar: undefined as File | undefined,
         },
-        validators: { onChange: profileSchema as any },
+        validators: {
+            onChange: ({ value }) => {
+                const res = profileSchema.safeParse(value);
+                if (res.success) return undefined;
+
+                const errors: Record<string, string> = {};
+                for (const issue of res.error.issues) {
+                    const path = issue.path.join(".");
+                    errors[path] = issue.message;
+                }
+                return errors;
+            },
+        },
         onSubmit: async ({ value }) => {
             setIsSubmitting(true);
             setSubmitMessage(null);
@@ -319,31 +331,8 @@ export function PlayerProfile({
                             </div>
                         </div>
 
-                        <div className="mt-auto flex flex-col items-center justify-between gap-4 border-foreground/10 border-t pt-8 sm:flex-row">
-                            <AnimatePresence mode="wait">
-                                {submitMessage && (
-                                    <motion.div
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        className={cn(
-                                            "flex items-center gap-2 font-medium text-sm",
-                                            submitMessage.type === "success"
-                                                ? "text-green-500"
-                                                : "text-destructive",
-                                        )}
-                                    >
-                                        {submitMessage.type === "success" ? (
-                                            <CheckCircle2 className="h-5 w-5" />
-                                        ) : (
-                                            <AlertCircle className="h-5 w-5" />
-                                        )}
-                                        {submitMessage.text}
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-
-                            <div className="flex items-center gap-5 px-2">
+                        <div className="mt-auto flex flex-col items-start gap-4 border-foreground/10 border-t pt-8 w-full">
+                            <div className="flex flex-col sm:flex-row w-full items-center justify-start gap-5 px-2">
                                 <form.Subscribe
                                     selector={(state) => [
                                         state.canSubmit,
@@ -363,7 +352,7 @@ export function PlayerProfile({
                                                 isFormSubmitting ||
                                                 !isDirty
                                             }
-                                            className="ml-auto flex w-full items-center justify-center gap-2 rounded-full bg-primary px-8 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50 sm:w-auto"
+                                            className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-8 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50 sm:w-auto"
                                         >
                                             {isSubmitting ||
                                             isFormSubmitting ? (
@@ -377,11 +366,34 @@ export function PlayerProfile({
                                 />
 
                                 <LogoutButton />
+
+                                <AnimatePresence mode="wait">
+                                    {submitMessage && (
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -10 }}
+                                            className={cn(
+                                                "flex items-center gap-2 font-medium text-sm px-2",
+                                                submitMessage.type === "success"
+                                                    ? "text-green-500"
+                                                    : "text-destructive",
+                                            )}
+                                        >
+                                            {submitMessage.type === "success" ? (
+                                                <CheckCircle2 className="h-5 w-5" />
+                                            ) : (
+                                                <AlertCircle className="h-5 w-5" />
+                                            )}
+                                            {submitMessage.text}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </div>
                         </div>
                     </div>
                 </form>
             </FadeIn>
-        </Card>
+            </Card>
     );
 }

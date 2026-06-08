@@ -1,13 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { ArrowUpRight, Shield } from "lucide-react";
 import { TwitterIcon, LinkedinIcon, MailIcon } from "./icons";
 
 export function Footer() {
+    const pathname = usePathname();
     const { i18n } = useTranslation();
     const isPt = i18n.language === "pt";
+
+    if (pathname === "/" || pathname === "/login") {
+        return null;
+    }
 
     return (
         <footer className="glass-panel w-full border-t border-foreground/10 py-6 px-6 md:px-12 flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto z-40 relative select-none">

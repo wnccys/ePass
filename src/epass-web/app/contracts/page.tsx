@@ -43,10 +43,14 @@ export default function ContractsPage() {
     }
 
     if (!user)
-        return <div className="py-24 text-center">{t("common.error")}</div>;
+        return (
+            <div className="flex min-h-screen items-center justify-center p-24 text-center">
+                {t("common.error")}
+            </div>
+        );
 
     return (
-        <div className="container mx-auto max-w-5xl px-6 py-24">
+        <div className="container mx-auto max-w-5xl px-6 py-24 min-h-screen">
             <div className="mb-12 flex flex-col items-center justify-between gap-6 md:flex-row">
                 <div>
                     <h1 className="font-light font-serif text-4xl tracking-tight">

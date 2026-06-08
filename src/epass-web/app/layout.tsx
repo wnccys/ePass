@@ -70,7 +70,7 @@ export default async function RootLayout({
                     src="//unpkg.com/react-scan/dist/auto.global.js"
                 ></script> */}
             </head>
-                <body className="flex min-h-full flex-col selection:bg-lime-200/80">
+                <body className="min-h-full flex flex-col selection:bg-lime-200/80">
                     <AppProviders>
                         <Web3Providers>
                             <MainNavbar />

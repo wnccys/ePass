@@ -56,7 +56,17 @@ export function OnBoardingForm({
             avatar: undefined as File | undefined,
         },
         validators: {
-            onChange: onboardingSchema as any,
+            onChange: ({ value }) => {
+                const res = onboardingSchema.safeParse(value);
+                if (res.success) return undefined;
+
+                const errors: Record<string, string> = {};
+                for (const issue of res.error.issues) {
+                    const path = issue.path.join(".");
+                    errors[path] = issue.message;
+                }
+                return errors;
+            },
         },
         onSubmit: async ({ value }) => {
             setIsSubmitting(true);
