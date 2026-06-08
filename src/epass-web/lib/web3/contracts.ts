@@ -95,6 +95,17 @@ export const RIGHTS_MINTER = {
             inputs: [],
             outputs: [{ name: "", type: "address" }],
         },
+        // Events
+        {
+            name: "AgreementAuthorized",
+            type: "event",
+            inputs: [
+                { name: "player", type: "address", indexed: true },
+                { name: "club", type: "address", indexed: true },
+                { name: "tokenURI", type: "string", indexed: false },
+                { name: "tokenId", type: "uint256", indexed: false },
+            ],
+        },
     ],
 } as const;
 
