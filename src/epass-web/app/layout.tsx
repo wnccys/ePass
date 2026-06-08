@@ -7,6 +7,7 @@ import { AppProviders } from "@/components/providers";
 import { MainNavbar } from "@/components/main-navbar";
 import { Web3Providers } from "@/components/web3-providers";
 import { Toaster } from "@/components/ui/sonner";
+import { Footer } from "@/components/footer";
 
 const notoSerifHeading = Noto_Serif({subsets:['latin'],variable:'--font-heading'});
 
@@ -63,6 +64,7 @@ export default async function RootLayout({
                             <Web3Providers>
                                 <MainNavbar />
                                 {children}
+                                <Footer />
                                 <Toaster />
                             </Web3Providers>
                         </AppProviders>

@@ -3,6 +3,7 @@
 import {
   Target,
   Scroll,
+  Shield,
   // Brand Icons
   Hexagon,
   Triangle,
@@ -14,6 +15,7 @@ import {
 import AnimatedTextRoller from "./animated-text";
 import { LoginButton } from "./login-button";
 import { useTranslation } from "react-i18next";
+import Link from "next/link";
 
 // --- MOCK BRANDS ---
 // Replaced PNGs with Lucide icons to simulate tech logos
@@ -121,7 +123,7 @@ export default function HeroSection() {
             <div className="animate-fade-in delay-400 flex flex-col sm:flex-row gap-4">
                 <LoginButton />
 
-              <a 
+              <a
                 href="https://epass.gitbook.io/epass-docs/"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -130,6 +132,14 @@ export default function HeroSection() {
                 <Scroll className="w-4 h-4 fill-current" />
                 {t("hero.readMore")}
               </a>
+
+              <Link
+                href="/privacy"
+                className="group inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-8 py-4 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10 hover:border-white/20"
+              >
+                <Shield className="w-4 h-4" />
+                {isPt ? "Termos & Privacidade" : "Terms & Privacy"}
+              </Link>
             </div>
           </div>
 
