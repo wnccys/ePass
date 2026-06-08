@@ -13,6 +13,7 @@ import {
 } from "wagmi";
 import { foundry } from "wagmi/chains";
 import { Button } from "@/components/ui/button";
+import { getChainConfig } from "@/app/actions/chain";
 
 type WalletConnectProps = {
     onAddressChange?: (address?: string) => void;
@@ -35,9 +36,11 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
         error: switchError,
     } = useSwitchChain();
 
+    const chainConfig = getChainConfig();
+
     // We are use Foundry by default and testing purpose
-    const foundryClient = usePublicClient({ chainId: foundry.id });
-    const [foundryStatus, setFoundryStatus] = useState<
+    const chainClient = usePublicClient({ chainId: chainConfig.network.id });
+    const [chainStatus, setChainStatus] = useState<
         "idle" | "checking" | "ok" | "error"
     >("idle");
     const [selectedConnectorName, setSelectedConnectorName] = useState<
@@ -56,25 +59,25 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
     );
     const { address, chainId } = connection;
     const isConnected = connection.status === "connected";
-    const isOnFoundry = chainId === foundry.id;
+    const isOnChain = chainId === chainConfig.network.id;
     const isConnectPending = connectStatus === "pending";
 
-    // Update Foundry health status
+    // Update Chain health status
     useEffect(() => {
         let active = true;
 
         async function checkFoundryHealth() {
-            if (!foundryClient) {
+            if (!chainClient) {
                 return;
             }
 
-            setFoundryStatus("checking");
+            setChainStatus("checking");
 
             try {
-                await foundryClient.getBlockNumber();
-                if (active) setFoundryStatus("ok");
+                await chainClient.getBlockNumber();
+                if (active) setChainStatus("ok");
             } catch {
-                if (active) setFoundryStatus("error");
+                if (active) setChainStatus("error");
             }
         }
 
@@ -82,7 +85,7 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
         return () => {
             active = false;
         };
-    }, [foundryClient]);
+    }, [chainClient]);
 
     // Update address on parent component and session (only if changed)
     useEffect(() => {
@@ -117,24 +120,24 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
             )}
 
             {/* Switch to foundry btn */}
-            {isConnected && !isOnFoundry && (
+            {isConnected && !isOnChain && (
                 <Button
                     className="w-full"
                     type="button"
                     variant="destructive"
                     onClick={async () => {
-                        await switchChainMutateAsync({ chainId: foundry.id });
+                        await switchChainMutateAsync({ chainId: chainConfig.network.id });
                     }}
                     disabled={isSwitchPending}
                 >
                     {isSwitchPending
                         ? "Switching network..."
-                        : "Switch to Foundry"}
+                        : `Switch to ${chainConfig.network.name}`}
                 </Button>
             )}
 
             {/*  Show address component */}
-            {isConnected && isOnFoundry && (
+            {isConnected && isOnChain && (
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-1 rounded-md border border-border bg-muted/40 px-2 py-1">
                         <span className="flex-1 select-all break-all font-mono text-muted-foreground text-xs">
@@ -174,19 +177,19 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
 
             {/* Wallet / Network information block */}
             <div className="space-y-1 px-1 text-[11px] text-muted-foreground">
-                <p>Network target: Foundry (chainId: {foundry.id})</p>
+                <p>Network target: <span className="capitalize">{ chainConfig.network.name }</span> (chainId: {chainConfig.network.id})</p>
                 {chainId && <p>Current chainId: {chainId}</p>}
-                {foundryStatus === "checking" && (
+                {chainStatus === "checking" && (
                     <p>Checking local Foundry RPC...</p>
                 )}
-                {foundryStatus === "ok" && (
+                {chainStatus === "ok" && (
                     <p className="text-emerald-500">
-                        Connected to Foundry RPC.
+                        Connected to <span className="capitalize">{ chainConfig.network.name }</span> RPC.
                     </p>
                 )}
-                {foundryStatus === "error" && (
+                {chainStatus === "error" && (
                     <p className="text-destructive">
-                        Foundry RPC is currently unreachable.
+                        Client RPC is currently unreachable.
                     </p>
                 )}
                 {connectError && (
