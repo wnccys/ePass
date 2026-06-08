@@ -194,9 +194,9 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
             {/* Wallet / Network information block */}
             <div className="space-y-1 px-1 text-[11px] text-muted-foreground">
                 <p>Network target: <span className="capitalize">{ chainConfig.network.name }</span> (chainId: {chainConfig.network.id})</p>
-                {chainId && <p>Current chainId: {chainId}</p>}
+                {chainId != chainConfig.network.id && <p>Current chainId: {chainId}</p>}
                 {chainStatus === "checking" && (
-                    <p>Checking local Foundry RPC...</p>
+                    <p>Checking local <span className="capitalize">{chainConfig.network.name}</span> RPC...</p>
                 )}
                 {chainStatus === "ok" && (
                     <p className="text-emerald-500">
