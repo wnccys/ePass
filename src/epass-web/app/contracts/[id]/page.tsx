@@ -8,6 +8,7 @@ import {
     Copy,
     ExternalLink,
     FileText,
+    HelpCircle,
     KeyRound,
     Loader,
     Trash2,
@@ -1368,6 +1369,21 @@ export default function ContractDetailPage() {
                                     <p className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">
                                         {t("contracts.detail.attorney")}
                                     </p>
+                                     <TooltipProvider>
+                                         <Tooltip>
+                                             <TooltipTrigger asChild>
+                                                 <button
+                                                     type="button"
+                                                     className="inline-flex cursor-help items-center justify-center rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                                 >
+                                                     <HelpCircle className="h-3.5 w-3.5" />
+                                                 </button>
+                                             </TooltipTrigger>
+                                             <TooltipContent className="max-w-xs rounded-xl border border-border/40 bg-popover p-3 text-center text-popover-foreground text-xs leading-relaxed shadow-xl">
+                                                 {t("contracts.detail.attorneySignExplanation")}
+                                             </TooltipContent>
+                                         </Tooltip>
+                                     </TooltipProvider>
                                     {agreement.attorneyEmail && (
                                         <span className="rounded-full border border-primary/10 bg-primary/5 px-2.5 py-0.5 font-mono text-[11px] text-primary/80">
                                             {agreement.attorneyEmail}

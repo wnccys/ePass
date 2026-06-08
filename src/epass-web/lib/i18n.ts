@@ -16,6 +16,7 @@ const resources = {
                 role: "Role",
                 player: "Player",
                 club: "Club",
+                attorney: "Attorney",
                 bio: "Bio",
                 name: "Name",
                 email: "Email Address",
@@ -322,6 +323,8 @@ const resources = {
                         "Your account is responsible for signing as Attorney",
                     tokenUri: "Token URI",
                     deadline: "Deadline",
+                    attorneySignExplanation:
+                        "If the email and wallet address of the attorney are the same as yours, signing the contract will submit signatures for both roles at the same time.",
                 },
             },
             dashboard: {
@@ -442,6 +445,7 @@ const resources = {
                 role: "Função",
                 player: "Atleta",
                 club: "Clube",
+                attorney: "Advogado",
                 bio: "Biografia",
                 name: "Nome",
                 email: "Endereço de E-mail",
@@ -756,6 +760,8 @@ const resources = {
                         "Sua conta é responsável por assinar como Advogado",
                     tokenUri: "URI do Token",
                     deadline: "Prazo Limite",
+                    attorneySignExplanation:
+                        "Se o e-mail e o endereço de carteira do advogado forem iguais aos seus, a assinatura do contrato assinará para ambas as funções ao mesmo tempo.",
                 },
             },
             dashboard: {
