@@ -8,7 +8,7 @@ import { useState } from "react";
 import { createStorage, http, noopStorage, WagmiProvider } from "wagmi";
 import { foundry, sepolia } from "wagmi/chains";
 import { env } from "@/env";
-import { getCurrentChain } from "@/app/actions/chain";
+import { getChainConfig } from "@/app/actions/chain";
 
 export function Web3Providers({ children }: { children: React.ReactNode }) {
     // Instantiate inside the component to prevent SSR data leaks!
@@ -26,7 +26,7 @@ export function Web3Providers({ children }: { children: React.ReactNode }) {
         return getDefaultConfig({
             appName: "ePass Football",
             projectId: env.NEXT_PUBLIC_RAINBOW_PROJECT_ID,
-            chains: [getCurrentChain().network],
+            chains: [getChainConfig().network],
             wallets: [
                 {
                     groupName: "Recommended",

@@ -3,7 +3,7 @@ import { createWalletClient, publicActions } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { env } from "@/env";
 import { playerRightsMasterAbi } from "@/src/generated";
-import { getCurrentChain } from "@/app/actions/chain";
+import { getChainConfig } from "@/app/actions/chain";
 
 export async function POST(req: Request) {
     try {
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
             env.ADMIN_PRIVATE_KEY as `0x${string}`,
         );
 
-        const chainConfig = getCurrentChain();
+        const chainConfig = getChainConfig();
         const chain = chainConfig.network;
         if (!chain) throw Error("Could not determine transport");
 
