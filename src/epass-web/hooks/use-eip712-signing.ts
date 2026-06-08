@@ -1,25 +1,28 @@
-import { useState } from 'react';
-import { useSignTypedData } from 'wagmi';
-import { MINT_AGREEMENT_TYPES, buildMintAgreementDomain } from '@/lib/web3/eip712';
-import { RIGHTS_MINTER } from '@/lib/web3/contracts';
+import { useState } from "react";
+import { useSignTypedData } from "wagmi";
+import { RIGHTS_MINTER } from "@/lib/web3/contracts";
+import {
+    buildMintAgreementDomain,
+    MINT_AGREEMENT_TYPES,
+} from "@/lib/web3/eip712";
 
-type SignStatus = 'idle' | 'awaiting_wallet' | 'success' | 'error';
+type SignStatus = "idle" | "awaiting_wallet" | "success" | "error";
 
 export function useEip712Signing(chainId: number) {
-    const [status, setStatus] = useState<SignStatus>('idle');
+    const [status, setStatus] = useState<SignStatus>("idle");
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [signature, setSignature] = useState<string | null>(null);
 
     const { mutateAsync } = useSignTypedData();
 
     /**
-    * Create a signable payload / sign payload / manage hook status / return keccak-256 signature string
-    * @param agreement
-    * @returns
-    */
+     * Create a signable payload / sign payload / manage hook status / return keccak-256 signature string
+     * @param agreement
+     * @returns
+     */
     const signAgreement = async (agreement: any) => {
         try {
-            setStatus('awaiting_wallet');
+            setStatus("awaiting_wallet");
             setErrorMsg(null);
             setSignature(null);
 
@@ -64,7 +67,10 @@ export function useEip712Signing(chainId: number) {
             };
 
             // Get domain prefix required for EIP-712
-            const domain = buildMintAgreementDomain(RIGHTS_MINTER.address, chainId);
+            const domain = buildMintAgreementDomain(
+                RIGHTS_MINTER.address,
+                chainId,
+            );
 
             // This must exactly match the ABI encoded structure of us
             // bytes32 structHash = keccak256(
@@ -81,25 +87,37 @@ export function useEip712Signing(chainId: number) {
             const sig = await mutateAsync({
                 domain,
                 types: MINT_AGREEMENT_TYPES,
-                primaryType: 'MintAgreement',
+                primaryType: "MintAgreement",
                 message,
             });
 
             setSignature(sig);
-            setStatus('success');
+            setStatus("success");
             return sig;
         } catch (err: any) {
             console.error(err);
-            setStatus('error');
+            setStatus("error");
 
-            if (err.message.includes('User rejected')) {
-                setErrorMsg('Signature request was rejected in your wallet.');
+            if (err.message.includes("User rejected")) {
+                setErrorMsg("Signature request was rejected in your wallet.");
             } else {
-                setErrorMsg(err.shortMessage || err.message || 'Signature failed.');
+                setErrorMsg(
+                    err.shortMessage || err.message || "Signature failed.",
+                );
             }
             throw err;
         }
     };
 
-    return { signAgreement, status, signature, errorMsg, reset: () => { setStatus('idle'); setErrorMsg(null); setSignature(null); } };
+    return {
+        signAgreement,
+        status,
+        signature,
+        errorMsg,
+        reset: () => {
+            setStatus("idle");
+            setErrorMsg(null);
+            setSignature(null);
+        },
+    };
 }

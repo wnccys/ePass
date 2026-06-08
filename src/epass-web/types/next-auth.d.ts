@@ -1,26 +1,26 @@
 import NextAuth, { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
-  /**
-   * Returned by `useSession`, `getServerSession` and received as a prop on the `SessionProvider` React Context
-   */
-  interface Session {
-    user: {
-      /** The user's database unique Mongoose _id. */
-      id: string;
-      email: string;
-      role?: "player" | "club";
-      walletAddress?: string;
+    /**
+     * Returned by `useSession`, `getServerSession` and received as a prop on the `SessionProvider` React Context
+     */
+    interface Session {
+        user: {
+            /** The user's database unique Mongoose _id. */
+            id: string;
+            email: string;
+            role?: "player" | "club";
+            walletAddress?: string;
+        };
     }
-  }
 }
 
 declare module "next-auth/jwt" {
-  /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
-  interface JWT {
-    /** The user's database unique Mongoose _id. */
-    id?: string;
-    role?: "player" | "club";
-    walletAddress?: string;
-  }
+    /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
+    interface JWT {
+        /** The user's database unique Mongoose _id. */
+        id?: string;
+        role?: "player" | "club";
+        walletAddress?: string;
+    }
 }

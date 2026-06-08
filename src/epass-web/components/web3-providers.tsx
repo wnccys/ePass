@@ -1,25 +1,23 @@
-'use client';
+"use client";
 
-import React, { useState } from "react";
+import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { injectedWallet, safeWallet } from "@rainbow-me/rainbowkit/wallets";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  getDefaultConfig,
-  RainbowKitProvider,
-} from "@rainbow-me/rainbowkit";
-import { injectedWallet, safeWallet } from '@rainbow-me/rainbowkit/wallets';
+import type React from "react";
+import { useState } from "react";
+import { createStorage, http, noopStorage, WagmiProvider } from "wagmi";
 import { foundry, sepolia } from "wagmi/chains";
-import { WagmiProvider, createStorage, http, noopStorage } from "wagmi";
 import { env } from "@/env";
 
-export const chainMap =  {
+export const chainMap = {
     foundry: foundry,
-    sepolia: sepolia
+    sepolia: sepolia,
 };
 
 export const transports = {
     [foundry.id]: http(env.NEXT_PUBLIC_FOUNDRY_RPC_URL),
     [sepolia.id]: http(env.NEXT_PUBLIC_SEPOLIA_RPC_URL), // Uses Wagmi's public RPC endpoint or our Sepolia RPC env
-}
+};
 
 export function Web3Providers({ children }: { children: React.ReactNode }) {
     // Instantiate inside the component to prevent SSR data leaks!
@@ -30,31 +28,32 @@ export function Web3Providers({ children }: { children: React.ReactNode }) {
     const [config] = useState(() => {
         const storage = createStorage({
             key: "epass-wagmi",
-            storage: typeof window !== "undefined" ? window.localStorage : noopStorage,
+            storage:
+                typeof window !== "undefined"
+                    ? window.localStorage
+                    : noopStorage,
         });
 
         return getDefaultConfig({
-            appName: 'Football Transfer Portal',
+            appName: "Football Transfer Portal",
             projectId: env.NEXT_PUBLIC_RAINBOW_PROJECT_ID,
             chains: [activeChain],
             wallets: [
                 {
-                    groupName: 'Recommended',
+                    groupName: "Recommended",
                     wallets: [injectedWallet, safeWallet],
                 },
             ],
             ssr: true,
             storage,
-            transports
+            transports,
         });
     });
 
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-                <RainbowKitProvider>
-                    {children}
-                </RainbowKitProvider>
+                <RainbowKitProvider>{children}</RainbowKitProvider>
             </QueryClientProvider>
         </WagmiProvider>
     );

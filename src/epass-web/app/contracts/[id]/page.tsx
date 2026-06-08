@@ -1,42 +1,77 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { getAgreement, submitSignature, updateAgreementOnChain, excludeAgreementFromAccount } from "@/app/actions/agreements";
-import { useConnection, useChainId, usePublicClient } from "wagmi";
-import { useEip712Signing } from "@/hooks/use-eip712-signing";
-import { RIGHTS_MINTER, VAULT_FACTORY, PLAYER_RIGHTS_MASTER, MOCK_USDC } from "@/lib/web3/contracts";
-import { Badge } from "@/components/ui/badge";
-import { Loader, CheckCircle2, Clock, Trash2, Copy, Check, ExternalLink, FileText, AlertTriangle, KeyRound } from "lucide-react";
-import { formatUnits, BaseError, ContractFunctionRevertedError, parseEventLogs } from "viem";
-import { ActionCard } from "@/components/web3/action-card";
 import {
-    useWriteRightsMinterExecuteMint,
-    useWriteRightsVaultFactoryCreateVault,
-    useWritePlayerRightsMasterApprove,
-    useWriteRightsVaultImplFractionalize,
-    useWriteMockUsdcApprove,
-    useWriteMockUsdcMint,
-    useReadMockUsdcBalanceOf,
+    AlertTriangle,
+    Check,
+    CheckCircle2,
+    Clock,
+    Copy,
+    ExternalLink,
+    FileText,
+    KeyRound,
+    Loader,
+    Trash2,
+} from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+    BaseError,
+    ContractFunctionRevertedError,
+    formatUnits,
+    parseEventLogs,
+} from "viem";
+import { useChainId, useConnection, usePublicClient } from "wagmi";
+import {
+    excludeAgreementFromAccount,
+    getAgreement,
+    submitSignature,
+    updateAgreementOnChain,
+} from "@/app/actions/agreements";
+import {
+    confirmTransaction,
+    failTransaction,
+    recordTransaction,
+} from "@/app/actions/transactions";
+import { Badge } from "@/components/ui/badge";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { ActionCard } from "@/components/web3/action-card";
+import { useEip712Signing } from "@/hooks/use-eip712-signing";
+import {
+    MOCK_USDC,
+    PLAYER_RIGHTS_MASTER,
+    RIGHTS_MINTER,
+    VAULT_FACTORY,
+} from "@/lib/web3/contracts";
+import {
+    rightsVaultFactoryAbi,
     useReadMockUsdcAllowance,
+    useReadMockUsdcBalanceOf,
+    useReadPlayerRightsMasterAuthorizedOperators,
     useReadPlayerRightsMasterGetApproved,
     useReadPlayerRightsMasterOwner,
-    useReadPlayerRightsMasterAuthorizedOperators,
-    useWritePlayerRightsMasterSetAuthorizedOperator,
-    useWriteRightsVaultImplDepositCaution,
-    useWriteRightsVaultImplRescindByPlayer,
-    useWriteRightsVaultImplRescindByClub,
-    useWriteRightsVaultImplExpireContract,
-    useReadRightsVaultImplTimeRemaining,
     useReadRightsVaultImplIsBeforeHalfTime,
-    rightsVaultFactoryAbi
+    useReadRightsVaultImplTimeRemaining,
+    useWriteMockUsdcApprove,
+    useWriteMockUsdcMint,
+    useWritePlayerRightsMasterApprove,
+    useWritePlayerRightsMasterSetAuthorizedOperator,
+    useWriteRightsMinterExecuteMint,
+    useWriteRightsVaultFactoryCreateVault,
+    useWriteRightsVaultImplDepositCaution,
+    useWriteRightsVaultImplExpireContract,
+    useWriteRightsVaultImplFractionalize,
+    useWriteRightsVaultImplRescindByClub,
+    useWriteRightsVaultImplRescindByPlayer,
 } from "@/src/generated";
-import { recordTransaction, confirmTransaction, failTransaction } from "@/app/actions/transactions";
-import { useSession } from "next-auth/react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useTranslation } from "react-i18next";
 
-import { SerializedAgreement } from "@/types/agreement";
+import type { SerializedAgreement } from "@/types/agreement";
 
 export default function ContractDetailPage() {
     const { t } = useTranslation();
@@ -48,103 +83,156 @@ export default function ContractDetailPage() {
     const { address } = useConnection();
     const chainId = useChainId();
 
-    const [agreement, setAgreement] = useState<SerializedAgreement | null>(null);
+    const [agreement, setAgreement] = useState<SerializedAgreement | null>(
+        null,
+    );
     const [loading, setLoading] = useState(true);
     const [isCopied, setIsCopied] = useState(false);
     const [isExcluding, setIsExcluding] = useState(false);
 
     // Signature hook
-    const { signAgreement, status: signStatus, errorMsg: signError } = useEip712Signing(chainId);
+    const {
+        signAgreement,
+        status: signStatus,
+        errorMsg: signError,
+    } = useEip712Signing(chainId);
 
     // Contracts action hooks
-    const { mutateAsync: executeMintContract } = useWriteRightsMinterExecuteMint();
-    const { mutateAsync: createVaultContract } = useWriteRightsVaultFactoryCreateVault();
+    const { mutateAsync: executeMintContract } =
+        useWriteRightsMinterExecuteMint();
+    const { mutateAsync: createVaultContract } =
+        useWriteRightsVaultFactoryCreateVault();
     const { mutateAsync: approveNft } = useWritePlayerRightsMasterApprove();
-    const { mutateAsync: fractionalizeNft } = useWriteRightsVaultImplFractionalize();
+    const { mutateAsync: fractionalizeNft } =
+        useWriteRightsVaultImplFractionalize();
     const { mutateAsync: approveUsdc } = useWriteMockUsdcApprove();
-    const { mutateAsync: depositCautionContract } = useWriteRightsVaultImplDepositCaution();
+    const { mutateAsync: depositCautionContract } =
+        useWriteRightsVaultImplDepositCaution();
     const { mutateAsync: mintMockUsdc } = useWriteMockUsdcMint();
-    const { mutateAsync: setAuthorizedOperator } = useWritePlayerRightsMasterSetAuthorizedOperator();
-    const { mutateAsync: rescindByPlayerContract } = useWriteRightsVaultImplRescindByPlayer();
-    const { mutateAsync: rescindByClubContract } = useWriteRightsVaultImplRescindByClub();
-    const { mutateAsync: expireContractAction } = useWriteRightsVaultImplExpireContract();
+    const { mutateAsync: setAuthorizedOperator } =
+        useWritePlayerRightsMasterSetAuthorizedOperator();
+    const { mutateAsync: rescindByPlayerContract } =
+        useWriteRightsVaultImplRescindByPlayer();
+    const { mutateAsync: rescindByClubContract } =
+        useWriteRightsVaultImplRescindByClub();
+    const { mutateAsync: expireContractAction } =
+        useWriteRightsVaultImplExpireContract();
 
     const publicClient = usePublicClient();
 
-    const [mintStatus, setMintStatus] = useState<'idle' | 'simulating' | 'awaiting_wallet' | 'submitting' | 'confirming' | 'success' | 'error'>('idle');
+    const [mintStatus, setMintStatus] = useState<
+        | "idle"
+        | "simulating"
+        | "awaiting_wallet"
+        | "submitting"
+        | "confirming"
+        | "success"
+        | "error"
+    >("idle");
     const [mintErrorMsg, setMintErrorMsg] = useState<string | null>(null);
     const [mintTxHash, setMintTxHash] = useState<string | null>(null);
 
-    const [actionStatus, setActionStatus] = useState<'idle' | 'simulating' | 'awaiting_wallet' | 'submitting' | 'confirming' | 'success' | 'error'>('idle');
+    const [actionStatus, setActionStatus] = useState<
+        | "idle"
+        | "simulating"
+        | "awaiting_wallet"
+        | "submitting"
+        | "confirming"
+        | "success"
+        | "error"
+    >("idle");
     const [actionErrorMsg, setActionErrorMsg] = useState<string | null>(null);
     const [actionTxHash, setActionTxHash] = useState<string | null>(null);
     const [faucetLoading, setFaucetLoading] = useState(false);
 
     // Read hooks memoized arguments
     const getApprovedArgs = useMemo(() => {
-        return agreement?.nftTokenId ? [BigInt(agreement.nftTokenId)] as const : undefined;
+        return agreement?.nftTokenId
+            ? ([BigInt(agreement.nftTokenId)] as const)
+            : undefined;
     }, [agreement?.nftTokenId]);
 
-    const { data: approvedAddress, refetch: refetchApproved } = useReadPlayerRightsMasterGetApproved({
-        address: PLAYER_RIGHTS_MASTER.address,
-        args: getApprovedArgs,
-        query: {
-            enabled: !!agreement?.nftTokenId
-        }
-    });
+    const { data: approvedAddress, refetch: refetchApproved } =
+        useReadPlayerRightsMasterGetApproved({
+            address: PLAYER_RIGHTS_MASTER.address,
+            args: getApprovedArgs,
+            query: {
+                enabled: !!agreement?.nftTokenId,
+            },
+        });
 
     const { data: nftContractOwner } = useReadPlayerRightsMasterOwner({
-        address: PLAYER_RIGHTS_MASTER.address
+        address: PLAYER_RIGHTS_MASTER.address,
     });
 
     const authorizedOperatorsArgs = useMemo(() => {
-        return agreement?.vaultAddress ? [agreement.vaultAddress as `0x${string}`] as const : undefined;
+        return agreement?.vaultAddress
+            ? ([agreement.vaultAddress as `0x${string}`] as const)
+            : undefined;
     }, [agreement?.vaultAddress]);
 
-    const { data: isVaultAuthorized, refetch: refetchAuthorized } = useReadPlayerRightsMasterAuthorizedOperators({
-        address: PLAYER_RIGHTS_MASTER.address,
-        args: authorizedOperatorsArgs,
-        query: {
-            enabled: !!agreement?.vaultAddress
-        }
-    });
+    const { data: isVaultAuthorized, refetch: refetchAuthorized } =
+        useReadPlayerRightsMasterAuthorizedOperators({
+            address: PLAYER_RIGHTS_MASTER.address,
+            args: authorizedOperatorsArgs,
+            query: {
+                enabled: !!agreement?.vaultAddress,
+            },
+        });
 
     const usdcAllowanceArgs = useMemo(() => {
-        return address && agreement?.vaultAddress ? [address as `0x${string}`, agreement.vaultAddress as `0x${string}`] as const : undefined;
+        return address && agreement?.vaultAddress
+            ? ([
+                  address as `0x${string}`,
+                  agreement.vaultAddress as `0x${string}`,
+              ] as const)
+            : undefined;
     }, [address, agreement?.vaultAddress]);
 
-    const { data: usdcAllowance, refetch: refetchAllowance } = useReadMockUsdcAllowance({
-        address: MOCK_USDC.address,
-        args: usdcAllowanceArgs,
-        query: {
-            enabled: !!address && !!agreement?.vaultAddress
-        }
-    });
+    const { data: usdcAllowance, refetch: refetchAllowance } =
+        useReadMockUsdcAllowance({
+            address: MOCK_USDC.address,
+            args: usdcAllowanceArgs,
+            query: {
+                enabled: !!address && !!agreement?.vaultAddress,
+            },
+        });
 
     const usdcBalanceArgs = useMemo(() => {
-        return address ? [address as `0x${string}`] as const : undefined;
+        return address ? ([address as `0x${string}`] as const) : undefined;
     }, [address]);
 
-    const { data: usdcBalance, refetch: refetchUsdcBalance } = useReadMockUsdcBalanceOf({
-        address: MOCK_USDC.address,
-        args: usdcBalanceArgs,
-        query: {
-            enabled: !!address
-        }
-    });
+    const { data: usdcBalance, refetch: refetchUsdcBalance } =
+        useReadMockUsdcBalanceOf({
+            address: MOCK_USDC.address,
+            args: usdcBalanceArgs,
+            query: {
+                enabled: !!address,
+            },
+        });
 
-    const { data: timeRemaining, refetch: refetchTimeRemaining, isError: isTimeRemainingError } = useReadRightsVaultImplTimeRemaining({
+    const {
+        data: timeRemaining,
+        refetch: refetchTimeRemaining,
+        isError: isTimeRemainingError,
+    } = useReadRightsVaultImplTimeRemaining({
         address: agreement?.vaultAddress as `0x${string}`,
         query: {
-            enabled: !!agreement?.vaultAddress && agreement?.status === 'active'
-        }
+            enabled:
+                !!agreement?.vaultAddress && agreement?.status === "active",
+        },
     });
 
-    const { data: isBeforeHalfTime, refetch: refetchHalfTime, isError: isHalfTimeError } = useReadRightsVaultImplIsBeforeHalfTime({
+    const {
+        data: isBeforeHalfTime,
+        refetch: refetchHalfTime,
+        isError: isHalfTimeError,
+    } = useReadRightsVaultImplIsBeforeHalfTime({
         address: agreement?.vaultAddress as `0x${string}`,
         query: {
-            enabled: !!agreement?.vaultAddress && agreement?.status === 'active'
-        }
+            enabled:
+                !!agreement?.vaultAddress && agreement?.status === "active",
+        },
     });
 
     // Fetch specific [id] based agreement data and set its state
@@ -185,9 +273,16 @@ export default function ContractDetailPage() {
     };
 
     const handleMint = async () => {
-        if (!agreement || !agreement.playerSignature || !agreement.clubSignature || !agreement.attorneySignature || !address) return;
+        if (
+            !agreement ||
+            !agreement.playerSignature ||
+            !agreement.clubSignature ||
+            !agreement.attorneySignature ||
+            !address
+        )
+            return;
 
-        setMintStatus('awaiting_wallet');
+        setMintStatus("awaiting_wallet");
         setMintErrorMsg(null);
         setMintTxHash(null);
 
@@ -197,7 +292,7 @@ export default function ContractDetailPage() {
             attorney: agreement.attorneyWalletAddress as `0x${string}`,
             tokenURI: agreement.tokenURI,
             nonce: BigInt(agreement.nonce!),
-            deadline: BigInt(new Date(agreement.deadline!).getTime() / 1000)
+            deadline: BigInt(new Date(agreement.deadline!).getTime() / 1000),
         };
 
         let txHash: `0x${string}` | undefined;
@@ -209,34 +304,37 @@ export default function ContractDetailPage() {
                     req,
                     agreement.playerSignature as `0x${string}`,
                     agreement.clubSignature as `0x${string}`,
-                    agreement.attorneySignature as `0x${string}`
-                ]
+                    agreement.attorneySignature as `0x${string}`,
+                ],
             });
 
             if (!txHash) throw new Error("Transaction hash was not returned.");
 
             setMintTxHash(txHash);
-            setMintStatus('submitting');
+            setMintStatus("submitting");
 
             // Record transaction to database as 'submitted'
             await recordTransaction({
                 txHash,
                 chainId,
-                actionType: 'execute_mint',
+                actionType: "execute_mint",
                 contractAddress: RIGHTS_MINTER.address,
                 walletAddress: address,
-                agreementId: id
+                agreementId: id,
             });
 
-            setMintStatus('confirming');
+            setMintStatus("confirming");
 
-            if (!publicClient) throw new Error("Public client is not available.");
+            if (!publicClient)
+                throw new Error("Public client is not available.");
 
             // Wait for transaction receipt
-            const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+            const receipt = await publicClient.waitForTransactionReceipt({
+                hash: txHash,
+            });
 
-            if (receipt.status === 'success') {
-                setMintStatus('success');
+            if (receipt.status === "success") {
+                setMintStatus("success");
 
                 // Update database transaction status to 'confirmed'
                 await confirmTransaction(txHash, Number(receipt.blockNumber));
@@ -246,22 +344,25 @@ export default function ContractDetailPage() {
                 try {
                     const parsedLogs = parseEventLogs({
                         abi: RIGHTS_MINTER.abi,
-                        eventName: 'AgreementAuthorized',
-                        logs: receipt.logs
+                        eventName: "AgreementAuthorized",
+                        logs: receipt.logs,
                     });
                     const eventArgs = parsedLogs[0]?.args as any;
-                    if (eventArgs && 'tokenId' in eventArgs) {
+                    if (eventArgs && "tokenId" in eventArgs) {
                         nftTokenId = Number(eventArgs.tokenId);
                     }
                 } catch (parseErr) {
-                    console.error("Failed to parse event logs for tokenId:", parseErr);
+                    console.error(
+                        "Failed to parse event logs for tokenId:",
+                        parseErr,
+                    );
                 }
 
                 // Update agreement status in database
                 await updateAgreementOnChain(id, {
                     mintTxHash: txHash,
-                    status: 'minted',
-                    nftTokenId
+                    status: "minted",
+                    nftTokenId,
                 });
 
                 await fetchAgreement();
@@ -270,7 +371,7 @@ export default function ContractDetailPage() {
             }
         } catch (err: any) {
             console.error("Minting error:", err);
-            setMintStatus('error');
+            setMintStatus("error");
 
             if (txHash) {
                 // If transaction failed/reverted on-chain, update database transaction to 'failed'
@@ -278,44 +379,58 @@ export default function ContractDetailPage() {
             }
 
             // User rejected
-            if (err.message?.includes('User rejected') || err.code === 4001) {
-                setMintErrorMsg('Transaction was rejected in your wallet.');
+            if (err.message?.includes("User rejected") || err.code === 4001) {
+                setMintErrorMsg("Transaction was rejected in your wallet.");
                 return;
             }
 
             // Parse custom contract errors from RightsMinter.sol
             if (err instanceof BaseError) {
-                const revertError = err.walk(e => e instanceof ContractFunctionRevertedError);
+                const revertError = err.walk(
+                    (e) => e instanceof ContractFunctionRevertedError,
+                );
                 if (revertError instanceof ContractFunctionRevertedError) {
                     const errorName = revertError.data?.errorName;
                     switch (errorName) {
-                        case 'SignatureExpired':
-                            setMintErrorMsg('The signatures have expired. Please resign the agreement.');
+                        case "SignatureExpired":
+                            setMintErrorMsg(
+                                "The signatures have expired. Please resign the agreement.",
+                            );
                             break;
-                        case 'InvalidSignature':
-                            setMintErrorMsg('One or more signatures are invalid or do not match the expected signers.');
+                        case "InvalidSignature":
+                            setMintErrorMsg(
+                                "One or more signatures are invalid or do not match the expected signers.",
+                            );
                             break;
-                        case 'MasterNotConfigured':
-                            setMintErrorMsg('The PlayerRightsMaster NFT contract address is not configured yet.');
+                        case "MasterNotConfigured":
+                            setMintErrorMsg(
+                                "The PlayerRightsMaster NFT contract address is not configured yet.",
+                            );
                             break;
-                        case 'ZeroAddress':
-                            setMintErrorMsg('An invalid address (0x0) was provided.');
+                        case "ZeroAddress":
+                            setMintErrorMsg(
+                                "An invalid address (0x0) was provided.",
+                            );
                             break;
                         default:
-                            setMintErrorMsg(`Contract reverted: ${errorName || 'Unknown reason'}`);
+                            setMintErrorMsg(
+                                `Contract reverted: ${errorName || "Unknown reason"}`,
+                            );
                     }
                     return;
                 }
             }
 
-            setMintErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+            setMintErrorMsg(
+                err.shortMessage || err.message || "Transaction failed.",
+            );
         }
     };
 
     const handleCreateVault = async () => {
         if (!agreement || !address) return;
 
-        setActionStatus('awaiting_wallet');
+        setActionStatus("awaiting_wallet");
         setActionErrorMsg(null);
         setActionTxHash(null);
 
@@ -328,57 +443,65 @@ export default function ContractDetailPage() {
                     agreement.attorneyWalletAddress as `0x${string}`,
                     3000n, // playerBps: 30%
                     6000n, // clubBps: 60%
-                    1000n,  // attorneyBps: 10%
+                    1000n, // attorneyBps: 10%
                     agreement.tokenName,
-                    agreement.tokenSymbol
-                ]
+                    agreement.tokenSymbol,
+                ],
             });
 
             if (!txHash) throw new Error("Transaction hash was not returned.");
 
             setActionTxHash(txHash);
-            setActionStatus('submitting');
+            setActionStatus("submitting");
 
             await recordTransaction({
                 txHash,
                 chainId,
-                actionType: 'create_vault',
+                actionType: "create_vault",
                 contractAddress: VAULT_FACTORY.address,
                 walletAddress: address,
-                agreementId: id
+                agreementId: id,
             });
 
-            setActionStatus('confirming');
+            setActionStatus("confirming");
 
-            if (!publicClient) throw new Error("Public client is not available.");
-            const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+            if (!publicClient)
+                throw new Error("Public client is not available.");
+            const receipt = await publicClient.waitForTransactionReceipt({
+                hash: txHash,
+            });
 
-            if (receipt.status === 'success') {
-                setActionStatus('success');
+            if (receipt.status === "success") {
+                setActionStatus("success");
                 await confirmTransaction(txHash, Number(receipt.blockNumber));
 
                 let vaultAddress = "";
                 try {
                     const parsedLogs = parseEventLogs({
                         abi: rightsVaultFactoryAbi,
-                        eventName: 'VaultCreated',
-                        logs: receipt.logs
+                        eventName: "VaultCreated",
+                        logs: receipt.logs,
                     });
                     const eventArgs = parsedLogs[0]?.args as any;
-                    if (eventArgs && 'vault' in eventArgs) {
+                    if (eventArgs && "vault" in eventArgs) {
                         vaultAddress = eventArgs.vault;
                     }
                 } catch (parseErr) {
-                    console.error("Failed to parse event logs for vault address:", parseErr);
+                    console.error(
+                        "Failed to parse event logs for vault address:",
+                        parseErr,
+                    );
                 }
 
                 if (!vaultAddress) {
-                    throw new Error("Could not retrieve vault address from transaction logs.");
+                    throw new Error(
+                        "Could not retrieve vault address from transaction logs.",
+                    );
                 }
 
                 await updateAgreementOnChain(id, {
                     vaultAddress,
-                    status: 'vault_created'
+                    status: "vault_created",
                 });
 
                 await fetchAgreement();
@@ -387,33 +510,40 @@ export default function ContractDetailPage() {
             }
         } catch (err: any) {
             console.error("Create vault error:", err);
-            setActionStatus('error');
+            setActionStatus("error");
             if (actionTxHash) {
                 await failTransaction(actionTxHash);
             }
-            setActionErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+            setActionErrorMsg(
+                err.shortMessage || err.message || "Transaction failed.",
+            );
         }
     };
 
     const handleAuthorizeVault = async () => {
         if (!agreement || !agreement.vaultAddress || !address) return;
 
-        setActionStatus('awaiting_wallet');
+        setActionStatus("awaiting_wallet");
         setActionErrorMsg(null);
         setActionTxHash(null);
 
         try {
-            if (isVaultAuthorized) { return };
+            if (isVaultAuthorized) {
+                return;
+            }
 
-            const authResponse = await fetch('/api/authorize-vault', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const authResponse = await fetch("/api/authorize-vault", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ vaultAddress: agreement.vaultAddress }),
             });
 
             if (!authResponse.ok) {
                 const errorData = await authResponse.json().catch(() => ({}));
-                throw new Error(errorData.error || "Failed to automatically authorize vault via Automatic API.");
+                throw new Error(
+                    errorData.error ||
+                        "Failed to automatically authorize vault via Automatic API.",
+                );
             }
 
             const txHash = (await authResponse.json()).hash;
@@ -421,24 +551,27 @@ export default function ContractDetailPage() {
             if (!txHash) throw new Error("Transaction hash was not returned.");
 
             setActionTxHash(txHash);
-            setActionStatus('submitting');
+            setActionStatus("submitting");
 
             await recordTransaction({
                 txHash,
                 chainId,
-                actionType: 'authorize_vault_operator',
+                actionType: "authorize_vault_operator",
                 contractAddress: PLAYER_RIGHTS_MASTER.address,
                 walletAddress: address,
-                agreementId: id
+                agreementId: id,
             });
 
-            setActionStatus('confirming');
+            setActionStatus("confirming");
 
-            if (!publicClient) throw new Error("Public client is not available.");
-            const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+            if (!publicClient)
+                throw new Error("Public client is not available.");
+            const receipt = await publicClient.waitForTransactionReceipt({
+                hash: txHash,
+            });
 
-            if (receipt.status === 'success') {
-                setActionStatus('success');
+            if (receipt.status === "success") {
+                setActionStatus("success");
                 await confirmTransaction(txHash, Number(receipt.blockNumber));
                 await refetchAuthorized();
             } else {
@@ -446,23 +579,33 @@ export default function ContractDetailPage() {
             }
         } catch (err: any) {
             console.error("Authorize vault operator error:", err);
-            setActionStatus('error');
+            setActionStatus("error");
             if (actionTxHash) {
                 await failTransaction(actionTxHash);
             }
-            setActionErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+            setActionErrorMsg(
+                err.shortMessage || err.message || "Transaction failed.",
+            );
         }
     };
 
     const handleFractionalize = async () => {
-        if (!agreement || !agreement.vaultAddress || !agreement.nftTokenId || !address) return;
+        if (
+            !agreement ||
+            !agreement.vaultAddress ||
+            !agreement.nftTokenId ||
+            !address
+        )
+            return;
 
-        setActionStatus('awaiting_wallet');
+        setActionStatus("awaiting_wallet");
         setActionErrorMsg(null);
         setActionTxHash(null);
 
         try {
-            const isApproved = approvedAddress?.toLowerCase() === agreement.vaultAddress.toLowerCase();
+            const isApproved =
+                approvedAddress?.toLowerCase() ===
+                agreement.vaultAddress.toLowerCase();
 
             if (!isApproved) {
                 // Step 1: Approve
@@ -470,102 +613,126 @@ export default function ContractDetailPage() {
                     address: PLAYER_RIGHTS_MASTER.address,
                     args: [
                         agreement.vaultAddress as `0x${string}`,
-                        BigInt(agreement.nftTokenId)
-                    ]
+                        BigInt(agreement.nftTokenId),
+                    ],
                 });
 
-                if (!txHash) throw new Error("Transaction hash was not returned.");
+                if (!txHash)
+                    throw new Error("Transaction hash was not returned.");
 
                 setActionTxHash(txHash);
-                setActionStatus('submitting');
+                setActionStatus("submitting");
 
                 await recordTransaction({
                     txHash,
                     chainId,
-                    actionType: 'approve_token',
+                    actionType: "approve_token",
                     contractAddress: PLAYER_RIGHTS_MASTER.address,
                     walletAddress: address,
-                    agreementId: id
+                    agreementId: id,
                 });
 
-                setActionStatus('confirming');
+                setActionStatus("confirming");
 
-                if (!publicClient) throw new Error("Public client is not available.");
-                const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+                if (!publicClient)
+                    throw new Error("Public client is not available.");
+                const receipt = await publicClient.waitForTransactionReceipt({
+                    hash: txHash,
+                });
 
-                if (receipt.status === 'success') {
-                    setActionStatus('success');
-                    await confirmTransaction(txHash, Number(receipt.blockNumber));
+                if (receipt.status === "success") {
+                    setActionStatus("success");
+                    await confirmTransaction(
+                        txHash,
+                        Number(receipt.blockNumber),
+                    );
                     await refetchApproved();
-                    setActionStatus('idle');
+                    setActionStatus("idle");
                 } else {
                     throw new Error("Approve transaction reverted on-chain.");
                 }
             } else {
                 // Step 2: Fractionalize
-                const supply = 1_000_000n * 10n**18n; // 1M tokens with 18 decimals
+                const supply = 1_000_000n * 10n ** 18n; // 1M tokens with 18 decimals
                 const txHash = await fractionalizeNft({
                     address: agreement.vaultAddress as `0x${string}`,
-                    args: [
-                        BigInt(agreement.nftTokenId),
-                        supply
-                    ]
+                    args: [BigInt(agreement.nftTokenId), supply],
                 });
 
-                if (!txHash) throw new Error("Transaction hash was not returned.");
+                if (!txHash)
+                    throw new Error("Transaction hash was not returned.");
 
                 setActionTxHash(txHash);
-                setActionStatus('submitting');
+                setActionStatus("submitting");
 
                 await recordTransaction({
                     txHash,
                     chainId,
-                    actionType: 'fractionalize',
+                    actionType: "fractionalize",
                     contractAddress: agreement.vaultAddress,
                     walletAddress: address,
-                    agreementId: id
+                    agreementId: id,
                 });
 
-                setActionStatus('confirming');
+                setActionStatus("confirming");
 
-                if (!publicClient) throw new Error("Public client is not available.");
-                const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+                if (!publicClient)
+                    throw new Error("Public client is not available.");
+                const receipt = await publicClient.waitForTransactionReceipt({
+                    hash: txHash,
+                });
 
-                if (receipt.status === 'success') {
-                    setActionStatus('success');
-                    await confirmTransaction(txHash, Number(receipt.blockNumber));
+                if (receipt.status === "success") {
+                    setActionStatus("success");
+                    await confirmTransaction(
+                        txHash,
+                        Number(receipt.blockNumber),
+                    );
 
                     // Update database status to pending_deposit
                     await updateAgreementOnChain(id, {
-                        status: 'pending_deposit'
+                        status: "pending_deposit",
                     });
 
                     await fetchAgreement();
                 } else {
-                    throw new Error("Fractionalize transaction reverted on-chain.");
+                    throw new Error(
+                        "Fractionalize transaction reverted on-chain.",
+                    );
                 }
             }
         } catch (err: any) {
             console.error("Fractionalization error:", err);
-            setActionStatus('error');
+            setActionStatus("error");
             if (actionTxHash) {
                 await failTransaction(actionTxHash);
             }
-            setActionErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+            setActionErrorMsg(
+                err.shortMessage || err.message || "Transaction failed.",
+            );
         }
     };
 
     const handleDepositCaution = async () => {
-        if (!agreement || !agreement.vaultAddress || !agreement.cautionAmount || !address) return;
+        if (
+            !agreement ||
+            !agreement.vaultAddress ||
+            !agreement.cautionAmount ||
+            !address
+        )
+            return;
 
-        setActionStatus('awaiting_wallet');
+        setActionStatus("awaiting_wallet");
         setActionErrorMsg(null);
         setActionTxHash(null);
 
-        const onChainCautionAmount = BigInt(agreement.cautionAmount) * 10n**12n; // scale 6 decimals to 18 decimals
+        const onChainCautionAmount =
+            BigInt(agreement.cautionAmount) * 10n ** 12n; // scale 6 decimals to 18 decimals
 
         try {
-            const hasAllowance = usdcAllowance !== undefined && usdcAllowance >= onChainCautionAmount;
+            const hasAllowance =
+                usdcAllowance !== undefined &&
+                usdcAllowance >= onChainCautionAmount;
 
             if (!hasAllowance) {
                 // Step 1: Approve USDC
@@ -573,34 +740,41 @@ export default function ContractDetailPage() {
                     address: MOCK_USDC.address,
                     args: [
                         agreement.vaultAddress as `0x${string}`,
-                        onChainCautionAmount
-                    ]
+                        onChainCautionAmount,
+                    ],
                 });
 
-                if (!txHash) throw new Error("Transaction hash was not returned.");
+                if (!txHash)
+                    throw new Error("Transaction hash was not returned.");
 
                 setActionTxHash(txHash);
-                setActionStatus('submitting');
+                setActionStatus("submitting");
 
                 await recordTransaction({
                     txHash,
                     chainId,
-                    actionType: 'approve_usdc_to_vault',
+                    actionType: "approve_usdc_to_vault",
                     contractAddress: MOCK_USDC.address,
                     walletAddress: address,
-                    agreementId: id
+                    agreementId: id,
                 });
 
-                setActionStatus('confirming');
+                setActionStatus("confirming");
 
-                if (!publicClient) throw new Error("Public client is not available.");
-                const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+                if (!publicClient)
+                    throw new Error("Public client is not available.");
+                const receipt = await publicClient.waitForTransactionReceipt({
+                    hash: txHash,
+                });
 
-                if (receipt.status === 'success') {
-                    setActionStatus('success');
-                    await confirmTransaction(txHash, Number(receipt.blockNumber));
+                if (receipt.status === "success") {
+                    setActionStatus("success");
+                    await confirmTransaction(
+                        txHash,
+                        Number(receipt.blockNumber),
+                    );
                     await refetchAllowance();
-                    setActionStatus('idle');
+                    setActionStatus("idle");
                 } else {
                     throw new Error("Approve transaction reverted on-chain.");
                 }
@@ -608,37 +782,42 @@ export default function ContractDetailPage() {
                 // Step 2: Deposit Caution
                 const txHash = await depositCautionContract({
                     address: agreement.vaultAddress as `0x${string}`,
-                    args: [
-                        onChainCautionAmount
-                    ]
+                    args: [onChainCautionAmount],
                 });
 
-                if (!txHash) throw new Error("Transaction hash was not returned.");
+                if (!txHash)
+                    throw new Error("Transaction hash was not returned.");
 
                 setActionTxHash(txHash);
-                setActionStatus('submitting');
+                setActionStatus("submitting");
 
                 await recordTransaction({
                     txHash,
                     chainId,
-                    actionType: 'deposit_caution',
+                    actionType: "deposit_caution",
                     contractAddress: agreement.vaultAddress,
                     walletAddress: address,
-                    agreementId: id
+                    agreementId: id,
                 });
 
-                setActionStatus('confirming');
+                setActionStatus("confirming");
 
-                if (!publicClient) throw new Error("Public client is not available.");
-                const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+                if (!publicClient)
+                    throw new Error("Public client is not available.");
+                const receipt = await publicClient.waitForTransactionReceipt({
+                    hash: txHash,
+                });
 
-                if (receipt.status === 'success') {
-                    setActionStatus('success');
-                    await confirmTransaction(txHash, Number(receipt.blockNumber));
+                if (receipt.status === "success") {
+                    setActionStatus("success");
+                    await confirmTransaction(
+                        txHash,
+                        Number(receipt.blockNumber),
+                    );
 
                     // Update database status to active
                     await updateAgreementOnChain(id, {
-                        status: 'active'
+                        status: "active",
                     });
 
                     await fetchAgreement();
@@ -648,11 +827,13 @@ export default function ContractDetailPage() {
             }
         } catch (err: any) {
             console.error("Deposit caution error:", err);
-            setActionStatus('error');
+            setActionStatus("error");
             if (actionTxHash) {
                 await failTransaction(actionTxHash);
             }
-            setActionErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+            setActionErrorMsg(
+                err.shortMessage || err.message || "Transaction failed.",
+            );
         }
     };
 
@@ -664,13 +845,14 @@ export default function ContractDetailPage() {
                 address: MOCK_USDC.address,
                 args: [
                     address as `0x${string}`,
-                    10_000n * 10n**18n // Mint 10,000 USDC (18 decimals)
-                ]
+                    10_000n * 10n ** 18n, // Mint 10,000 USDC (18 decimals)
+                ],
             });
 
             if (!txHash) throw new Error("Faucet transaction failed.");
 
-            if (!publicClient) throw new Error("Public client is not available.");
+            if (!publicClient)
+                throw new Error("Public client is not available.");
             await publicClient.waitForTransactionReceipt({ hash: txHash });
             await refetchUsdcBalance();
         } catch (err) {
@@ -683,40 +865,43 @@ export default function ContractDetailPage() {
     const handleRescindByPlayer = async () => {
         if (!agreement || !agreement.vaultAddress || !address) return;
 
-        setActionStatus('awaiting_wallet');
+        setActionStatus("awaiting_wallet");
         setActionErrorMsg(null);
         setActionTxHash(null);
 
         try {
             const txHash = await rescindByPlayerContract({
-                address: agreement.vaultAddress as `0x${string}`
+                address: agreement.vaultAddress as `0x${string}`,
             });
 
             if (!txHash) throw new Error("Transaction hash was not returned.");
 
             setActionTxHash(txHash);
-            setActionStatus('submitting');
+            setActionStatus("submitting");
 
             await recordTransaction({
                 txHash,
                 chainId,
-                actionType: 'rescind_by_player',
+                actionType: "rescind_by_player",
                 contractAddress: agreement.vaultAddress,
                 walletAddress: address,
-                agreementId: id
+                agreementId: id,
             });
 
-            setActionStatus('confirming');
+            setActionStatus("confirming");
 
-            if (!publicClient) throw new Error("Public client is not available.");
-            const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+            if (!publicClient)
+                throw new Error("Public client is not available.");
+            const receipt = await publicClient.waitForTransactionReceipt({
+                hash: txHash,
+            });
 
-            if (receipt.status === 'success') {
-                setActionStatus('success');
+            if (receipt.status === "success") {
+                setActionStatus("success");
                 await confirmTransaction(txHash, Number(receipt.blockNumber));
 
                 await updateAgreementOnChain(id, {
-                    status: 'rescinded'
+                    status: "rescinded",
                 });
 
                 await fetchAgreement();
@@ -725,51 +910,56 @@ export default function ContractDetailPage() {
             }
         } catch (err: any) {
             console.error("Rescind error:", err);
-            setActionStatus('error');
+            setActionStatus("error");
             if (actionTxHash) {
                 await failTransaction(actionTxHash);
             }
-            setActionErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+            setActionErrorMsg(
+                err.shortMessage || err.message || "Transaction failed.",
+            );
         }
     };
 
     const handleRescindByClub = async () => {
         if (!agreement || !agreement.vaultAddress || !address) return;
 
-        setActionStatus('awaiting_wallet');
+        setActionStatus("awaiting_wallet");
         setActionErrorMsg(null);
         setActionTxHash(null);
 
         try {
             const txHash = await rescindByClubContract({
-                address: agreement.vaultAddress as `0x${string}`
+                address: agreement.vaultAddress as `0x${string}`,
             });
 
             if (!txHash) throw new Error("Transaction hash was not returned.");
 
             setActionTxHash(txHash);
-            setActionStatus('submitting');
+            setActionStatus("submitting");
 
             await recordTransaction({
                 txHash,
                 chainId,
-                actionType: 'rescind_by_club',
+                actionType: "rescind_by_club",
                 contractAddress: agreement.vaultAddress,
                 walletAddress: address,
-                agreementId: id
+                agreementId: id,
             });
 
-            setActionStatus('confirming');
+            setActionStatus("confirming");
 
-            if (!publicClient) throw new Error("Public client is not available.");
-            const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+            if (!publicClient)
+                throw new Error("Public client is not available.");
+            const receipt = await publicClient.waitForTransactionReceipt({
+                hash: txHash,
+            });
 
-            if (receipt.status === 'success') {
-                setActionStatus('success');
+            if (receipt.status === "success") {
+                setActionStatus("success");
                 await confirmTransaction(txHash, Number(receipt.blockNumber));
 
                 await updateAgreementOnChain(id, {
-                    status: 'rescinded'
+                    status: "rescinded",
                 });
 
                 await fetchAgreement();
@@ -778,51 +968,56 @@ export default function ContractDetailPage() {
             }
         } catch (err: any) {
             console.error("Rescind error:", err);
-            setActionStatus('error');
+            setActionStatus("error");
             if (actionTxHash) {
                 await failTransaction(actionTxHash);
             }
-            setActionErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+            setActionErrorMsg(
+                err.shortMessage || err.message || "Transaction failed.",
+            );
         }
     };
 
     const handleExpireContract = async () => {
         if (!agreement || !agreement.vaultAddress || !address) return;
 
-        setActionStatus('awaiting_wallet');
+        setActionStatus("awaiting_wallet");
         setActionErrorMsg(null);
         setActionTxHash(null);
 
         try {
             const txHash = await expireContractAction({
-                address: agreement.vaultAddress as `0x${string}`
+                address: agreement.vaultAddress as `0x${string}`,
             });
 
             if (!txHash) throw new Error("Transaction hash was not returned.");
 
             setActionTxHash(txHash);
-            setActionStatus('submitting');
+            setActionStatus("submitting");
 
             await recordTransaction({
                 txHash,
                 chainId,
-                actionType: 'expire_contract',
+                actionType: "expire_contract",
                 contractAddress: agreement.vaultAddress,
                 walletAddress: address,
-                agreementId: id
+                agreementId: id,
             });
 
-            setActionStatus('confirming');
+            setActionStatus("confirming");
 
-            if (!publicClient) throw new Error("Public client is not available.");
-            const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+            if (!publicClient)
+                throw new Error("Public client is not available.");
+            const receipt = await publicClient.waitForTransactionReceipt({
+                hash: txHash,
+            });
 
-            if (receipt.status === 'success') {
-                setActionStatus('success');
+            if (receipt.status === "success") {
+                setActionStatus("success");
                 await confirmTransaction(txHash, Number(receipt.blockNumber));
 
                 await updateAgreementOnChain(id, {
-                    status: 'expired'
+                    status: "expired",
                 });
 
                 await fetchAgreement();
@@ -831,14 +1026,15 @@ export default function ContractDetailPage() {
             }
         } catch (err: any) {
             console.error("Expire error:", err);
-            setActionStatus('error');
+            setActionStatus("error");
             if (actionTxHash) {
                 await failTransaction(actionTxHash);
             }
-            setActionErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+            setActionErrorMsg(
+                err.shortMessage || err.message || "Transaction failed.",
+            );
         }
     };
-
 
     // Exclude db contract representation
     const handleExclude = async () => {
@@ -858,81 +1054,128 @@ export default function ContractDetailPage() {
         }
     };
 
-    if (loading) return <div className="p-24 flex justify-center"><Loader className="animate-spin text-primary" /></div>;
-    if (!agreement) return <div className="p-24 text-center">{t("contracts.detail.notFound")}</div>;
+    if (loading)
+        return (
+            <div className="flex justify-center p-24">
+                <Loader className="animate-spin text-primary" />
+            </div>
+        );
+    if (!agreement)
+        return (
+            <div className="p-24 text-center">
+                {t("contracts.detail.notFound")}
+            </div>
+        );
 
     // Checks for signature availability (connected wallet)
-    const isClub = address?.toLowerCase() === agreement.clubWalletAddress.toLowerCase();
-    const isPlayer = address?.toLowerCase() === agreement.playerWalletAddress.toLowerCase();
-    const isAttorney = address?.toLowerCase() === agreement.attorneyWalletAddress.toLowerCase();
+    const isClub =
+        address?.toLowerCase() === agreement.clubWalletAddress.toLowerCase();
+    const isPlayer =
+        address?.toLowerCase() === agreement.playerWalletAddress.toLowerCase();
+    const isAttorney =
+        address?.toLowerCase() ===
+        agreement.attorneyWalletAddress.toLowerCase();
 
     // Wallet mismatch validation (session wallet vs contract-assigned wallet)
     const sessionWallet = session?.user?.walletAddress?.toLowerCase();
     const userEmail = session?.user?.email?.toLowerCase();
     const userRole = session?.user?.role;
 
-    const isAssignedClub = userRole === 'club' && userEmail === agreement.clubEmail.toLowerCase();
-    const isAssignedPlayer = userRole === 'player' && userEmail === agreement.playerEmail.toLowerCase();
-    const isAssignedAttorney = userEmail === agreement.attorneyEmail.toLowerCase();
+    const isAssignedClub =
+        userRole === "club" && userEmail === agreement.clubEmail.toLowerCase();
+    const isAssignedPlayer =
+        userRole === "player" &&
+        userEmail === agreement.playerEmail.toLowerCase();
+    const isAssignedAttorney =
+        userEmail === agreement.attorneyEmail.toLowerCase();
 
-    const clubWalletMismatch = isAssignedClub && sessionWallet !== agreement.clubWalletAddress.toLowerCase();
-    const playerWalletMismatch = isAssignedPlayer && sessionWallet !== agreement.playerWalletAddress.toLowerCase();
-    const attorneyWalletMismatch = isAssignedAttorney && sessionWallet !== agreement.attorneyWalletAddress.toLowerCase();
+    const clubWalletMismatch =
+        isAssignedClub &&
+        sessionWallet !== agreement.clubWalletAddress.toLowerCase();
+    const playerWalletMismatch =
+        isAssignedPlayer &&
+        sessionWallet !== agreement.playerWalletAddress.toLowerCase();
+    const attorneyWalletMismatch =
+        isAssignedAttorney &&
+        sessionWallet !== agreement.attorneyWalletAddress.toLowerCase();
 
-    const hasAnyWalletMismatch = clubWalletMismatch || playerWalletMismatch || attorneyWalletMismatch;
+    const hasAnyWalletMismatch =
+        clubWalletMismatch || playerWalletMismatch || attorneyWalletMismatch;
 
     // Show sign button if connected wallet OR email assignment matches an unsigned role
     const needsMySignature =
-    ((isClub || isAssignedClub) && !agreement.clubSignature) ||
-    ((isPlayer || isAssignedPlayer) && !agreement.playerSignature) ||
-    ((isAttorney || isAssignedAttorney) && !agreement.attorneySignature);
+        ((isClub || isAssignedClub) && !agreement.clubSignature) ||
+        ((isPlayer || isAssignedPlayer) && !agreement.playerSignature) ||
+        ((isAttorney || isAssignedAttorney) && !agreement.attorneySignature);
 
     return (
-        <div className="container max-w-4xl mx-auto py-24 px-6">
-            <div className="flex items-start justify-between mb-8">
+        <div className="container mx-auto max-w-4xl px-6 py-24">
+            <div className="mb-8 flex items-start justify-between">
                 <div>
-                    <h1 className="text-4xl font-serif font-light tracking-tight">{t("contracts.detail.contractInspection")}</h1>
-                    <p className="text-muted-foreground mt-2 font-mono text-sm">ID: {agreement._id}</p>
+                    <h1 className="font-light font-serif text-4xl tracking-tight">
+                        {t("contracts.detail.contractInspection")}
+                    </h1>
+                    <p className="mt-2 font-mono text-muted-foreground text-sm">
+                        ID: {agreement._id}
+                    </p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="glass-badge px-4 py-2 text-sm text-foreground/80 font-mono tracking-wider font-medium">
-                        {agreement.status.replace('_', ' ').toUpperCase()}
+                    <Badge
+                        variant="outline"
+                        className="glass-badge px-4 py-2 font-medium font-mono text-foreground/80 text-sm tracking-wider"
+                    >
+                        {agreement.status.replace("_", " ").toUpperCase()}
                     </Badge>
                     <button
                         onClick={handleExclude}
                         disabled={isExcluding}
-                        className="p-2.5 rounded-xl glass-input border border-destructive/20 text-destructive hover:bg-destructive/10 hover:border-destructive/30 hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center shrink-0"
+                        className="glass-input flex shrink-0 cursor-pointer items-center justify-center rounded-xl border border-destructive/20 p-2.5 text-destructive transition-all hover:scale-105 hover:border-destructive/30 hover:bg-destructive/10 active:scale-95"
                         title={t("contracts.detail.excludeTooltip")}
                     >
-                        {isExcluding ? <Loader className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                        {isExcluding ? (
+                            <Loader className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <Trash2 className="h-4 w-4" />
+                        )}
                     </button>
                 </div>
             </div>
 
             {/* Featured Contract Header Panel */}
             <div className="glass-container-wrap mb-8">
-                <div className="glass-container-shadow rounded-2xl pointer-events-none" />
-                <div className="glass-container relative z-10 p-8 space-y-6">
+                <div className="glass-container-shadow pointer-events-none rounded-2xl" />
+                <div className="glass-container relative z-10 space-y-6 p-8">
                     {/* Header Metadata Row */}
-                    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-foreground/5 pb-4">
+                    <div className="flex flex-wrap items-center justify-between gap-4 border-foreground/5 border-b pb-4">
                         <div className="flex items-center gap-2 text-primary">
-                            <FileText className="w-4 h-4 text-primary" />
-                            <span className="text-xs uppercase font-mono tracking-widest font-medium">
+                            <FileText className="h-4 w-4 text-primary" />
+                            <span className="font-medium font-mono text-xs uppercase tracking-widest">
                                 {t("contracts.detail.onChainAgreement")}
                             </span>
                         </div>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground font-mono">
-                            <div className="flex items-center gap-1.5 bg-foreground/5 px-2.5 py-1 rounded-md border border-foreground/5">
-                                <span className="text-muted-foreground/60">{t("contracts.detail.nonce")}</span>
-                                <span className="font-semibold text-foreground">{agreement.nonce}</span>
+                        <div className="flex items-center gap-3 font-mono text-muted-foreground text-xs">
+                            <div className="flex items-center gap-1.5 rounded-md border border-foreground/5 bg-foreground/5 px-2.5 py-1">
+                                <span className="text-muted-foreground/60">
+                                    {t("contracts.detail.nonce")}
+                                </span>
+                                <span className="font-semibold text-foreground">
+                                    {agreement.nonce}
+                                </span>
                             </div>
-                            <div className="flex items-center gap-1.5 bg-foreground/5 px-2.5 py-1 rounded-md border border-foreground/5">
-                                <span className="text-muted-foreground/60">{t("contracts.detail.created")}</span>
-                                <span className="font-semibold text-foreground" suppressHydrationWarning>
-                                    {new Date(agreement.createdAt).toLocaleDateString(undefined, {
-                                        year: 'numeric',
-                                        month: 'short',
-                                        day: 'numeric'
+                            <div className="flex items-center gap-1.5 rounded-md border border-foreground/5 bg-foreground/5 px-2.5 py-1">
+                                <span className="text-muted-foreground/60">
+                                    {t("contracts.detail.created")}
+                                </span>
+                                <span
+                                    className="font-semibold text-foreground"
+                                    suppressHydrationWarning
+                                >
+                                    {new Date(
+                                        agreement.createdAt,
+                                    ).toLocaleDateString(undefined, {
+                                        year: "numeric",
+                                        month: "short",
+                                        day: "numeric",
                                     })}
                                 </span>
                             </div>
@@ -941,13 +1184,14 @@ export default function ContractDetailPage() {
 
                     {/* Title and Description */}
                     <div className="space-y-4">
-                        <h2 className="text-3xl md:text-4xl font-serif font-light tracking-tight text-foreground">
-                            {agreement.title || t("contracts.detail.onChainAgreement")}
+                        <h2 className="font-light font-serif text-3xl text-foreground tracking-tight md:text-4xl">
+                            {agreement.title ||
+                                t("contracts.detail.onChainAgreement")}
                         </h2>
                         {agreement.description && (
-                            <div className="relative pl-5 mt-4">
-                                <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-linear-to-b from-primary to-transparent rounded-full" />
-                                <p className="text-muted-foreground text-base md:text-lg leading-relaxed font-light italic">
+                            <div className="relative mt-4 pl-5">
+                                <div className="absolute top-0 bottom-0 left-0 w-0.5 rounded-full bg-linear-to-b from-primary to-transparent" />
+                                <p className="font-light text-base text-muted-foreground italic leading-relaxed md:text-lg">
                                     "{agreement.description}"
                                 </p>
                             </div>
@@ -958,48 +1202,95 @@ export default function ContractDetailPage() {
 
             {/* Wallet Mismatch Warnings */}
             {hasAnyWalletMismatch && (
-                <div className="space-y-3 mb-8">
+                <div className="mb-8 space-y-3">
                     {clubWalletMismatch && (
-                        <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
-                            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                        <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
+                            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
                             <div className="space-y-1">
-                                <p className="text-sm font-medium text-amber-400">{t("contracts.detail.clubWalletMismatch")}</p>
-                                <p className="text-xs text-muted-foreground">
-                                    {t("contracts.detail.clubWalletMismatchDesc")}
+                                <p className="font-medium text-amber-400 text-sm">
+                                    {t("contracts.detail.clubWalletMismatch")}
                                 </p>
-                                <div className="text-xs font-mono text-muted-foreground space-y-0.5 mt-1">
-                                    <p>{t("contracts.detail.expected")} <span className="text-foreground/70">{agreement.clubWalletAddress}</span></p>
-                                    <p>{t("contracts.detail.yourWallet")} <span className="text-amber-400/80">{sessionWallet || t("contracts.detail.notSynced")}</span></p>
+                                <p className="text-muted-foreground text-xs">
+                                    {t(
+                                        "contracts.detail.clubWalletMismatchDesc",
+                                    )}
+                                </p>
+                                <div className="mt-1 space-y-0.5 font-mono text-muted-foreground text-xs">
+                                    <p>
+                                        {t("contracts.detail.expected")}{" "}
+                                        <span className="text-foreground/70">
+                                            {agreement.clubWalletAddress}
+                                        </span>
+                                    </p>
+                                    <p>
+                                        {t("contracts.detail.yourWallet")}{" "}
+                                        <span className="text-amber-400/80">
+                                            {sessionWallet ||
+                                                t("contracts.detail.notSynced")}
+                                        </span>
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     )}
                     {playerWalletMismatch && (
-                        <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
-                            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                        <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
+                            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
                             <div className="space-y-1">
-                                <p className="text-sm font-medium text-amber-400">{t("contracts.detail.playerWalletMismatch")}</p>
-                                <p className="text-xs text-muted-foreground">
-                                    {t("contracts.detail.playerWalletMismatchDesc")}
+                                <p className="font-medium text-amber-400 text-sm">
+                                    {t("contracts.detail.playerWalletMismatch")}
                                 </p>
-                                <div className="text-xs font-mono text-muted-foreground space-y-0.5 mt-1">
-                                    <p>{t("contracts.detail.expected")} <span className="text-foreground/70">{agreement.playerWalletAddress}</span></p>
-                                    <p>{t("contracts.detail.yourWallet")} <span className="text-amber-400/80">{sessionWallet || t("contracts.detail.notSynced")}</span></p>
+                                <p className="text-muted-foreground text-xs">
+                                    {t(
+                                        "contracts.detail.playerWalletMismatchDesc",
+                                    )}
+                                </p>
+                                <div className="mt-1 space-y-0.5 font-mono text-muted-foreground text-xs">
+                                    <p>
+                                        {t("contracts.detail.expected")}{" "}
+                                        <span className="text-foreground/70">
+                                            {agreement.playerWalletAddress}
+                                        </span>
+                                    </p>
+                                    <p>
+                                        {t("contracts.detail.yourWallet")}{" "}
+                                        <span className="text-amber-400/80">
+                                            {sessionWallet ||
+                                                t("contracts.detail.notSynced")}
+                                        </span>
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     )}
                     {attorneyWalletMismatch && (
-                        <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
-                            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                        <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
+                            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
                             <div className="space-y-1">
-                                <p className="text-sm font-medium text-amber-400">{t("contracts.detail.attorneyWalletMismatch")}</p>
-                                <p className="text-xs text-muted-foreground">
-                                    {t("contracts.detail.attorneyWalletMismatchDesc")}
+                                <p className="font-medium text-amber-400 text-sm">
+                                    {t(
+                                        "contracts.detail.attorneyWalletMismatch",
+                                    )}
                                 </p>
-                                <div className="text-xs font-mono text-muted-foreground space-y-0.5 mt-1">
-                                    <p>{t("contracts.detail.expected")} <span className="text-foreground/70">{agreement.attorneyWalletAddress}</span></p>
-                                    <p>{t("contracts.detail.yourWallet")} <span className="text-amber-400/80">{sessionWallet || t("contracts.detail.notSynced")}</span></p>
+                                <p className="text-muted-foreground text-xs">
+                                    {t(
+                                        "contracts.detail.attorneyWalletMismatchDesc",
+                                    )}
+                                </p>
+                                <div className="mt-1 space-y-0.5 font-mono text-muted-foreground text-xs">
+                                    <p>
+                                        {t("contracts.detail.expected")}{" "}
+                                        <span className="text-foreground/70">
+                                            {agreement.attorneyWalletAddress}
+                                        </span>
+                                    </p>
+                                    <p>
+                                        {t("contracts.detail.yourWallet")}{" "}
+                                        <span className="text-amber-400/80">
+                                            {sessionWallet ||
+                                                t("contracts.detail.notSynced")}
+                                        </span>
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -1007,16 +1298,20 @@ export default function ContractDetailPage() {
                 </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-2 space-y-6">
-                    <div className="glass-panel p-6 rounded-xl hover:border-primary/30 transition-all duration-300">
-                        <h3 className="font-semibold mb-4">{t("contracts.detail.agreementInformation")}</h3>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                <div className="space-y-6 md:col-span-2">
+                    <div className="glass-panel rounded-xl p-6 transition-all duration-300 hover:border-primary/30">
+                        <h3 className="mb-4 font-semibold">
+                            {t("contracts.detail.agreementInformation")}
+                        </h3>
                         <div className="space-y-4">
                             <div>
-                                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t("contracts.detail.player")}</p>
+                                <div className="mb-1 flex flex-wrap items-center gap-2">
+                                    <p className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">
+                                        {t("contracts.detail.player")}
+                                    </p>
                                     {agreement.playerEmail && (
-                                        <span className="text-[11px] font-mono text-primary/80 bg-primary/5 px-2.5 py-0.5 rounded-full border border-primary/10">
+                                        <span className="rounded-full border border-primary/10 bg-primary/5 px-2.5 py-0.5 font-mono text-[11px] text-primary/80">
                                             {agreement.playerEmail}
                                         </span>
                                     )}
@@ -1024,20 +1319,28 @@ export default function ContractDetailPage() {
                                         <TooltipProvider>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
-                                                    <KeyRound className="w-3.5 h-3.5 text-primary/60" />
+                                                    <KeyRound className="h-3.5 w-3.5 text-primary/60" />
                                                 </TooltipTrigger>
-                                                <TooltipContent>{t("contracts.detail.responsiblePlayer")}</TooltipContent>
+                                                <TooltipContent>
+                                                    {t(
+                                                        "contracts.detail.responsiblePlayer",
+                                                    )}
+                                                </TooltipContent>
                                             </Tooltip>
                                         </TooltipProvider>
                                     )}
                                 </div>
-                                <p className="font-mono text-sm break-all text-foreground pl-1">{agreement.playerWalletAddress}</p>
+                                <p className="break-all pl-1 font-mono text-foreground text-sm">
+                                    {agreement.playerWalletAddress}
+                                </p>
                             </div>
                             <div>
-                                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t("contracts.detail.club")}</p>
+                                <div className="mb-1 flex flex-wrap items-center gap-2">
+                                    <p className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">
+                                        {t("contracts.detail.club")}
+                                    </p>
                                     {agreement.clubEmail && (
-                                        <span className="text-[11px] font-mono text-primary/80 bg-primary/5 px-2.5 py-0.5 rounded-full border border-primary/10">
+                                        <span className="rounded-full border border-primary/10 bg-primary/5 px-2.5 py-0.5 font-mono text-[11px] text-primary/80">
                                             {agreement.clubEmail}
                                         </span>
                                     )}
@@ -1045,20 +1348,28 @@ export default function ContractDetailPage() {
                                         <TooltipProvider>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
-                                                    <KeyRound className="w-3.5 h-3.5 text-primary/60" />
+                                                    <KeyRound className="h-3.5 w-3.5 text-primary/60" />
                                                 </TooltipTrigger>
-                                                <TooltipContent>{t("contracts.detail.responsibleClub")}</TooltipContent>
+                                                <TooltipContent>
+                                                    {t(
+                                                        "contracts.detail.responsibleClub",
+                                                    )}
+                                                </TooltipContent>
                                             </Tooltip>
                                         </TooltipProvider>
                                     )}
                                 </div>
-                                <p className="font-mono text-sm break-all text-foreground pl-1">{agreement.clubWalletAddress}</p>
+                                <p className="break-all pl-1 font-mono text-foreground text-sm">
+                                    {agreement.clubWalletAddress}
+                                </p>
                             </div>
                             <div>
-                                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t("contracts.detail.attorney")}</p>
+                                <div className="mb-1 flex flex-wrap items-center gap-2">
+                                    <p className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">
+                                        {t("contracts.detail.attorney")}
+                                    </p>
                                     {agreement.attorneyEmail && (
-                                        <span className="text-[11px] font-mono text-primary/80 bg-primary/5 px-2.5 py-0.5 rounded-full border border-primary/10">
+                                        <span className="rounded-full border border-primary/10 bg-primary/5 px-2.5 py-0.5 font-mono text-[11px] text-primary/80">
                                             {agreement.attorneyEmail}
                                         </span>
                                     )}
@@ -1066,72 +1377,110 @@ export default function ContractDetailPage() {
                                         <TooltipProvider>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
-                                                    <KeyRound className="w-3.5 h-3.5 text-primary/60" />
+                                                    <KeyRound className="h-3.5 w-3.5 text-primary/60" />
                                                 </TooltipTrigger>
-                                                <TooltipContent>{t("contracts.detail.responsibleAttorney")}</TooltipContent>
+                                                <TooltipContent>
+                                                    {t(
+                                                        "contracts.detail.responsibleAttorney",
+                                                    )}
+                                                </TooltipContent>
                                             </Tooltip>
                                         </TooltipProvider>
                                     )}
                                 </div>
-                                <p className="font-mono text-sm break-all text-foreground pl-1">{agreement.attorneyWalletAddress}</p>
+                                <p className="break-all pl-1 font-mono text-foreground text-sm">
+                                    {agreement.attorneyWalletAddress}
+                                </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground uppercase">{t("contracts.detail.tokenUri")}</p>
-                                <a href={agreement.tokenURI} target="_blank" rel="noreferrer" className="text-primary hover:underline break-all text-sm font-mono">
+                                <p className="text-muted-foreground text-xs uppercase">
+                                    {t("contracts.detail.tokenUri")}
+                                </p>
+                                <a
+                                    href={agreement.tokenURI}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="break-all font-mono text-primary text-sm hover:underline"
+                                >
                                     {agreement.tokenURI}
                                 </a>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground uppercase">{t("contracts.cautionAmount")}</p>
-                                <p className="font-semibold">{formatUnits(BigInt(agreement.cautionAmount), 6)} USDC</p>
+                                <p className="text-muted-foreground text-xs uppercase">
+                                    {t("contracts.cautionAmount")}
+                                </p>
+                                <p className="font-semibold">
+                                    {formatUnits(
+                                        BigInt(agreement.cautionAmount),
+                                        6,
+                                    )}{" "}
+                                    USDC
+                                </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground uppercase">{t("contracts.detail.deadline")}</p>
-                                <p className="font-semibold text-sm" suppressHydrationWarning>{new Date(agreement.deadline!).toLocaleString()}</p>
+                                <p className="text-muted-foreground text-xs uppercase">
+                                    {t("contracts.detail.deadline")}
+                                </p>
+                                <p
+                                    className="font-semibold text-sm"
+                                    suppressHydrationWarning
+                                >
+                                    {new Date(
+                                        agreement.deadline!,
+                                    ).toLocaleString()}
+                                </p>
                             </div>
                         </div>
                     </div>
 
                     {/* Decentralized Storage IPFS Inspection Section */}
-                    <div className="glass-panel p-6 rounded-xl hover:border-primary/30 transition-all duration-300">
-                        <h3 className="font-semibold mb-4 flex items-center gap-2 text-foreground">
-                            <FileText className="w-5 h-5 text-primary animate-pulse" />
+                    <div className="glass-panel rounded-xl p-6 transition-all duration-300 hover:border-primary/30">
+                        <h3 className="mb-4 flex items-center gap-2 font-semibold text-foreground">
+                            <FileText className="h-5 w-5 animate-pulse text-primary" />
                             {t("contracts.detail.decentralizedStorage")}
                         </h3>
                         <div className="space-y-4">
-                            <p className="text-xs text-muted-foreground leading-relaxed">
+                            <p className="text-muted-foreground text-xs leading-relaxed">
                                 {t("contracts.detail.ipfsExplanation")}
                             </p>
-                            <div className="glass-input rounded-xl p-3 flex items-center justify-between gap-3 text-left w-full">
-                                <span className="text-xs font-mono text-muted-foreground truncate flex-1 select-all">
+                            <div className="glass-input flex w-full items-center justify-between gap-3 rounded-xl p-3 text-left">
+                                <span className="flex-1 select-all truncate font-mono text-muted-foreground text-xs">
                                     {agreement.tokenURI}
                                 </span>
-                                <div className="flex items-center gap-1.5 shrink-0">
+                                <div className="flex shrink-0 items-center gap-1.5">
                                     <button
                                         type="button"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            navigator.clipboard.writeText(agreement.tokenURI);
+                                            navigator.clipboard.writeText(
+                                                agreement.tokenURI,
+                                            );
                                             setIsCopied(true);
-                                            setTimeout(() => setIsCopied(false), 2000);
+                                            setTimeout(
+                                                () => setIsCopied(false),
+                                                2000,
+                                            );
                                         }}
-                                        className="p-1.5 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center"
+                                        className="flex cursor-pointer items-center justify-center rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                         title={t("contracts.detail.copyIpfs")}
                                     >
                                         {isCopied ? (
-                                            <Check className="w-4 h-4 text-lime-500 animate-pulse" />
+                                            <Check className="h-4 w-4 animate-pulse text-lime-500" />
                                         ) : (
-                                            <Copy className="w-4 h-4" />
+                                            <Copy className="h-4 w-4" />
                                         )}
                                     </button>
                                     <a
-                                        href={agreement.tokenURI.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")}
+                                        href={agreement.tokenURI.replace(
+                                            "ipfs://",
+                                            "https://gateway.pinata.cloud/ipfs/",
+                                        )}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="p-1.5 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center"
+                                        className="flex cursor-pointer items-center justify-center rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                         title={t("contracts.detail.viewPinata")}
                                     >
-                                        <ExternalLink className="w-4 h-4" />
+                                        <ExternalLink className="h-4 w-4" />
                                     </a>
                                 </div>
                             </div>
@@ -1139,7 +1488,7 @@ export default function ContractDetailPage() {
                     </div>
 
                     {/* Action Panels based on status */}
-                    {agreement.status === 'ready' && isClub && (
+                    {agreement.status === "ready" && isClub && (
                         <ActionCard
                             title="Ready to Mint"
                             description="All signatures collected. Only Clubs can broadcast the transaction."
@@ -1152,7 +1501,7 @@ export default function ContractDetailPage() {
                         />
                     )}
 
-                    {agreement.status === 'minted' && isClub && (
+                    {agreement.status === "minted" && isClub && (
                         <ActionCard
                             title="Deploy Vault Escrow"
                             description="Deploy a secure EIP-1167 proxy vault escrow clone for this agreement."
@@ -1165,23 +1514,26 @@ export default function ContractDetailPage() {
                         />
                     )}
 
-                    {agreement.status === 'vault_created' && (
+                    {agreement.status === "vault_created" && (
                         <div className="space-y-4">
                             {isClub ? (
                                 <>
                                     {isVaultAuthorized ? (
                                         <ActionCard
                                             title="Lock & Fractionalize NFT"
-                                            description={approvedAddress?.toLowerCase() === agreement.vaultAddress?.toLowerCase()
-                                                ? (!isVaultAuthorized
-                                                    ? `Step 2 of 2: Authorize vault automatically and lock the Player Rights NFT into the Vault to fractionalize it into 1,000,000 ${agreement.tokenSymbol} tokens.`
-                                                    : `Step 2 of 2: Lock the Player Rights NFT into the Vault and fractionalize it into 1,000,000 ${agreement.tokenSymbol} tokens.`
-                                                )
-                                                : "Step 1 of 2: Approve the Vault Escrow clone to transfer the Player Rights NFT."
+                                            description={
+                                                approvedAddress?.toLowerCase() ===
+                                                agreement.vaultAddress?.toLowerCase()
+                                                    ? !isVaultAuthorized
+                                                        ? `Step 2 of 2: Authorize vault automatically and lock the Player Rights NFT into the Vault to fractionalize it into 1,000,000 ${agreement.tokenSymbol} tokens.`
+                                                        : `Step 2 of 2: Lock the Player Rights NFT into the Vault and fractionalize it into 1,000,000 ${agreement.tokenSymbol} tokens.`
+                                                    : "Step 1 of 2: Approve the Vault Escrow clone to transfer the Player Rights NFT."
                                             }
-                                            actionName={approvedAddress?.toLowerCase() === agreement.vaultAddress?.toLowerCase()
-                                                ? "Lock & Fractionalize NFT"
-                                                : "Approve NFT to Vault"
+                                            actionName={
+                                                approvedAddress?.toLowerCase() ===
+                                                agreement.vaultAddress?.toLowerCase()
+                                                    ? "Lock & Fractionalize NFT"
+                                                    : "Approve NFT to Vault"
                                             }
                                             onAction={handleFractionalize}
                                             status={actionStatus}
@@ -1203,61 +1555,98 @@ export default function ContractDetailPage() {
                                     )}
                                 </>
                             ) : (
-                                    <div className="glass-panel p-6 rounded-xl border-primary bg-primary/10 space-y-3">
-                                        <div className="flex items-start gap-3">
-                                            <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                                            <div className="space-y-1">
-                                                <p className="text-sm font-medium text-primary/80">{t("contracts.detail.readyToGo")}</p>
-                                                <p className="text-xs text-muted-foreground">
-                                                    {t("contracts.detail.readyToGoDesc")}
-                                                </p>
-                                            </div>
+                                <div className="glass-panel space-y-3 rounded-xl border-primary bg-primary/10 p-6">
+                                    <div className="flex items-start gap-3">
+                                        <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                                        <div className="space-y-1">
+                                            <p className="font-medium text-primary/80 text-sm">
+                                                {t(
+                                                    "contracts.detail.readyToGo",
+                                                )}
+                                            </p>
+                                            <p className="text-muted-foreground text-xs">
+                                                {t(
+                                                    "contracts.detail.readyToGoDesc",
+                                                )}
+                                            </p>
                                         </div>
                                     </div>
-                                )}
+                                </div>
+                            )}
                         </div>
                     )}
 
-                    {agreement.status === 'pending_deposit' && isClub && (
+                    {agreement.status === "pending_deposit" && isClub && (
                         <div className="space-y-6">
                             {/* Mock USDC Balance & Faucet Card */}
-                            <div className="glass-panel p-6 rounded-xl space-y-4">
+                            <div className="glass-panel space-y-4 rounded-xl p-6">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <h3 className="font-semibold text-foreground">{t("contracts.detail.faucetTitle")}</h3>
-                                        <p className="text-xs text-muted-foreground mt-0.5">{t("contracts.detail.faucetSubtitle")}</p>
+                                        <h3 className="font-semibold text-foreground">
+                                            {t("contracts.detail.faucetTitle")}
+                                        </h3>
+                                        <p className="mt-0.5 text-muted-foreground text-xs">
+                                            {t(
+                                                "contracts.detail.faucetSubtitle",
+                                            )}
+                                        </p>
                                     </div>
-                                    <Badge variant="outline" className="font-mono bg-primary/5 text-primary text-xs border-primary/20">
+                                    <Badge
+                                        variant="outline"
+                                        className="border-primary/20 bg-primary/5 font-mono text-primary text-xs"
+                                    >
                                         {t("contracts.detail.faucetBadge")}
                                     </Badge>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4 bg-foreground/5 p-4 rounded-xl border border-foreground/5 font-mono text-sm">
+                                <div className="grid grid-cols-2 gap-4 rounded-xl border border-foreground/5 bg-foreground/5 p-4 font-mono text-sm">
                                     <div className="space-y-0.5">
-                                        <p className="text-xs text-muted-foreground/80">{t("contracts.detail.requiredDeposit")}</p>
-                                        <p className="font-semibold text-foreground">{formatUnits(BigInt(agreement.cautionAmount), 6)} USDC</p>
+                                        <p className="text-muted-foreground/80 text-xs">
+                                            {t(
+                                                "contracts.detail.requiredDeposit",
+                                            )}
+                                        </p>
+                                        <p className="font-semibold text-foreground">
+                                            {formatUnits(
+                                                BigInt(agreement.cautionAmount),
+                                                6,
+                                            )}{" "}
+                                            USDC
+                                        </p>
                                     </div>
                                     <div className="space-y-0.5">
-                                        <p className="text-xs text-muted-foreground/80">{t("contracts.detail.yourBalance")}</p>
+                                        <p className="text-muted-foreground/80 text-xs">
+                                            {t("contracts.detail.yourBalance")}
+                                        </p>
                                         <p className="font-semibold text-foreground">
-                                            {usdcBalance !== undefined ? formatUnits(usdcBalance, 18) : "0.0"} USDC
+                                            {usdcBalance !== undefined
+                                                ? formatUnits(usdcBalance, 18)
+                                                : "0.0"}{" "}
+                                            USDC
                                         </p>
                                     </div>
                                 </div>
 
-                                {usdcBalance !== undefined && usdcBalance < (BigInt(agreement.cautionAmount) * 10n**12n) && (
-                                    <p className="text-xs text-amber-500 flex items-center gap-1.5 font-medium">
-                                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                                        {t("contracts.detail.insufficientBalance")}
-                                    </p>
-                                )}
+                                {usdcBalance !== undefined &&
+                                    usdcBalance <
+                                        BigInt(agreement.cautionAmount) *
+                                            10n ** 12n && (
+                                        <p className="flex items-center gap-1.5 font-medium text-amber-500 text-xs">
+                                            <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                                            {t(
+                                                "contracts.detail.insufficientBalance",
+                                            )}
+                                        </p>
+                                    )}
 
                                 <button
                                     onClick={handleFaucet}
                                     disabled={faucetLoading}
-                                    className="w-full py-2.5 rounded-xl border border-primary/20 hover:border-primary/40 text-primary font-medium text-sm flex items-center justify-center gap-2 hover:bg-primary/5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-primary/20 py-2.5 font-medium text-primary text-sm transition-all hover:border-primary/40 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                    {faucetLoading && <Loader className="w-4 h-4 animate-spin" />}
+                                    {faucetLoading && (
+                                        <Loader className="h-4 w-4 animate-spin" />
+                                    )}
                                     {t("contracts.detail.getFaucet")}
                                 </button>
                             </div>
@@ -1265,13 +1654,21 @@ export default function ContractDetailPage() {
                             {/* Caution Deposit Action Card */}
                             <ActionCard
                                 title="Deposit Caution"
-                                description={usdcAllowance !== undefined && usdcAllowance >= (BigInt(agreement.cautionAmount) * 10n**12n)
-                                    ? "Step 2 of 2: Deposit the USDC caution money into the vault to activate the image rights agreement."
-                                    : "Step 1 of 2: Approve the Vault Escrow clone to spend the caution amount in USDC."
+                                description={
+                                    usdcAllowance !== undefined &&
+                                    usdcAllowance >=
+                                        BigInt(agreement.cautionAmount) *
+                                            10n ** 12n
+                                        ? "Step 2 of 2: Deposit the USDC caution money into the vault to activate the image rights agreement."
+                                        : "Step 1 of 2: Approve the Vault Escrow clone to spend the caution amount in USDC."
                                 }
-                                actionName={usdcAllowance !== undefined && usdcAllowance >= (BigInt(agreement.cautionAmount) * 10n**12n)
-                                    ? "Deposit Caution"
-                                    : "Approve USDC for Caution"
+                                actionName={
+                                    usdcAllowance !== undefined &&
+                                    usdcAllowance >=
+                                        BigInt(agreement.cautionAmount) *
+                                            10n ** 12n
+                                        ? "Deposit Caution"
+                                        : "Approve USDC for Caution"
                                 }
                                 onAction={handleDepositCaution}
                                 status={actionStatus}
@@ -1282,47 +1679,83 @@ export default function ContractDetailPage() {
                         </div>
                     )}
 
-                    {agreement.status === 'active' && (
+                    {agreement.status === "active" && (
                         <div className="space-y-6">
                             {/* Active Contract Status Panel */}
-                            <div className="glass-panel p-6 rounded-xl space-y-6 border-primary/20 bg-primary/5">
+                            <div className="glass-panel space-y-6 rounded-xl border-primary/20 bg-primary/5 p-6">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <h3 className="font-semibold text-foreground text-lg">{t("contracts.detail.activeEscrow")}</h3>
-                                        <p className="text-xs text-muted-foreground mt-0.5">{t("contracts.detail.activeEscrowDesc")}</p>
+                                        <h3 className="font-semibold text-foreground text-lg">
+                                            {t("contracts.detail.activeEscrow")}
+                                        </h3>
+                                        <p className="mt-0.5 text-muted-foreground text-xs">
+                                            {t(
+                                                "contracts.detail.activeEscrowDesc",
+                                            )}
+                                        </p>
                                     </div>
-                                    <Badge variant="outline" className="font-mono bg-green-500/10 text-lime-400 text-xs border-green-500/20 px-3 py-1 animate-pulse">
+                                    <Badge
+                                        variant="outline"
+                                        className="animate-pulse border-green-500/20 bg-green-500/10 px-3 py-1 font-mono text-lime-400 text-xs"
+                                    >
                                         ● {t("contracts.status.active")}
                                     </Badge>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-sm">
-                                    <div className="bg-foreground/5 p-4 rounded-xl border border-foreground/5 space-y-1">
-                                        <p className="text-xs text-muted-foreground/80">{t("contracts.detail.timeRemaining")}</p>
-                                        <p className="font-semibold text-foreground text-base">
+                                <div className="grid grid-cols-1 gap-4 font-mono text-sm md:grid-cols-2">
+                                    <div className="space-y-1 rounded-xl border border-foreground/5 bg-foreground/5 p-4">
+                                        <p className="text-muted-foreground/80 text-xs">
+                                            {t(
+                                                "contracts.detail.timeRemaining",
+                                            )}
+                                        </p>
+                                        <p className="font-semibold text-base text-foreground">
                                             {isTimeRemainingError ? (
-                                                <span className="text-destructive text-sm font-sans">{t("contracts.detail.errorReading")}</span>
+                                                <span className="font-sans text-destructive text-sm">
+                                                    {t(
+                                                        "contracts.detail.errorReading",
+                                                    )}
+                                                </span>
                                             ) : timeRemaining !== undefined ? (
                                                 timeRemaining > 0n ? (
                                                     `${(timeRemaining / 86400n).toString()}${t("contracts.detail.days")}${((timeRemaining % 86400n) / 3600n).toString()}${t("contracts.detail.hours")}`
                                                 ) : (
-                                                    t("contracts.detail.completedDays")
+                                                    t(
+                                                        "contracts.detail.completedDays",
+                                                    )
                                                 )
                                             ) : (
                                                 t("common.loading")
                                             )}
                                         </p>
                                     </div>
-                                    <div className="bg-foreground/5 p-4 rounded-xl border border-foreground/5 space-y-1">
-                                        <p className="text-xs text-muted-foreground/80">{t("contracts.detail.contractPhase")}</p>
-                                        <p className="font-semibold text-foreground text-base">
+                                    <div className="space-y-1 rounded-xl border border-foreground/5 bg-foreground/5 p-4">
+                                        <p className="text-muted-foreground/80 text-xs">
+                                            {t(
+                                                "contracts.detail.contractPhase",
+                                            )}
+                                        </p>
+                                        <p className="font-semibold text-base text-foreground">
                                             {isHalfTimeError ? (
-                                                <span className="text-destructive text-sm font-sans">{t("contracts.detail.errorReading")}</span>
-                                            ) : isBeforeHalfTime !== undefined ? (
+                                                <span className="font-sans text-destructive text-sm">
+                                                    {t(
+                                                        "contracts.detail.errorReading",
+                                                    )}
+                                                </span>
+                                            ) : isBeforeHalfTime !==
+                                              undefined ? (
                                                 isBeforeHalfTime ? (
-                                                    <span className="text-amber-400">{t("contracts.detail.firstHalf")}</span>
+                                                    <span className="text-amber-400">
+                                                        {t(
+                                                            "contracts.detail.firstHalf",
+                                                        )}
+                                                    </span>
                                                 ) : (
-                                                    <span className="text-green-400">{t("contracts.detail.secondHalf")}</span>
+                                                    <span className="text-green-400">
+                                                        {t(
+                                                            "contracts.detail.secondHalf",
+                                                        )}
+                                                    </span>
                                                 )
                                             ) : (
                                                 t("common.loading")
@@ -1336,9 +1769,10 @@ export default function ContractDetailPage() {
                             {isPlayer && (
                                 <ActionCard
                                     title="Rescind Agreement (as Player)"
-                                    description={isBeforeHalfTime
-                                        ? "Step 1 of 1: Terminate the agreement. Since it is before 6 months, a penalty of 65% of the caution will go to the Club, and you will receive 35%."
-                                        : "Step 1 of 1: Terminate the agreement. Since it is after 6 months, the caution is returned to the Club without penalty."
+                                    description={
+                                        isBeforeHalfTime
+                                            ? "Step 1 of 1: Terminate the agreement. Since it is before 6 months, a penalty of 65% of the caution will go to the Club, and you will receive 35%."
+                                            : "Step 1 of 1: Terminate the agreement. Since it is after 6 months, the caution is returned to the Club without penalty."
                                     }
                                     actionName="Rescind Agreement"
                                     onAction={handleRescindByPlayer}
@@ -1352,9 +1786,10 @@ export default function ContractDetailPage() {
                             {isClub && (
                                 <ActionCard
                                     title="Rescind Agreement (as Club)"
-                                    description={isBeforeHalfTime
-                                        ? "Step 1 of 1: Terminate the agreement. Since it is before 6 months, a penalty of 65% of the caution will go to the Player, and you will receive 35%."
-                                        : "Step 1 of 1: Terminate the agreement. Since it is after 6 months, the caution is returned back to you without penalty."
+                                    description={
+                                        isBeforeHalfTime
+                                            ? "Step 1 of 1: Terminate the agreement. Since it is before 6 months, a penalty of 65% of the caution will go to the Player, and you will receive 35%."
+                                            : "Step 1 of 1: Terminate the agreement. Since it is after 6 months, the caution is returned back to you without penalty."
                                     }
                                     actionName="Rescind Agreement"
                                     onAction={handleRescindByClub}
@@ -1366,28 +1801,31 @@ export default function ContractDetailPage() {
                             )}
 
                             {/* Expiration Action */}
-                            {timeRemaining !== undefined && timeRemaining === 0n && (
-                                <ActionCard
-                                    title="Expire Agreement"
-                                    description="The contract period has concluded. Expire the contract on-chain to return 100% of the caution deposit back to the Club."
-                                    actionName="Expire Agreement"
-                                    onAction={handleExpireContract}
-                                    status={actionStatus}
-                                    errorMsg={actionErrorMsg}
-                                    txHash={actionTxHash}
-                                    expectedChainId={31337}
-                                />
-                            )}
+                            {timeRemaining !== undefined &&
+                                timeRemaining === 0n && (
+                                    <ActionCard
+                                        title="Expire Agreement"
+                                        description="The contract period has concluded. Expire the contract on-chain to return 100% of the caution deposit back to the Club."
+                                        actionName="Expire Agreement"
+                                        onAction={handleExpireContract}
+                                        status={actionStatus}
+                                        errorMsg={actionErrorMsg}
+                                        txHash={actionTxHash}
+                                        expectedChainId={31337}
+                                    />
+                                )}
                         </div>
                     )}
 
-                    {agreement.status === 'rescinded' && (
-                        <div className="glass-panel p-6 rounded-xl border-destructive/20 bg-destructive/5 space-y-3">
+                    {agreement.status === "rescinded" && (
+                        <div className="glass-panel space-y-3 rounded-xl border-destructive/20 bg-destructive/5 p-6">
                             <div className="flex items-start gap-3">
-                                <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+                                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
                                 <div className="space-y-1">
-                                    <p className="text-sm font-medium text-destructive">{t("contracts.detail.rescindedTitle")}</p>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="font-medium text-destructive text-sm">
+                                        {t("contracts.detail.rescindedTitle")}
+                                    </p>
+                                    <p className="text-muted-foreground text-xs">
                                         {t("contracts.detail.rescindedDesc")}
                                     </p>
                                 </div>
@@ -1395,13 +1833,15 @@ export default function ContractDetailPage() {
                         </div>
                     )}
 
-                    {agreement.status === 'expired' && (
-                        <div className="glass-panel p-6 rounded-xl border-green-500/20 bg-green-500/5 space-y-3">
+                    {agreement.status === "expired" && (
+                        <div className="glass-panel space-y-3 rounded-xl border-green-500/20 bg-green-500/5 p-6">
                             <div className="flex items-start gap-3">
-                                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-500" />
                                 <div className="space-y-1">
-                                    <p className="text-sm font-medium text-green-400">{t("contracts.detail.concludedTitle")}</p>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="font-medium text-green-400 text-sm">
+                                        {t("contracts.detail.concludedTitle")}
+                                    </p>
+                                    <p className="text-muted-foreground text-xs">
                                         {t("contracts.detail.concludedDesc")}
                                     </p>
                                 </div>
@@ -1411,43 +1851,75 @@ export default function ContractDetailPage() {
                 </div>
 
                 <div className="space-y-6">
-                    <div className="glass-panel p-6 rounded-xl hover:border-primary/30 transition-all duration-300">
-                        <h3 className="font-semibold mb-4">{t("contracts.detail.signatures")}</h3>
+                    <div className="glass-panel rounded-xl p-6 transition-all duration-300 hover:border-primary/30">
+                        <h3 className="mb-4 font-semibold">
+                            {t("contracts.detail.signatures")}
+                        </h3>
 
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm">{t("contracts.detail.club")}</span>
-                                {agreement.clubSignature ? <CheckCircle2 className="text-lime-500 w-5 h-5" /> : <Clock className="text-amber-500 w-5 h-5" />}
+                                <span className="text-sm">
+                                    {t("contracts.detail.club")}
+                                </span>
+                                {agreement.clubSignature ? (
+                                    <CheckCircle2 className="h-5 w-5 text-lime-500" />
+                                ) : (
+                                    <Clock className="h-5 w-5 text-amber-500" />
+                                )}
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-sm">{t("contracts.detail.player")}</span>
-                                {agreement.playerSignature ? <CheckCircle2 className="text-lime-500 w-5 h-5" /> : <Clock className="text-amber-500 w-5 h-5" />}
+                                <span className="text-sm">
+                                    {t("contracts.detail.player")}
+                                </span>
+                                {agreement.playerSignature ? (
+                                    <CheckCircle2 className="h-5 w-5 text-lime-500" />
+                                ) : (
+                                    <Clock className="h-5 w-5 text-amber-500" />
+                                )}
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-sm">{t("contracts.detail.attorney")}</span>
-                                {agreement.attorneySignature ? <CheckCircle2 className="text-lime-500 w-5 h-5" /> : <Clock className="text-amber-500 w-5 h-5" />}
+                                <span className="text-sm">
+                                    {t("contracts.detail.attorney")}
+                                </span>
+                                {agreement.attorneySignature ? (
+                                    <CheckCircle2 className="h-5 w-5 text-lime-500" />
+                                ) : (
+                                    <Clock className="h-5 w-5 text-amber-500" />
+                                )}
                             </div>
                         </div>
 
-                        {needsMySignature && agreement.status === 'pending_signatures' && (
-                            <div className="mt-6 pt-6 border-t border-border">
-                                <button
-                                    onClick={handleSign}
-                                    disabled={signStatus === 'awaiting_wallet' || hasAnyWalletMismatch}
-                                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {signStatus === 'awaiting_wallet' ? <Loader className="w-4 h-4 animate-spin" /> : null}
-                                    {t("contracts.detail.signAction")}
-                                </button>
-                                {signError && <p className="text-xs text-destructive mt-2">{signError}</p>}
-                                {hasAnyWalletMismatch && (
-                                    <p className="text-xs text-amber-400/80 mt-2 flex items-center gap-1.5">
-                                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                                        {t("contracts.detail.walletMismatchSigning")}
-                                    </p>
-                                )}
-                            </div>
-                        )}
+                        {needsMySignature &&
+                            agreement.status === "pending_signatures" && (
+                                <div className="mt-6 border-border border-t pt-6">
+                                    <button
+                                        onClick={handleSign}
+                                        disabled={
+                                            signStatus === "awaiting_wallet" ||
+                                            hasAnyWalletMismatch
+                                        }
+                                        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        {signStatus === "awaiting_wallet" ? (
+                                            <Loader className="h-4 w-4 animate-spin" />
+                                        ) : null}
+                                        {t("contracts.detail.signAction")}
+                                    </button>
+                                    {signError && (
+                                        <p className="mt-2 text-destructive text-xs">
+                                            {signError}
+                                        </p>
+                                    )}
+                                    {hasAnyWalletMismatch && (
+                                        <p className="mt-2 flex items-center gap-1.5 text-amber-400/80 text-xs">
+                                            <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                                            {t(
+                                                "contracts.detail.walletMismatchSigning",
+                                            )}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
                     </div>
                 </div>
             </div>

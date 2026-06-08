@@ -1,62 +1,84 @@
-import { z } from "zod";
 import { isAddress } from "viem";
+import { z } from "zod";
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+export const ACCEPTED_IMAGE_TYPES = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp",
+];
 
 // Shared Zod schema for file validation
 export const avatarValidationSchema = z
-  .any()
-  .optional()
-  .refine(
-    (file) => {
-      if (!file) return true; // Optional field
-      return file.size <= MAX_FILE_SIZE;
-    },
-    { message: "Max image size is 5MB." }
-  )
-  .refine(
-    (file) => {
-      if (!file) return true;
-      return ACCEPTED_IMAGE_TYPES.includes(file.type);
-    },
-    { message: "Only .jpg, .jpeg, .png and .webp formats are supported." }
-  );
+    .any()
+    .optional()
+    .refine(
+        (file) => {
+            if (!file) return true; // Optional field
+            return file.size <= MAX_FILE_SIZE;
+        },
+        { message: "Max image size is 5MB." },
+    )
+    .refine(
+        (file) => {
+            if (!file) return true;
+            return ACCEPTED_IMAGE_TYPES.includes(file.type);
+        },
+        { message: "Only .jpg, .jpeg, .png and .webp formats are supported." },
+    );
 
 // Shared schemas for the forms
 export const baseProfileSchema = z.object({
-  name: z.string().min(5, 'Name must be at least 5 characters long'),
-  role: z.enum(['player', 'club']),
-  avatar: avatarValidationSchema,
+    name: z.string().min(5, "Name must be at least 5 characters long"),
+    role: z.enum(["player", "club"]),
+    avatar: avatarValidationSchema,
 });
 
 export const onboardingSchema = baseProfileSchema;
 
 export const profileSchema = z.object({
-  name: z.string().min(5, 'Name must be at least 5 characters long'),
-  avatar: avatarValidationSchema,
-  bio: z.string().max(160, 'Bio must be under 160 characters').optional(),
+    name: z.string().min(5, "Name must be at least 5 characters long"),
+    avatar: avatarValidationSchema,
+    bio: z.string().max(160, "Bio must be under 160 characters").optional(),
 });
 
 export const contractSchema = z.object({
-  title: z.string().min(5, { message: "Title must be at least 5 characters long" }),
-  description: z.string().min(10, { message: "Description must be at least 10 characters long" }),
-  playerWalletAddress: z.string().refine((val) => isAddress(val), {
-    message: "Invalid Player Wallet Address",
-  }),
-  playerEmail: z.email({ message: "Invalid Player Email Address" }),
-  attorneyWalletAddress: z.string().refine((val) => isAddress(val), {
-    message: "Invalid Attorney Wallet Address",
-  }),
-  attorneyEmail: z.email({ message: "Invalid Attorney Email Address" }),
-  tokenURI: z.string().min(1, { message: "Token URI is required" }),
-  cautionAmountUSDC: z.string().refine((val) => {
-    const num = Number(val);
-    return val !== "" && !isNaN(num) && num >= 0;
-  }, {
-    message: "Invalid Caution Amount",
-  }),
-  tokenName: z.string().min(1, { message: "Token Name is required" }).max(10, { message: "Token Name must be 10 characters or less" }).regex(/^\S+$/, { message: "Token Name cannot contain spaces" }),
-  tokenSymbol: z.string().min(2, { message: "Token Symbol must be at least 2 characters long" }).max(10, { message: "Token Symbol must be 10 characters or less" }).regex(/^\$[A-Za-z0-9]+$/, { message: "Token Symbol must start with $ and contain only letters/numbers with no spaces" }),
+    title: z
+        .string()
+        .min(5, { message: "Title must be at least 5 characters long" }),
+    description: z.string().min(10, {
+        message: "Description must be at least 10 characters long",
+    }),
+    playerWalletAddress: z.string().refine((val) => isAddress(val), {
+        message: "Invalid Player Wallet Address",
+    }),
+    playerEmail: z.email({ message: "Invalid Player Email Address" }),
+    attorneyWalletAddress: z.string().refine((val) => isAddress(val), {
+        message: "Invalid Attorney Wallet Address",
+    }),
+    attorneyEmail: z.email({ message: "Invalid Attorney Email Address" }),
+    tokenURI: z.string().min(1, { message: "Token URI is required" }),
+    cautionAmountUSDC: z.string().refine(
+        (val) => {
+            const num = Number(val);
+            return val !== "" && !isNaN(num) && num >= 0;
+        },
+        {
+            message: "Invalid Caution Amount",
+        },
+    ),
+    tokenName: z
+        .string()
+        .min(1, { message: "Token Name is required" })
+        .max(10, { message: "Token Name must be 10 characters or less" })
+        .regex(/^\S+$/, { message: "Token Name cannot contain spaces" }),
+    tokenSymbol: z
+        .string()
+        .min(2, { message: "Token Symbol must be at least 2 characters long" })
+        .max(10, { message: "Token Symbol must be 10 characters or less" })
+        .regex(/^\$[A-Za-z0-9]+$/, {
+            message:
+                "Token Symbol must start with $ and contain only letters/numbers with no spaces",
+        }),
 });
-

@@ -1,9 +1,9 @@
-import { env } from '@/env';
-import { playerRightsMasterAbi } from '@/src/generated';
-import { NextResponse } from 'next/server';
-import { createWalletClient, http, publicActions } from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
-import { foundry, sepolia } from 'viem/chains';
+import { NextResponse } from "next/server";
+import { createWalletClient, http, publicActions } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { foundry, sepolia } from "viem/chains";
+import { env } from "@/env";
+import { playerRightsMasterAbi } from "@/src/generated";
 
 const chainMap = {
     foundry,
@@ -14,7 +14,9 @@ export async function POST(req: Request) {
     try {
         const { vaultAddress } = await req.json();
 
-        const account = privateKeyToAccount(env.ADMIN_PRIVATE_KEY as `0x${string}`);
+        const account = privateKeyToAccount(
+            env.ADMIN_PRIVATE_KEY as `0x${string}`,
+        );
 
         const network = env.NEXT_PUBLIC_APP_NETWORK as keyof typeof chainMap;
         const chain = chainMap[network];
@@ -22,9 +24,10 @@ export async function POST(req: Request) {
         if (!chain) throw Error("Could not determine transport");
 
         // Dynamically get the transport
-        const transport = network === 'foundry'
-            ? http(env.NEXT_PUBLIC_FOUNDRY_RPC_URL)
-            : http(env.NEXT_PUBLIC_SEPOLIA_RPC_URL);
+        const transport =
+            network === "foundry"
+                ? http(env.NEXT_PUBLIC_FOUNDRY_RPC_URL)
+                : http(env.NEXT_PUBLIC_SEPOLIA_RPC_URL);
 
         const client = createWalletClient({
             account,
@@ -32,13 +35,14 @@ export async function POST(req: Request) {
             transport,
         }).extend(publicActions);
 
-        const masterNftAddress = env.NEXT_PUBLIC_PLAYER_RIGHTS_MASTER_ADDRESS as `0x${string}`;
+        const masterNftAddress =
+            env.NEXT_PUBLIC_PLAYER_RIGHTS_MASTER_ADDRESS as `0x${string}`;
 
         const { request } = await client.simulateContract({
             address: masterNftAddress,
             abi: playerRightsMasterAbi,
-            functionName: 'setAuthorizedOperator',
-            args: [vaultAddress as `0x${string}`, true]
+            functionName: "setAuthorizedOperator",
+            args: [vaultAddress as `0x${string}`, true],
         });
 
         const hash = await client.writeContract(request);
@@ -48,6 +52,9 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: true, hash });
     } catch (error) {
         console.log("An error occurred: ", error);
-        return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+        return NextResponse.json(
+            { error: (error as Error).message },
+            { status: 500 },
+        );
     }
 }

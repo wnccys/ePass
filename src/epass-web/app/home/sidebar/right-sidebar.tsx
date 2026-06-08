@@ -1,39 +1,39 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from "react";
-import { formatUnits } from "viem";
 import {
+    Activity,
+    ArrowUpRight,
+    CheckCircle,
     Coins,
     FileText,
-    CheckCircle,
     TrendingUp,
-    Activity,
-    ArrowUpRight
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+    Area,
+    AreaChart,
+    Cell,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+} from "recharts";
+import { formatUnits } from "viem";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-    PieChart,
-    Pie,
-    Cell,
-    ResponsiveContainer,
-    AreaChart,
-    Area,
-    Tooltip
-} from "recharts";
-import { useTranslation } from "react-i18next";
 
 const COLORS = [
-    'oklch(from var(--primary) l c h)',      // Active
-    'oklch(from var(--primary) l c h / 0.5)',// Pending
-    'oklch(0.553 0.013 58.071)',             // Draft
-    'oklch(0.577 0.245 27.325)'              // Failed/Rescinded
+    "oklch(from var(--primary) l c h)", // Active
+    "oklch(from var(--primary) l c h / 0.5)", // Pending
+    "oklch(0.553 0.013 58.071)", // Draft
+    "oklch(0.577 0.245 27.325)", // Failed/Rescinded
 ];
 
 export function RightSidebar({
     stats,
     recentTransactions,
-    userRole
+    userRole,
 }: {
     stats: {
         totalContracts: number;
@@ -59,228 +59,325 @@ export function RightSidebar({
     // Prepare data for the status distribution donut chart
     const chartData = [
         { name: t("contracts.status.active"), value: stats.activeContracts },
-        { name: t("contracts.status.pending_signatures"), value: stats.pendingSignatures },
-        { name: t("dashboard.sidebar.draftsOthers"), value: Math.max(0, stats.totalContracts - stats.activeContracts - stats.pendingSignatures) }
-    ].filter(item => item.value > 0);
+        {
+            name: t("contracts.status.pending_signatures"),
+            value: stats.pendingSignatures,
+        },
+        {
+            name: t("dashboard.sidebar.draftsOthers"),
+            value: Math.max(
+                0,
+                stats.totalContracts -
+                    stats.activeContracts -
+                    stats.pendingSignatures,
+            ),
+        },
+    ].filter((item) => item.value > 0);
 
     // Mock timeline data for recent transaction frequency (AreaChart)
     // In a real app we'd map actual transactions, but since we want premium aesthetics,
     // we'll map the transaction times or supply a clean visualization.
     const timelineData = [
-        { day: 'Mon', count: 1 },
-        { day: 'Tue', count: 3 },
-        { day: 'Wed', count: stats.activeContracts || 2 },
-        { day: 'Thu', count: recentTransactions.length || 4 },
-        { day: 'Fri', count: (recentTransactions.length + 1) || 5 }
+        { day: "Mon", count: 1 },
+        { day: "Tue", count: 3 },
+        { day: "Wed", count: stats.activeContracts || 2 },
+        { day: "Thu", count: recentTransactions.length || 4 },
+        { day: "Fri", count: recentTransactions.length + 1 || 5 },
     ];
 
     return (
-        <aside className="w-full lg:max-h-[calc(100vh-8rem)] flex flex-col">
-            <ScrollArea className="w-full pr-6 h-[calc(100vh-8rem)]">
-                <div className="space-y-6 pl-1 pb-4">
-                {/* Quick Stats Grid */}
-                <div className="space-y-3">
-                    <div className="flex items-center gap-1.5 pb-1 border-b border-border/40">
-                        <Activity className="w-4 h-4 text-primary" />
-                        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                            {t("dashboard.sidebar.quickStats")}
-                        </h3>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <Card className="glass-card p-3.5 flex flex-col justify-between space-y-1">
-                            <span className="text-[10px] text-muted-foreground uppercase font-semibold">{t("dashboard.stats.totalContracts")}</span>
-                            <div className="flex items-baseline gap-1.5">
-                                <span className="text-xl font-bold font-mono">{stats.totalContracts}</span>
-                                <FileText className="w-3.5 h-3.5 text-muted-foreground" />
-                            </div>
-                        </Card>
-
-                        <Card className="glass-card p-3.5 flex flex-col justify-between space-y-1">
-                            <span className="text-[10px] text-muted-foreground uppercase font-semibold">{t("dashboard.stats.activeAgreement")}</span>
-                            <div className="flex items-baseline gap-1.5">
-                                <span className="text-xl font-bold font-mono text-emerald-500">{stats.activeContracts}</span>
-                                <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
-                            </div>
-                        </Card>
-                    </div>
-                </div>
-
-                {/* Caution Lock (Club-Only / Vault Value) */}
-                {userRole === 'club' && (
-                    <Card className="glass-card p-4 space-y-3 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-3 opacity-10">
-                            <Coins className="w-16 h-16 text-primary" />
-                        </div>
-                        <div className="space-y-1">
-                            <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
-                                {t("dashboard.sidebar.totalCautionEscrowed")}
-                            </span>
-                            <h4 className="text-xl font-bold font-mono text-foreground">
-                                {cautionUSD} USDC
-                            </h4>
-                        </div>
-                        <p className="text-[10px] text-muted-foreground leading-relaxed">
-                            {t("dashboard.sidebar.totalCautionEscrowedDesc")}
-                        </p>
-                    </Card>
-                )}
-
-                {/* Charts Section (Recharts) */}
-                {mounted && chartData.length > 0 && (
+        <aside className="flex w-full flex-col lg:max-h-[calc(100vh-8rem)]">
+            <ScrollArea className="h-[calc(100vh-8rem)] w-full pr-6">
+                <div className="space-y-6 pb-4 pl-1">
+                    {/* Quick Stats Grid */}
                     <div className="space-y-3">
-                        <div className="flex items-center gap-1.5 pb-1 border-b border-border/40">
-                            <TrendingUp className="w-4 h-4 text-primary" />
-                            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                                {t("dashboard.sidebar.contractDistribution")}
+                        <div className="flex items-center gap-1.5 border-border/40 border-b pb-1">
+                            <Activity className="h-4 w-4 text-primary" />
+                            <h3 className="font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+                                {t("dashboard.sidebar.quickStats")}
                             </h3>
                         </div>
 
-                        <Card className="glass-card p-4 flex flex-col items-center">
-                            <div className="relative w-full h-44">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={chartData}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={48}
-                                            outerRadius={68}
-                                            paddingAngle={4}
-                                            cornerRadius={4}
-                                            dataKey="value"
-                                            stroke="none"
-                                        >
-                                            {chartData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip
-                                            cursor={false}
-                                            contentStyle={{
-                                                background: 'oklch(from var(--card) l c h / 95%)',
-                                                border: '1px solid oklch(from var(--border) l c h / 40%)',
-                                                borderRadius: '0.75rem',
-                                                fontSize: '11px',
-                                                padding: '6px 10px',
-                                            }}
-                                        />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                                {/* Center total overlay */}
-                                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                    <span className="text-2xl font-bold font-mono text-foreground leading-none">
+                        <div className="grid grid-cols-2 gap-3">
+                            <Card className="glass-card flex flex-col justify-between space-y-1 p-3.5">
+                                <span className="font-semibold text-[10px] text-muted-foreground uppercase">
+                                    {t("dashboard.stats.totalContracts")}
+                                </span>
+                                <div className="flex items-baseline gap-1.5">
+                                    <span className="font-bold font-mono text-xl">
                                         {stats.totalContracts}
                                     </span>
-                                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">
-                                        Total
-                                    </span>
+                                    <FileText className="h-3.5 w-3.5 text-muted-foreground" />
                                 </div>
-                            </div>
+                            </Card>
 
-                            {/* Chart Legend */}
-                            <div className="grid grid-cols-3 gap-2 w-full pt-2 border-t border-border/50 text-[10px] text-center">
-                                {chartData.map((item, idx) => (
-                                    <div key={item.name} className="flex flex-col items-center">
-                                        <span
-                                            className="w-1.5 h-1.5 rounded-full mb-1"
-                                            style={{ backgroundColor: COLORS[idx % COLORS.length] }}
-                                        />
-                                        <span className="text-muted-foreground line-clamp-1 font-semibold">{item.name}</span>
-                                        <span className="font-bold text-foreground font-mono">{item.value}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </Card>
+                            <Card className="glass-card flex flex-col justify-between space-y-1 p-3.5">
+                                <span className="font-semibold text-[10px] text-muted-foreground uppercase">
+                                    {t("dashboard.stats.activeAgreement")}
+                                </span>
+                                <div className="flex items-baseline gap-1.5">
+                                    <span className="font-bold font-mono text-emerald-500 text-xl">
+                                        {stats.activeContracts}
+                                    </span>
+                                    <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
+                                </div>
+                            </Card>
+                        </div>
                     </div>
-                )}
 
-                {/* Transaction Activity (Area chart) */}
-                {mounted && (
+                    {/* Caution Lock (Club-Only / Vault Value) */}
+                    {userRole === "club" && (
+                        <Card className="glass-card relative space-y-3 overflow-hidden p-4">
+                            <div className="absolute top-0 right-0 p-3 opacity-10">
+                                <Coins className="h-16 w-16 text-primary" />
+                            </div>
+                            <div className="space-y-1">
+                                <span className="font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
+                                    {t(
+                                        "dashboard.sidebar.totalCautionEscrowed",
+                                    )}
+                                </span>
+                                <h4 className="font-bold font-mono text-foreground text-xl">
+                                    {cautionUSD} USDC
+                                </h4>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground leading-relaxed">
+                                {t(
+                                    "dashboard.sidebar.totalCautionEscrowedDesc",
+                                )}
+                            </p>
+                        </Card>
+                    )}
+
+                    {/* Charts Section (Recharts) */}
+                    {mounted && chartData.length > 0 && (
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-1.5 border-border/40 border-b pb-1">
+                                <TrendingUp className="h-4 w-4 text-primary" />
+                                <h3 className="font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+                                    {t(
+                                        "dashboard.sidebar.contractDistribution",
+                                    )}
+                                </h3>
+                            </div>
+
+                            <Card className="glass-card flex flex-col items-center p-4">
+                                <div className="relative h-44 w-full">
+                                    <ResponsiveContainer
+                                        width="100%"
+                                        height="100%"
+                                    >
+                                        <PieChart>
+                                            <Pie
+                                                data={chartData}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={48}
+                                                outerRadius={68}
+                                                paddingAngle={4}
+                                                cornerRadius={4}
+                                                dataKey="value"
+                                                stroke="none"
+                                            >
+                                                {chartData.map(
+                                                    (entry, index) => (
+                                                        <Cell
+                                                            key={`cell-${index}`}
+                                                            fill={
+                                                                COLORS[
+                                                                    index %
+                                                                        COLORS.length
+                                                                ]
+                                                            }
+                                                        />
+                                                    ),
+                                                )}
+                                            </Pie>
+                                            <Tooltip
+                                                cursor={false}
+                                                contentStyle={{
+                                                    background:
+                                                        "oklch(from var(--card) l c h / 95%)",
+                                                    border: "1px solid oklch(from var(--border) l c h / 40%)",
+                                                    borderRadius: "0.75rem",
+                                                    fontSize: "11px",
+                                                    padding: "6px 10px",
+                                                }}
+                                            />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                    {/* Center total overlay */}
+                                    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                                        <span className="font-bold font-mono text-2xl text-foreground leading-none">
+                                            {stats.totalContracts}
+                                        </span>
+                                        <span className="mt-1 text-[9px] text-muted-foreground uppercase tracking-wider">
+                                            Total
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Chart Legend */}
+                                <div className="grid w-full grid-cols-3 gap-2 border-border/50 border-t pt-2 text-center text-[10px]">
+                                    {chartData.map((item, idx) => (
+                                        <div
+                                            key={item.name}
+                                            className="flex flex-col items-center"
+                                        >
+                                            <span
+                                                className="mb-1 h-1.5 w-1.5 rounded-full"
+                                                style={{
+                                                    backgroundColor:
+                                                        COLORS[
+                                                            idx % COLORS.length
+                                                        ],
+                                                }}
+                                            />
+                                            <span className="line-clamp-1 font-semibold text-muted-foreground">
+                                                {item.name}
+                                            </span>
+                                            <span className="font-bold font-mono text-foreground">
+                                                {item.value}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Card>
+                        </div>
+                    )}
+
+                    {/* Transaction Activity (Area chart) */}
+                    {mounted && (
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-1.5 border-border/40 border-b pb-1">
+                                <TrendingUp className="h-4 w-4 text-primary" />
+                                <h3 className="font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+                                    {t("dashboard.sidebar.activityTrend")}
+                                </h3>
+                            </div>
+
+                            <Card className="glass-card p-4">
+                                <div className="h-28 w-full">
+                                    <ResponsiveContainer
+                                        width="100%"
+                                        height="100%"
+                                    >
+                                        <AreaChart
+                                            data={timelineData}
+                                            margin={{
+                                                top: 5,
+                                                right: 4,
+                                                left: 4,
+                                                bottom: 0,
+                                            }}
+                                        >
+                                            <defs>
+                                                <linearGradient
+                                                    id="activityFill"
+                                                    x1="0"
+                                                    y1="0"
+                                                    x2="0"
+                                                    y2="1"
+                                                >
+                                                    <stop
+                                                        offset="0%"
+                                                        stopColor="oklch(from var(--primary) l c h)"
+                                                        stopOpacity={0.4}
+                                                    />
+                                                    <stop
+                                                        offset="100%"
+                                                        stopColor="oklch(from var(--primary) l c h)"
+                                                        stopOpacity={0}
+                                                    />
+                                                </linearGradient>
+                                            </defs>
+                                            <Tooltip
+                                                cursor={{
+                                                    stroke: "oklch(from var(--primary) l c h / 30%)",
+                                                }}
+                                                contentStyle={{
+                                                    background:
+                                                        "oklch(from var(--card) l c h / 95%)",
+                                                    border: "1px solid oklch(from var(--border) l c h / 40%)",
+                                                    borderRadius: "0.75rem",
+                                                    fontSize: "11px",
+                                                    padding: "6px 10px",
+                                                }}
+                                            />
+                                            <Area
+                                                type="monotone"
+                                                dataKey="count"
+                                                stroke="oklch(from var(--primary) l c h)"
+                                                strokeWidth={2}
+                                                fill="url(#activityFill)"
+                                            />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
+                                <div className="grid grid-cols-5 gap-1 border-border/50 border-t pt-2 text-center text-[9px] text-muted-foreground">
+                                    {timelineData.map((d) => (
+                                        <span key={d.day}>{d.day}</span>
+                                    ))}
+                                </div>
+                            </Card>
+                        </div>
+                    )}
+
+                    {/* Recent Confirmed Transactions List */}
                     <div className="space-y-3">
-                        <div className="flex items-center gap-1.5 pb-1 border-b border-border/40">
-                            <TrendingUp className="w-4 h-4 text-primary" />
-                            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                                {t("dashboard.sidebar.activityTrend")}
+                        <div className="flex items-center gap-1.5 border-border/40 border-b pb-1">
+                            <Activity className="h-4 w-4 text-primary" />
+                            <h3 className="font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+                                {t("dashboard.sidebar.recentConfirmations")}
                             </h3>
                         </div>
 
-                        <Card className="glass-card p-4">
-                            <div className="w-full h-28">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart data={timelineData} margin={{ top: 5, right: 4, left: 4, bottom: 0 }}>
-                                        <defs>
-                                            <linearGradient id="activityFill" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="0%" stopColor="oklch(from var(--primary) l c h)" stopOpacity={0.4} />
-                                                <stop offset="100%" stopColor="oklch(from var(--primary) l c h)" stopOpacity={0} />
-                                            </linearGradient>
-                                        </defs>
-                                        <Tooltip
-                                            cursor={{ stroke: 'oklch(from var(--primary) l c h / 30%)' }}
-                                            contentStyle={{
-                                                background: 'oklch(from var(--card) l c h / 95%)',
-                                                border: '1px solid oklch(from var(--border) l c h / 40%)',
-                                                borderRadius: '0.75rem',
-                                                fontSize: '11px',
-                                                padding: '6px 10px',
-                                            }}
-                                        />
-                                        <Area
-                                            type="monotone"
-                                            dataKey="count"
-                                            stroke="oklch(from var(--primary) l c h)"
-                                            strokeWidth={2}
-                                            fill="url(#activityFill)"
-                                        />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            </div>
-                            <div className="grid grid-cols-5 gap-1 pt-2 border-t border-border/50 text-[9px] text-center text-muted-foreground">
-                                {timelineData.map((d) => (
-                                    <span key={d.day}>{d.day}</span>
+                        {recentTransactions.length === 0 ? (
+                            <Card className="glass-card rounded-xl p-4 text-center">
+                                <p className="text-muted-foreground text-xs">
+                                    {t(
+                                        "dashboard.sidebar.noRecentConfirmations",
+                                    )}
+                                </p>
+                            </Card>
+                        ) : (
+                            <div className="space-y-2">
+                                {recentTransactions.slice(0, 3).map((tx) => (
+                                    <Card
+                                        key={tx._id}
+                                        className="glass-card flex items-center justify-between gap-3 p-3 text-xs"
+                                    >
+                                        <div className="min-w-0 space-y-0.5">
+                                            <h5 className="truncate font-semibold text-foreground capitalize leading-tight">
+                                                {t(
+                                                    "actionType." +
+                                                        tx.actionType,
+                                                    {
+                                                        defaultValue:
+                                                            tx.actionType.replace(
+                                                                "_",
+                                                                " ",
+                                                            ),
+                                                    },
+                                                )}
+                                            </h5>
+                                            <p className="truncate font-mono text-[10px] text-muted-foreground">
+                                                {tx.txHash.slice(0, 6)}...
+                                                {tx.txHash.slice(-4)}
+                                            </p>
+                                        </div>
+                                        <a
+                                            href={`https://sepolia.etherscan.io/tx/${tx.txHash}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="cursor-pointer rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                        >
+                                            <ArrowUpRight className="h-3.5 w-3.5" />
+                                        </a>
+                                    </Card>
                                 ))}
                             </div>
-                        </Card>
-                    </div>
-                )}
-
-                {/* Recent Confirmed Transactions List */}
-                <div className="space-y-3">
-                    <div className="flex items-center gap-1.5 pb-1 border-b border-border/40">
-                        <Activity className="w-4 h-4 text-primary" />
-                        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                            {t("dashboard.sidebar.recentConfirmations")}
-                        </h3>
-                    </div>
-
-                    {recentTransactions.length === 0 ? (
-                        <Card className="glass-card p-4 text-center rounded-xl">
-                            <p className="text-xs text-muted-foreground">{t("dashboard.sidebar.noRecentConfirmations")}</p>
-                        </Card>
-                    ) : (
-                        <div className="space-y-2">
-                            {recentTransactions.slice(0, 3).map((tx) => (
-                                <Card key={tx._id} className="glass-card p-3 flex items-center justify-between gap-3 text-xs">
-                                    <div className="space-y-0.5 min-w-0">
-                                        <h5 className="font-semibold text-foreground capitalize truncate leading-tight">
-                                            {t("actionType." + tx.actionType, { defaultValue: tx.actionType.replace('_', ' ') })}
-                                        </h5>
-                                        <p className="text-[10px] text-muted-foreground font-mono truncate">
-                                            {tx.txHash.slice(0, 6)}...{tx.txHash.slice(-4)}
-                                        </p>
-                                    </div>
-                                    <a
-                                        href={`https://sepolia.etherscan.io/tx/${tx.txHash}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                                    >
-                                        <ArrowUpRight className="w-3.5 h-3.5" />
-                                    </a>
-                                </Card>
-                            ))}
-                        </div>
-                    )}
+                        )}
                     </div>
                 </div>
             </ScrollArea>

@@ -1,13 +1,19 @@
-'use server';
+"use server";
 
 import { getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]/route";
 import dbConnect from "@/lib/db";
 import Transaction from "@/models/Transaction";
 import User from "@/models/User";
+import { authOptions } from "../api/auth/[...nextauth]/route";
 
-
-export async function recordTransaction(data: { txHash: string, chainId: number, actionType: string, contractAddress: string, walletAddress: string, agreementId?: string }) {
+export async function recordTransaction(data: {
+    txHash: string;
+    chainId: number;
+    actionType: string;
+    contractAddress: string;
+    walletAddress: string;
+    agreementId?: string;
+}) {
     const session = await getServerSession(authOptions);
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -15,9 +21,9 @@ export async function recordTransaction(data: { txHash: string, chainId: number,
     try {
         const transaction = await Transaction.create({
             userId: session.user.id,
-            status: 'submitted',
+            status: "submitted",
             ...data,
-            actionType: data.actionType as any
+            actionType: data.actionType as any,
         });
 
         return { success: true, transactionId: transaction._id.toString() };
@@ -33,11 +39,14 @@ export async function confirmTransaction(txHash: string, blockNumber: number) {
 
     await dbConnect();
     try {
-        await Transaction.findOneAndUpdate({ txHash }, { 
-            status: 'confirmed', 
-            blockNumber, 
-            confirmedAt: new Date() 
-        });
+        await Transaction.findOneAndUpdate(
+            { txHash },
+            {
+                status: "confirmed",
+                blockNumber,
+                confirmedAt: new Date(),
+            },
+        );
         return { success: true };
     } catch (err) {
         console.error(err);
@@ -51,11 +60,14 @@ export async function failTransaction(txHash: string) {
 
     await dbConnect();
     try {
-        await Transaction.findOneAndUpdate({ txHash }, { status: 'failed' });
+        await Transaction.findOneAndUpdate({ txHash }, { status: "failed" });
         return { success: true };
     } catch (err) {
         console.error(err);
-        return { success: false, error: "Failed to mark transaction as failed" };
+        return {
+            success: false,
+            error: "Failed to mark transaction as failed",
+        };
     }
 }
 
@@ -65,18 +77,20 @@ export async function getMyTransactions(limit = 10, offset = 0) {
 
     await dbConnect();
     try {
-        const user = await User.findById(session.user.id).select("contracts").lean();
+        const user = await User.findById(session.user.id)
+            .select("contracts")
+            .lean();
         const contractIds = user?.contracts || [];
 
         const query = {
             $or: [
                 { userId: session.user.id },
-                { agreementId: { $in: contractIds } }
-            ]
+                { agreementId: { $in: contractIds } },
+            ],
         };
 
         const transactions = await Transaction.find(query)
-            .populate('agreementId', 'title status')
+            .populate("agreementId", "title status")
             .sort({ createdAt: -1 })
             .skip(offset)
             .limit(limit)
@@ -90,4 +104,3 @@ export async function getMyTransactions(limit = 10, offset = 0) {
         return { success: false, error: "Failed to fetch transactions" };
     }
 }
-

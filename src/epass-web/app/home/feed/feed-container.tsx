@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useRef } from "react";
-import { TransactionCard } from "./transaction-card";
-import { ContractStatusCard } from "./contract-status-card";
-import { VaultCard } from "./vault-card";
-import { getMyTransactions } from "@/app/actions/transactions";
-import { Loader2, Layers, Link2 } from "lucide-react";
+import { Layers, Link2, Loader2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { getMyTransactions } from "@/app/actions/transactions";
+import { ContractStatusCard } from "./contract-status-card";
+import { TransactionCard } from "./transaction-card";
+import { VaultCard } from "./vault-card";
 
 type FeedItem =
-    | { type: 'transaction'; id: string; timestamp: number; data: any }
-    | { type: 'agreement'; id: string; timestamp: number; data: any };
+    | { type: "transaction"; id: string; timestamp: number; data: any }
+    | { type: "agreement"; id: string; timestamp: number; data: any };
 
 export function FeedContainer({
     initialAgreements,
     initialTransactions,
-    userRole
+    userRole,
 }: {
     initialAgreements: any[];
     initialTransactions: any[];
@@ -35,20 +35,20 @@ export function FeedContainer({
         // Add agreements to feed
         initialAgreements.forEach((ag: any) => {
             items.push({
-                type: 'agreement',
+                type: "agreement",
                 id: ag._id,
                 timestamp: new Date(ag.updatedAt || ag.createdAt).getTime(),
-                data: ag
+                data: ag,
             });
         });
 
         // Add transactions to feed
         initialTransactions.forEach((tx: any) => {
             items.push({
-                type: 'transaction',
+                type: "transaction",
                 id: tx._id,
                 timestamp: new Date(tx.createdAt).getTime(),
-                data: tx
+                data: tx,
             });
         });
 
@@ -71,17 +71,17 @@ export function FeedContainer({
                 }
 
                 // Add to feed items
-                setFeedItems(prev => {
-                    const existingIds = new Set(prev.map(item => item.id));
+                setFeedItems((prev) => {
+                    const existingIds = new Set(prev.map((item) => item.id));
                     const mixed = [...prev];
 
                     newTxs.forEach((tx: any) => {
                         if (!existingIds.has(tx._id)) {
                             mixed.push({
-                                type: 'transaction',
+                                type: "transaction",
                                 id: tx._id,
                                 timestamp: new Date(tx.createdAt).getTime(),
-                                data: tx
+                                data: tx,
                             });
                         }
                     });
@@ -91,7 +91,7 @@ export function FeedContainer({
                     return mixed;
                 });
 
-                setOffset(prev => prev + newTxs.length);
+                setOffset((prev) => prev + newTxs.length);
             } else {
                 setHasMore(false);
             }
@@ -110,7 +110,7 @@ export function FeedContainer({
                     loadMoreTransactions();
                 }
             },
-            { threshold: 1.0 }
+            { threshold: 1.0 },
         );
 
         const currentSentinel = sentinelRef.current;
@@ -127,21 +127,23 @@ export function FeedContainer({
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-                <Layers className="w-4 h-4 text-primary" />
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+            <div className="flex items-center gap-2 border-border/40 border-b pb-2">
+                <Layers className="h-4 w-4 text-primary" />
+                <h2 className="font-semibold text-foreground text-sm uppercase tracking-wider">
                     {t("dashboard.feed.title")}
                 </h2>
             </div>
 
             {feedItems.length === 0 ? (
-                <div className="text-center py-12 border border-dashed border-border rounded-xl bg-black/5 dark:bg-white/5">
-                    <p className="text-sm text-muted-foreground">{t("dashboard.feed.empty")}</p>
+                <div className="rounded-xl border border-border border-dashed bg-black/5 py-12 text-center dark:bg-white/5">
+                    <p className="text-muted-foreground text-sm">
+                        {t("dashboard.feed.empty")}
+                    </p>
                 </div>
             ) : (
                 <div className="space-y-4">
                     {feedItems.map((item) => {
-                        if (item.type === 'transaction') {
+                        if (item.type === "transaction") {
                             return (
                                 <TransactionCard
                                     key={item.id}
@@ -153,7 +155,11 @@ export function FeedContainer({
                         // If user is club, render a VaultCard if it's active or has a vaultAddress.
                         // The two cards describe the SAME contract, so they are intentionally
                         // glued into one unit with a link icon straddling the seam.
-                        if (userRole === 'club' && (item.data.status === 'active' || item.data.vaultAddress)) {
+                        if (
+                            userRole === "club" &&
+                            (item.data.status === "active" ||
+                                item.data.vaultAddress)
+                        ) {
                             return (
                                 <div key={item.id} className="relative">
                                     <ContractStatusCard
@@ -163,13 +169,16 @@ export function FeedContainer({
                                     />
 
                                     {/* Connector: link icon centered on the seam, adds no spacing */}
-                                    <div className="relative z-20 flex h-0 items-center justify-center pointer-events-none">
-                                        <div className="w-7 h-7 rounded-full bg-background ring-1 ring-primary/30 border border-primary/20 flex items-center justify-center shadow-sm">
-                                            <Link2 className="w-3.5 h-3.5 text-primary" />
+                                    <div className="pointer-events-none relative z-20 flex h-0 items-center justify-center">
+                                        <div className="flex h-7 w-7 items-center justify-center rounded-full border border-primary/20 bg-background shadow-sm ring-1 ring-primary/30">
+                                            <Link2 className="h-3.5 w-3.5 text-primary" />
                                         </div>
                                     </div>
 
-                                    <VaultCard agreement={item.data} grouped="bottom" />
+                                    <VaultCard
+                                        agreement={item.data}
+                                        grouped="bottom"
+                                    />
                                 </div>
                             );
                         }
@@ -191,7 +200,9 @@ export function FeedContainer({
                     ref={sentinelRef}
                     className="flex justify-center py-4 text-muted-foreground"
                 >
-                    {loading && <Loader2 className="w-6 h-6 animate-spin text-primary" />}
+                    {loading && (
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    )}
                 </div>
             )}
         </div>

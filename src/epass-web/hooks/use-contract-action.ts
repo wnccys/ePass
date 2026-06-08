@@ -1,11 +1,18 @@
-import { useState } from 'react';
-import { useWriteContract } from 'wagmi';
-import { recordTransaction } from '@/app/actions/transactions';
+import { useState } from "react";
+import { useWriteContract } from "wagmi";
+import { recordTransaction } from "@/app/actions/transactions";
 
-type ActionStatus = 'idle' | 'simulating' | 'awaiting_wallet' | 'submitting' | 'confirming' | 'success' | 'error';
+type ActionStatus =
+    | "idle"
+    | "simulating"
+    | "awaiting_wallet"
+    | "submitting"
+    | "confirming"
+    | "success"
+    | "error";
 
 export function useContractAction(config: any) {
-    const [status, setStatus] = useState<ActionStatus>('idle');
+    const [status, setStatus] = useState<ActionStatus>("idle");
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [txHash, setTxHash] = useState<string | null>(null);
 
@@ -19,10 +26,10 @@ export function useContractAction(config: any) {
         actionType: string,
         chainId: number,
         walletAddress: string,
-        agreementId?: string
+        agreementId?: string,
     ) => {
         try {
-            setStatus('awaiting_wallet');
+            setStatus("awaiting_wallet");
             setErrorMsg(null);
 
             const txHash = await mutateAsync({
@@ -32,7 +39,7 @@ export function useContractAction(config: any) {
                 args,
             });
 
-            setStatus('submitting');
+            setStatus("submitting");
             setTxHash(txHash);
 
             // Record tx to DB
@@ -42,10 +49,10 @@ export function useContractAction(config: any) {
                 actionType,
                 contractAddress,
                 walletAddress,
-                agreementId
+                agreementId,
             });
 
-            setStatus('confirming');
+            setStatus("confirming");
             // Wait for transaction receipt
             // Not awaiting here to avoid blocking execution in the frontend,
             // but ideally we should use wagmi's waitForTransactionReceipt
@@ -54,12 +61,14 @@ export function useContractAction(config: any) {
             return txHash;
         } catch (err: any) {
             console.error(err);
-            setStatus('error');
+            setStatus("error");
 
-            if (err.message.includes('User rejected')) {
-                setErrorMsg('Transaction was rejected in your wallet.');
+            if (err.message.includes("User rejected")) {
+                setErrorMsg("Transaction was rejected in your wallet.");
             } else {
-                setErrorMsg(err.shortMessage || err.message || 'Transaction failed.');
+                setErrorMsg(
+                    err.shortMessage || err.message || "Transaction failed.",
+                );
             }
             throw err;
         }

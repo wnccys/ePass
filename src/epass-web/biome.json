@@ -1,44 +1,54 @@
 {
-    "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+    "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
     "vcs": {
         "enabled": true,
         "clientKind": "git",
         "useIgnoreFile": true
     },
-    "organizeImports": {
-        "enabled": true
-    },
+    "assist": { "actions": { "source": { "organizeImports": "on" } } },
     "formatter": {
         "enabled": true,
         "formatWithErrors": false,
         "indentStyle": "space",
         "indentWidth": 4,
         "lineWidth": 80,
-        "ignore": ["node_modules", ".next", "dist", "build"]
+        "includes": [
+            "**",
+            "!**/node_modules",
+            "!**/.next",
+            "!**/dist",
+            "!**/build"
+        ]
     },
     "javascript": {
         "formatter": {
-        "quoteStyle": "double",
-        "jsxQuoteStyle": "double",
-        "trailingCommas": "all",
-        "semicolons": "always"
+            "quoteStyle": "double",
+            "jsxQuoteStyle": "double",
+            "trailingCommas": "all",
+            "semicolons": "always"
         }
     },
     "linter": {
         "enabled": true,
         "rules": {
-        "recommended": true,
-        "nursery": {
-            "useSortedClasses": {
-            "level": "warn",
-            "fix": "safe",
-            "options": {
+            "recommended": true,
+            "nursery": {
+                "useSortedClasses": {
+                    "level": "warn",
+                    "fix": "safe",
+                    "options": {
                         "attributes": ["className"],
                         "functions": ["clsx", "cva", "tw", "twMerge"]
                     }
                 }
             }
         },
-        "ignore": ["node_modules", ".next", "dist", "build"]
+        "includes": [
+            "**",
+            "!**/node_modules",
+            "!**/.next",
+            "!**/dist",
+            "!**/build"
+        ]
     }
 }

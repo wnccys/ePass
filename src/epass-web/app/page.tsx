@@ -1,10 +1,10 @@
-import HeroSection from "@/components/ui/trust-hero";
-import { GradientBackground } from "@/components/ui/shader-background";
 import { PublicNavbar } from "@/components/public-navbar";
+import { GradientBackground } from "@/components/ui/shader-background";
+import HeroSection from "@/components/ui/trust-hero";
 
 export default async function Page() {
     return (
-        <main className="relative min-h-screen h-full w-full flex items-center justify-center overflow-hidden">
+        <main className="relative flex h-full min-h-screen w-full items-center justify-center overflow-hidden">
             <GradientBackground />
             <PublicNavbar />
 
@@ -15,5 +15,5 @@ export default async function Page() {
                 <HeroSection />
             </section>
         </main>
-    )
+    );
 }

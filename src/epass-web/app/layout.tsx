@@ -2,16 +2,21 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Merriweather, Noto_Serif } from "next/font/google";
-import { cn } from "@/lib/utils";
-import { AppProviders } from "@/components/providers";
 import { MainNavbar } from "@/components/main-navbar";
-import { Web3Providers } from "@/components/web3-providers";
+import { AppProviders } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
+import { Web3Providers } from "@/components/web3-providers";
+import { cn } from "@/lib/utils";
 
-const notoSerifHeading = Noto_Serif({subsets:['latin'],variable:'--font-heading'});
+const notoSerifHeading = Noto_Serif({
+    subsets: ["latin"],
+    variable: "--font-heading",
+});
 
-const merriweather = Merriweather({subsets:['latin'],variable:'--font-serif'});
-
+const merriweather = Merriweather({
+    subsets: ["latin"],
+    variable: "--font-serif",
+});
 
 // Our local main font
 const rodinProB = localFont({
@@ -19,21 +24,21 @@ const rodinProB = localFont({
     // CSS variable name to use in Tailwind
     variable: "--font-rodin",
     // 'swap' ensures text remains visible while the custom font loads
-    display: "swap"
-})
+    display: "swap",
+});
 
 export const metadata: Metadata = {
     title: "ePass",
     description: "The on-chain football market",
     icons: {
-        icon: '/favicon.png',
-        shortcut: '/favicon.png',
+        icon: "/favicon.png",
+        shortcut: "/favicon.png",
         // Custom/Other tags (e.g., Safari pinned tabs or Android web manifests)
         other: [
             {
-                rel: 'mask-icon',
-                url: '/favicon.png',
-                color: '#84cc16', // Lime color
+                rel: "mask-icon",
+                url: "/favicon.png",
+                color: "#84cc16", // Lime color
             },
         ],
     },
@@ -47,7 +52,14 @@ export default async function RootLayout({
     return (
         <html
             lang="en"
-            className={cn("h-full", "antialiased", rodinProB.variable, "font-serif", merriweather.variable, notoSerifHeading.variable)}
+            className={cn(
+                "h-full",
+                "antialiased",
+                rodinProB.variable,
+                "font-serif",
+                merriweather.variable,
+                notoSerifHeading.variable,
+            )}
             suppressHydrationWarning
         >
             <head>
@@ -57,7 +69,7 @@ export default async function RootLayout({
                     src="//unpkg.com/react-scan/dist/auto.global.js"
                 ></script> */}
             </head>
-            <body className="min-h-full flex flex-col selection:bg-lime-200/80">
+            <body className="flex min-h-full flex-col selection:bg-lime-200/80">
                 <AppProviders>
                     <Web3Providers>
                         <MainNavbar />

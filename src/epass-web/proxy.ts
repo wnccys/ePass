@@ -1,6 +1,6 @@
-import { getToken } from "next-auth/jwt";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 export default async function proxy(req: NextRequest) {
     const token = await getToken({ req });
@@ -33,4 +33,4 @@ export default async function proxy(req: NextRequest) {
 
 export const config = {
     matcher: ["/home", "/login", "/profile", "/"],
-}
+};

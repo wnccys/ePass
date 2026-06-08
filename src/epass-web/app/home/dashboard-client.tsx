@@ -1,13 +1,12 @@
-'use client';
+"use client";
 
 import { useSession } from "next-auth/react";
+import { useTranslation } from "react-i18next";
+import type { IUser } from "@/models/User";
+import { ChatInput } from "./chat/chat-input";
+import { FeedContainer } from "./feed/feed-container";
 import { LeftSidebar } from "./sidebar/left-sidebar";
 import { RightSidebar } from "./sidebar/right-sidebar";
-import { FeedContainer } from "./feed/feed-container";
-import { ChatInput } from "./chat/chat-input";
-import { IUser } from "@/models/User";
-import { useTranslation } from "react-i18next";
-
 
 export function DashboardClient({
     initialAgreements,
@@ -32,15 +31,14 @@ export function DashboardClient({
 
     // Filter transactions to get confirmed ones for the right sidebar
     const recentConfirmedTxs = initialTransactions.filter(
-        (tx) => tx.status === 'confirmed'
+        (tx) => tx.status === "confirmed",
     );
 
     return (
-        <div className="w-full max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-24">
-            <div className="grid grid-cols-1 lg:grid-cols-[230px_minmax(0,1fr)_256px] xl:grid-cols-[260px_minmax(0,1fr)_304px] gap-6 xl:gap-8 items-start">
-
+        <div className="mx-auto w-full max-w-360 px-4 py-24 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[230px_minmax(0,1fr)_256px] xl:grid-cols-[260px_minmax(0,1fr)_304px] xl:gap-8">
                 {/* Left Sidebar - Sticky */}
-                <div className="lg:sticky lg:top-24 space-y-6 order-2 lg:order-1">
+                <div className="order-2 space-y-6 lg:sticky lg:top-24 lg:order-1">
                     <LeftSidebar
                         walletAddress={walletAddress}
                         expiringAgreements={expiringAgreements}
@@ -49,20 +47,25 @@ export function DashboardClient({
                 </div>
 
                 {/* Center Main Feed Column */}
-                <div className="space-y-8 order-1 lg:order-2">
+                <div className="order-1 space-y-8 lg:order-2">
                     {/* Welcome Header */}
                     <div className="space-y-1">
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                            {t("dashboard.welcome")}<span suppressHydrationWarning className="text-primary font-semibold">{user?.name || "User"}</span>
+                        <h1 className="font-bold text-2xl text-foreground tracking-tight sm:text-3xl">
+                            {t("dashboard.welcome")}
+                            <span
+                                suppressHydrationWarning
+                                className="font-semibold text-primary"
+                            >
+                                {user?.name || "User"}
+                            </span>
                         </h1>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                             {t("dashboard.subtitle")}
                         </p>
                     </div>
 
                     {/* AI Chat Area (Phase 2) */}
                     <ChatInput />
-
 
                     {/* Infinite Activity Feed */}
                     <FeedContainer
@@ -73,14 +76,13 @@ export function DashboardClient({
                 </div>
 
                 {/* Right Sidebar - Sticky */}
-                <div className="lg:sticky lg:top-24 space-y-6 order-3">
+                <div className="order-3 space-y-6 lg:sticky lg:top-24">
                     <RightSidebar
                         stats={stats}
                         recentTransactions={recentConfirmedTxs}
                         userRole={user.role}
                     />
                 </div>
-
             </div>
         </div>
     );

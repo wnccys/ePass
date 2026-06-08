@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -8,10 +8,13 @@ export function LoginButton() {
     const { t } = useTranslation();
     return (
         <div>
-            <Link href="/login" className="group inline-flex bg-white text-black items-center justify-center gap-2 rounded-full px-8 py-4 text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+            <Link
+                href="/login"
+                className="group inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-white px-8 py-4 font-semibold text-black text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
                 {t("common.begin")}
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
         </div>
-    )
+    );
 }

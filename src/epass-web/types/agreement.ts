@@ -22,7 +22,16 @@ export interface SerializedAgreement {
     attorneySignature?: string | null;
 
     // Lifecycle
-    status: "draft" | "pending_signatures" | "ready" | "minted" | "vault_created" | "pending_deposit" | "active" | "rescinded" | "expired";
+    status:
+        | "draft"
+        | "pending_signatures"
+        | "ready"
+        | "minted"
+        | "vault_created"
+        | "pending_deposit"
+        | "active"
+        | "rescinded"
+        | "expired";
 
     // On-chain references
     mintTxHash?: string | null;

@@ -2,44 +2,55 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { WEBP_DISPLACEMENT_MAP } from "./liquid-glass-button";
 
-export interface LiquidGlassNavbarProps extends React.HTMLAttributes<HTMLElement> {
-  contentClassName?: string;
-  glassColor?: string; // e.g. "oklch(from var(--foreground) l c h / 10%)"
+export interface LiquidGlassNavbarProps
+    extends React.HTMLAttributes<HTMLElement> {
+    contentClassName?: string;
+    glassColor?: string; // e.g. "oklch(from var(--foreground) l c h / 10%)"
 }
 
 const LiquidGlassNavbar = React.forwardRef<HTMLElement, LiquidGlassNavbarProps>(
-  ({ className, children, contentClassName, glassColor, ...props }, ref) => {
-    // Generate a unique ID so multiple filters don't conflict
-    const filterId = React.useId().replace(/:/g, "");
+    ({ className, children, contentClassName, glassColor, ...props }, ref) => {
+        // Generate a unique ID so multiple filters don't conflict
+        const filterId = React.useId().replace(/:/g, "");
 
-    return (
-      <>
-        {/* INVISIBLE SVG FILTER DEFINITION */}
-        <svg className="absolute w-0 h-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          <filter id={`liquid-glass-nav-${filterId}`} primitiveUnits="objectBoundingBox">
-            <feImage
-              result="map"
-              width="100%"
-              height="100%"
-              x="0"
-              y="0"
-              href={WEBP_DISPLACEMENT_MAP}
-              preserveAspectRatio="none"
-            />
-            {/* The pre-blur helps smooth out the underlying image before refraction */}
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.01" result="blur" />
-            <feDisplacementMap
-              id="disp"
-              in="blur"
-              in2="map"
-              scale="0.5"
-              xChannelSelector="R"
-              yChannelSelector="G"
-            />
-          </filter>
-        </svg>
+        return (
+            <>
+                {/* INVISIBLE SVG FILTER DEFINITION */}
+                <svg
+                    className="pointer-events-none absolute h-0 w-0 overflow-hidden"
+                    aria-hidden="true"
+                >
+                    <filter
+                        id={`liquid-glass-nav-${filterId}`}
+                        primitiveUnits="objectBoundingBox"
+                    >
+                        <feImage
+                            result="map"
+                            width="100%"
+                            height="100%"
+                            x="0"
+                            y="0"
+                            href={WEBP_DISPLACEMENT_MAP}
+                            preserveAspectRatio="none"
+                        />
+                        {/* The pre-blur helps smooth out the underlying image before refraction */}
+                        <feGaussianBlur
+                            in="SourceGraphic"
+                            stdDeviation="0.01"
+                            result="blur"
+                        />
+                        <feDisplacementMap
+                            id="disp"
+                            in="blur"
+                            in2="map"
+                            scale="0.5"
+                            xChannelSelector="R"
+                            yChannelSelector="G"
+                        />
+                    </filter>
+                </svg>
 
-        <style>{`
+                <style>{`
           .nav-liquid {
             appearance: none;
             border: none;
@@ -85,22 +96,30 @@ const LiquidGlassNavbar = React.forwardRef<HTMLElement, LiquidGlassNavbarProps>(
           }
         `}</style>
 
-        <nav
-          className={cn("nav-liquid inline-flex relative isolate rounded-full tracking-tight hover:scale-105 transition-all duration-150", className)}
-          ref={ref}
-          {...props}
-        >
-          {/* ISOLATED BACKGROUND LENS */}
-          <span className="nav-liquid-lens absolute inset-0 -z-10 rounded-[inherit] pointer-events-none" />
+                <nav
+                    className={cn(
+                        "nav-liquid relative isolate inline-flex rounded-full tracking-tight transition-all duration-150 hover:scale-105",
+                        className,
+                    )}
+                    ref={ref}
+                    {...props}
+                >
+                    {/* ISOLATED BACKGROUND LENS */}
+                    <span className="nav-liquid-lens pointer-events-none absolute inset-0 -z-10 rounded-[inherit]" />
 
-          {/* CONTENT (Composited safely ABOVE the backdrop filter) */}
-          <div className={cn("nav-liquid-text relative z-10 w-full flex items-center justify-between gap-4 px-8 py-4 font-medium", contentClassName)}>
-            {children}
-          </div>
-        </nav>
-      </>
-    );
-  }
+                    {/* CONTENT (Composited safely ABOVE the backdrop filter) */}
+                    <div
+                        className={cn(
+                            "nav-liquid-text relative z-10 flex w-full items-center justify-between gap-4 px-8 py-4 font-medium",
+                            contentClassName,
+                        )}
+                    >
+                        {children}
+                    </div>
+                </nav>
+            </>
+        );
+    },
 );
 LiquidGlassNavbar.displayName = "LiquidGlassNavbar";
 

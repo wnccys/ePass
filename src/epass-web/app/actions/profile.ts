@@ -1,9 +1,9 @@
-'use server';
+"use server";
 
 import { getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]/route";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
+import { authOptions } from "../api/auth/[...nextauth]/route";
 
 export type ProfilePayload = {
     name: string;
@@ -17,11 +17,11 @@ export async function updateProfile(data: ProfilePayload) {
 
     const { name, bio, avatar } = data;
 
-    let imageUrl = undefined;
+    let imageUrl: string | undefined;
     if (avatar && avatar.size > 0) {
         const arrayBuffer = await avatar.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
-        const base64 = buffer.toString('base64');
+        const base64 = buffer.toString("base64");
         imageUrl = `data:${avatar.type};base64,${base64}`;
     }
 

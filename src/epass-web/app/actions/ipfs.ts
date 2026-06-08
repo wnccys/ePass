@@ -1,7 +1,7 @@
 "use server";
 
-import { env } from "@/env";
 import { PinataSDK } from "pinata-web3";
+import { env } from "@/env";
 
 const pinata = new PinataSDK({
     pinataJwt: env.PINATA_JWT,

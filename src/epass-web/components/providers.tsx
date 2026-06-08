@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { ThemeProvider } from "./theme-provider";
 import { SessionProvider } from "next-auth/react";
+import type React from "react";
+import { useEffect } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "./theme-provider";
 import "@/lib/i18n";
 import i18n from "@/lib/i18n";
 
@@ -18,9 +19,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     return (
         <ThemeProvider>
             <SessionProvider>
-                <TooltipProvider>
-                    {children}
-                </TooltipProvider>
+                <TooltipProvider>{children}</TooltipProvider>
             </SessionProvider>
         </ThemeProvider>
     );
