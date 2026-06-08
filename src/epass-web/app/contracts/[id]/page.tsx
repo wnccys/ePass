@@ -523,9 +523,7 @@ export default function ContractDetailPage() {
         setActionTxHash(null);
 
         try {
-            if (isVaultAuthorized) {
-                return;
-            }
+            if (isVaultAuthorized) { return; };
 
             const authResponse = await fetch("/api/authorize-vault", {
                 method: "POST",
@@ -556,6 +554,7 @@ export default function ContractDetailPage() {
                 agreementId: id,
             });
 
+            console.log("AUTHORIZE SUCCESSFULLLL");
             setActionStatus("confirming");
 
             if (!publicClient)
