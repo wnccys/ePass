@@ -99,11 +99,14 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
     // Sync wallet address to NextAuth session (only when it actually changes)
     const prevSyncedAddress = useRef<string | null | undefined>(undefined);
     useEffect(() => {
+        // Don't sync if there's no active session (e.g. after signOut)
+        if (!session?.user) return;
+
         const targetWallet = address || null;
         // Skip if we already synced this value
         if (prevSyncedAddress.current === targetWallet) return;
 
-        const currentWallet = session?.user?.walletAddress ?? null;
+        const currentWallet = session.user.walletAddress ?? null;
         if (currentWallet !== targetWallet) {
             prevSyncedAddress.current = targetWallet;
             updateRef.current({ walletAddress: targetWallet });
