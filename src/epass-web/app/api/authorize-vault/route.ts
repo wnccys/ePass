@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server";
 import { createWalletClient, http, publicActions } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { foundry, sepolia } from "viem/chains";
 import { env } from "@/env";
 import { playerRightsMasterAbi } from "@/src/generated";
-
-const chainMap = {
-    foundry,
-    sepolia,
-} as const;
+import { getCurrentChain } from "@/app/actions/chain";
 
 export async function POST(req: Request) {
     try {
@@ -18,21 +13,14 @@ export async function POST(req: Request) {
             env.ADMIN_PRIVATE_KEY as `0x${string}`,
         );
 
-        const network = env.NEXT_PUBLIC_APP_NETWORK as keyof typeof chainMap;
-        const chain = chainMap[network];
-
+        const chainConfig = getCurrentChain();
+        const chain = chainConfig.network;
         if (!chain) throw Error("Could not determine transport");
-
-        // Dynamically get the transport
-        const transport =
-            network === "foundry"
-                ? http(env.NEXT_PUBLIC_FOUNDRY_RPC_URL)
-                : http(env.NEXT_PUBLIC_SEPOLIA_RPC_URL);
 
         const client = createWalletClient({
             account,
             chain,
-            transport,
+            transport: chainConfig.transport,
         }).extend(publicActions);
 
         const masterNftAddress =

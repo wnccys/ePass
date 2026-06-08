@@ -47,11 +47,6 @@ export const env = createEnv({
         // Rainbow Kit ID
         NEXT_PUBLIC_RAINBOW_PROJECT_ID: z.string().min(1),
 
-        // Network config
-        NEXT_PUBLIC_APP_NETWORK: z
-            .enum(["foundry", "sepolia"])
-            .default("foundry"),
-
         // Sepolia Config & RPC
         NEXT_PUBLIC_SEPOLIA_RPC_URL: z.url(),
 
@@ -80,10 +75,9 @@ export const env = createEnv({
         GROQ_API_KEY: process.env.GROQ_API_KEY,
         GROQ_MODEL: process.env.GROQ_MODEL,
 
-        NEXT_PUBLIC_SEPOLIA_RPC_URL: process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL,
         NEXT_PUBLIC_RAINBOW_PROJECT_ID:
             process.env.NEXT_PUBLIC_RAINBOW_PROJECT_ID,
-        NEXT_PUBLIC_APP_NETWORK: process.env.NEXT_PUBLIC_APP_NETWORK,
+        NEXT_PUBLIC_SEPOLIA_RPC_URL: process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL,
         NEXT_PUBLIC_FOUNDRY_RPC_URL: process.env.NEXT_PUBLIC_FOUNDRY_RPC_URL,
         NEXT_PUBLIC_MOCK_USDC_ADDRESS:
             process.env.NEXT_PUBLIC_MOCK_USDC_ADDRESS,
