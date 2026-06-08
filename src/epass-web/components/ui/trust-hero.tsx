@@ -5,15 +5,17 @@ import {
     Cpu,
     Gem,
     Ghost,
+  Shield,
     // Brand Icons
     Hexagon,
     Scroll,
     Target,
     Triangle,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import AnimatedTextRoller from "./animated-text";
 import { LoginButton } from "./login-button";
+import { useTranslation } from "react-i18next";
+import Link from "next/link";
 
 // --- MOCK BRANDS ---
 // Replaced PNGs with Lucide icons to simulate tech logos
@@ -122,17 +124,25 @@ export default function HeroSection() {
                         <div className="flex animate-fade-in flex-col gap-4 delay-400 sm:flex-row">
                             <LoginButton />
 
-                            <a
-                                href="https://epass.gitbook.io/epass-docs/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="group inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-8 py-4 font-semibold text-sm text-white backdrop-blur-sm transition-colors hover:border-white/20 hover:bg-white/10"
-                            >
-                                <Scroll className="h-4 w-4 fill-current" />
-                                {t("hero.readMore")}
-                            </a>
-                        </div>
-                    </div>
+              <a
+                href="https://epass.gitbook.io/epass-docs/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-8 py-4 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10 hover:border-white/20"
+              >
+                <Scroll className="w-4 h-4 fill-current" />
+                {t("hero.readMore")}
+              </a>
+
+              <Link
+                href="/privacy"
+                className="group inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-8 py-4 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10 hover:border-white/20"
+              >
+                <Shield className="w-4 h-4" />
+                {isPt ? "Termos & Privacidade" : "Terms & Privacy"}
+              </Link>
+            </div>
+          </div>
 
                     {/* --- RIGHT COLUMN --- */}
                     <div className="space-y-4 lg:col-span-5 lg:mt-6 lg:space-y-6 xl:mt-12 xl:space-y-8">

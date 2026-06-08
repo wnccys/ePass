@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Merriweather, Noto_Serif } from "next/font/google";
-import { MainNavbar } from "@/components/main-navbar";
 import { AppProviders } from "@/components/providers";
-import { Toaster } from "@/components/ui/sonner";
+import { MainNavbar } from "@/components/main-navbar";
 import { Web3Providers } from "@/components/web3-providers";
+import { Toaster } from "@/components/ui/sonner";
+import { Footer } from "@/components/footer";
 import { cn } from "@/lib/utils";
 
 const notoSerifHeading = Noto_Serif({
@@ -69,14 +70,15 @@ export default async function RootLayout({
                     src="//unpkg.com/react-scan/dist/auto.global.js"
                 ></script> */}
             </head>
-            <body className="flex min-h-full flex-col selection:bg-lime-200/80">
-                <AppProviders>
-                    <Web3Providers>
-                        <MainNavbar />
-                        {children}
-                        <Toaster />
-                    </Web3Providers>
-                </AppProviders>
+                <body className="flex min-h-full flex-col selection:bg-lime-200/80">
+                    <AppProviders>
+                        <Web3Providers>
+                            <MainNavbar />
+                            {children}
+                            <Footer />
+                            <Toaster />
+                        </Web3Providers>
+                    </AppProviders>
             </body>
         </html>
     );

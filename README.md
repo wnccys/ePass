@@ -1,110 +1,46 @@
 # ePass ⚽
 
-> **Tokenizando o primeiro contrato do atleta. Construindo carreiras desde o início.**
+> **Tokenizando o contrato do atleta. Valorizando seu futuro.**
 
-O ePass é um dApp para formalização, registro e fracionamento de direitos de imagem de jovens atletas de futebol. A solução usa blockchain para transformar um acordo jurídico assinado entre atleta, clube e advogado em um ativo digital auditável, verificável e passível de fracionamento. Por meio de smart contracts, assinaturas entre múltiplas partes e um fluxo de validação on-chain, o ePass garante transparência, segurança jurídica e um mecanismo real de valorização de mercado para jogadores em início de carreira.
+O ePass é um dApp para formalização, registro e fracionamento de direitos de imagem de jovens atletas de futebol. A solução usa blockchain para transformar um acordo jurídico assinado entre atleta, clube e advogado em um ativo digital auditável, verificável e fracionável. Por meio de smart contracts, assinaturas multi-parte e um fluxo de validação on-chain, o ePass garante transparência, segurança jurídica e um mecanismo real de valorização de mercado para jogadores em início de carreira.
 
-Na implementação atual, o fluxo se apoia em três camadas principais: um gateway de assinaturas EIP-712, um NFT mestre que representa o direito registrado e um cofre que trava esse NFT e emite frações ERC-20. Isso permite registrar o acordo, garantir a integridade do histórico e preparar o ativo para distribuição ou futuras lógicas de mercado.
+O protocolo se apoia em cinco contratos: um gateway de assinaturas EIP-712, um NFT mestre que representa o direito registrado, um contrato de implementação de cofre com lógica financeira completa (fracionamento, caução, rescisão e expiração) e uma factory que instancia um vault independente por jogador via EIP-1167 minimal proxy.
 
-***
+---
 
 ## O Problema
 
-Quando um jovem atleta assina seu primeiro contrato profissional, dois documentos são produzidos: o contrato de trabalho e o contrato de direito de imagem. O segundo, na prática, costuma ter pouca padronização, baixa auditabilidade e pouca visibilidade pública. Além disso, o atleta nem sempre tem controle claro sobre o que está sendo cedido.
+Quando um jovem atleta assina seu primeiro contrato profissional, dois documentos são produzidos: o contrato de trabalho e o contrato de direito de imagem. O segundo costuma ter pouca padronização, baixa auditabilidade e pouca visibilidade pública. O atleta nem sempre tem controle claro sobre o que está sendo cedido.
 
-Outro problema é que jogadores em início de carreira geralmente possuem contratos de baixo valor nominal. Isso reduz sua capacidade de gerar interesse de mercado antes de uma grande transferência. Na prática, eles dependem quase exclusivamente da visibilidade que o clube decide — ou não — promover.
+Jogadores em início de carreira geralmente possuem contratos de baixo valor nominal, o que reduz sua capacidade de gerar interesse de mercado antes de uma grande transferência. Na prática, dependem quase exclusivamente da visibilidade que o clube decide — ou não — promover.
 
 **O ePass foi criado para resolver esse problema.**
 
-***
+---
 
 ## A Solução
 
-O ePass digitaliza e registra o contrato de direito de imagem on-chain, com respaldo em IPFS. A partir disso, o acordo passa a ter rastreabilidade pública e pode ser validado de forma criptográfica pelas partes envolvidas.
+O ePass digitaliza e registra o contrato de direito de imagem on-chain, com respaldo em IPFS. O acordo passa a ter rastreabilidade pública e pode ser validado criptograficamente pelas partes envolvidas.
 
-Com o contrato registrado, qualquer interessado pode apoiar diretamente o atleta por meio dos tokens `$P_IMAGE`, que funcionam como certificados digitais vinculados ao contrato. Esse apoio reforça a valorização do jogador e fortalece seu posicionamento de mercado. A lógica do projeto não é especulativa: o foco está em criar uma estrutura de incentivo, visibilidade e valorização para talentos em formação.
+Com o contrato registrado, o vault emite os tokens `$P_IMAGE` — frações digitais vinculadas ao contrato. A distribuição respeita os percentuais negociados entre jogador, clube e advogado via basis points. A lógica não é especulativa: o foco está em criar uma estrutura de incentivo, visibilidade e valorização para talentos em formação.
 
-***
+---
 
 ## Arquitetura de Smart Contracts
 
-O protocolo é composto por três contratos principais, implantados na **Sepolia Testnet**.
+O protocolo é composto por cinco contratos, implantados na **Sepolia Testnet**.
 
-### Fluxo off-chain
+| Contrato | Tipo | Instâncias |
+| :-- | :-- | :-- |
+| `RightsMinter` | Gateway EIP-712 | Singleton |
+| `PlayerRightsMaster` | ERC-721 NFT mestre | Singleton |
+| `RightsVaultImpl` | Lógica do cofre (implementação) | Singleton |
+| `RightsVaultFactory` | Factory EIP-1167 | Singleton |
+| Clone do vault | Proxy mínimo por jogador | Uma por contrato |
 
+> **Observação:** `RightsMinter`, `PlayerRightsMaster`, `RightsVaultImpl` e `RightsVaultFactory` são deployados **uma única vez** e seus endereços ficam fixos no `.env`. Cada chamada a `factory.createVault(...)` gera um **novo clone** com endereço próprio — esse endereço deve ser capturado via evento `VaultCreated` emitido pela factory.
 
-[Contrato PDF] ──hash──► [IPFS] ──URI──► tokenURI do NFT
-
-       │
-       │ Jogador, Clube e Advogado
-       │ assinam digitalmente (EIP-712, sem gas)
-       ▼
-
-
-
-### Fluxo on-chain
-
-
-+-------------------+        1. Definição do acordo        +-------------------+
-|      Jogador      | -----------------------------------> |                   |
-+-------------------+                                      |                   |
-                                                           |                   |
-+-------------------+        2. Definição do acordo        |                   |
-|       Clube       | -----------------------------------> | Documento legal   |
-+-------------------+                                      |   off-chain       |
-                                                           | (contrato + URI)  |
-+-------------------+        3. Definição do acordo        |                   |
-|     Advogado      | -----------------------------------> |                   |
-+-------------------+                                      +---------+---------+
-                                                                     |
-                                                                     | 4. Geração da tokenURI
-                                                                     |    (IPFS / metadata)
-                                                                     v
-                                                           +-------------------+
-                                                           |   Frontend / App   |
-                                                           | monta MintAgreement|
-                                                           +---------+---------+
-                                                                     |
-                                                                     | 5. Assinaturas EIP-712
-                                                                     |    player + club + attorney
-                                                                     v
-                                                           +-------------------+
-                                                           |   RightsMinter    |
-                                                           | executeMint()      |
-                                                           +---------+---------+
-                                                                     |
-                          6. Verifica deadline ---------------------->|
-                          7. Verifica nonce ------------------------->|
-                          8. Recupera e valida 3 assinaturas ------->|
-                                                                     |
-                                                                     | 9. mintRights(req.club, tokenURI)
-                                                                     v
-                                                           +-------------------+
-                                                           | PlayerRightsMaster |
-                                                           |    ERC-721 NFT     |
-                                                           +---------+---------+
-                                                                     |
-                                                                     | 10. NFT mestre mintado
-                                                                     |     para o clube
-                                                                     v
-+-------------------+      11. approve(tokenId)            +-------------------+
-|       Clube       | -----------------------------------> |    RightsVault    |
-+-------------------+                                      | fractionalize()    |
-                                                           +---------+---------+
-                                                                     |
-                          12. Confere ownerOf(tokenId) ------------->|
-                          13. Transfere NFT para o cofre ----------->|
-                          14. Marca NFT como locked ---------------->|
-                          15. Minta ERC-20 fracionário ------------->|
-                                                                     v
-                                                           +-------------------+
-                                                           | Tokens P_IMAGE     |
-                                                           | enviados ao clube  |
-                                                           +-------------------+
-
-
-
-## Fluxo em mermaid (caso não apareça em ASCII)
+---
 
 ## Fluxo off-chain
 
@@ -117,123 +53,202 @@ flowchart LR
     G[Advogado] --> E
 ```
 
+---
+
 ## Fluxo on-chain
 
 ```mermaid
 flowchart TD
-    A[Frontend / App monta MintAgreement] --> B[RightsMinter.executeMint()]
+    A[Frontend monta MintAgreement] --> B[RightsMinter.executeMint]
     B --> C[Verifica deadline]
     C --> D[Verifica nonce]
-    D --> E[Valida assinatura do jogador]
-    E --> F[Valida assinatura do clube]
-    F --> G[Valida assinatura do advogado]
-    G --> H[PlayerRightsMaster.mintRights]
-    H --> I[NFT mestre mintado para o clube]
-    I --> J[Clube aprova o tokenId para o RightsVault]
-    J --> K[RightsVault.fractionalize]
-    K --> L[Confere ownerOf(tokenId)]
-    L --> M[Transfere NFT para o cofre]
-    M --> N[Marca NFT como locked]
-    N --> O[Minta tokens ERC-20 fracionários]
-    O --> P[Tokens P_IMAGE enviados ao clube]
+    D --> E[Valida 3 assinaturas EIP-712]
+    E --> F[PlayerRightsMaster.mintRights]
+    F --> G[NFT mestre mintado para o clube]
+    G --> H[Clube aprova o tokenId para o vault clone]
+    H --> I[RightsVaultClone.fractionalize]
+    I --> J[NFT travado no vault]
+    J --> K[Tokens P_IMAGE distribuídos por basis points]
+    K --> L[Clube chama depositCaution]
+    L --> M[Contrato entra em status ACTIVE]
 ```
 
-***
+---
 
 ## Papel de Cada Contrato
 
-### PlayerRightsMaster
-
-Contrato ERC-721 responsável por representar o direito principal registrado no sistema. Cada token corresponde a um acordo validado e carrega uma `tokenURI` com a referência do documento ou metadado jurídico vinculado ao ativo. Apenas o endereço configurado como `authorizedMinter` pode emitir novos tokens.
-
 ### RightsMinter
 
-Contrato gateway que centraliza a autorização criptográfica do acordo. Ele implementa EIP-712 para assinar e verificar uma estrutura `MintAgreement`, contendo jogador, clube, advogado, URI do documento, nonce e deadline. Depois de validar tudo, dispara o mint do NFT mestre para o clube e emite o evento `AgreementAuthorized`.
+Gateway que centraliza a autorização criptográfica do acordo. Implementa EIP-712 para assinar e verificar a estrutura `MintAgreement`, contendo jogador, clube, advogado, URI do documento, nonce e deadline. Após validar as três assinaturas, dispara o mint do NFT mestre para o clube.
 
-### RightsVault
+### PlayerRightsMaster
 
-Contrato ERC-20 que funciona como cofre de fracionamento. Após receber aprovação do clube para movimentar o NFT mestre, o contrato trava esse NFT dentro do vault e emite os tokens fungíveis que representam as frações econômicas ou operacionais daquele direito tokenizado.
+Contrato ERC-721 que representa o direito de imagem registrado. Cada token corresponde a um acordo validado e carrega uma `tokenURI` com referência ao documento jurídico. Apenas o endereço configurado como `authorizedMinter` pode emitir novos tokens. Transferências diretas via `transferFrom` padrão são bloqueadas — apenas operadores autorizados explicitamente podem movimentar NFTs.
 
-***
+### RightsVaultImpl
 
-## Status do Contrato
+Contrato de implementação (lógica) do cofre. Não pode ser usado diretamente — o `constructor()` chama `_disableInitializers()` para proteger o contrato. Toda lógica reside aqui e é compartilhada por todos os clones via EIP-1167.
+
+Responsabilidades:
+- travar o NFT mestre;
+- emitir os tokens `$P_IMAGE` distribuídos por basis points entre jogador, clube e advogado;
+- guardar e controlar a caução em stablecoin;
+- tratar rescisão com penalidade proporcional ao momento do contrato;
+- tratar expiração natural após 12 meses;
+- permitir transferência de titularidade entre clubes.
+
+### RightsVaultFactory
+
+Factory que cria novos vaults via `Clones.clone()` (EIP-1167 minimal proxy). Cada vault criado tem seu próprio storage, mas compartilha o bytecode da implementação. A factory também armazena os endereços de `PlayerRightsMaster` e da stablecoin, repassando-os na inicialização de cada clone.
+
+---
+
+## Estados do Contrato (Vault)
 
 | Status | Descrição |
 | :-- | :-- |
-| `PENDING` | Contrato preparado e aguardando validação final. |
-| `ACTIVE` | Acordo validado e ativo on-chain. |
-| `RESCINDED` | Acordo encerrado conforme as regras definidas. |
-| `EXPIRED` | Acordo expirado por término de vigência. |
+| `PENDING` | Vault criado. Aguardando fracionamento e depósito da caução. |
+| `ACTIVE` | Caução depositada. Contrato em pleno vigor. |
+| `RESCINDED` | Rescisão executada por jogador ou clube, com penalidade aplicada conforme o semestre. |
+| `EXPIRED` | Contrato encerrado naturalmente após 12 meses. Caução devolvida ao clube. |
+| `TRANSFERRED` | Titularidade operacional transferida para outro clube. |
 
-
-***
+---
 
 ## Como a Solução Funciona
 
-O contrato jurídico é negociado e fechado entre jogador, clube e advogado, com referência ao documento armazenado off-chain e apontado por uma `tokenURI`, idealmente em IPFS.
+**1. Registro off-chain**
+O contrato jurídico é negociado entre jogador, clube e advogado. O documento é armazenado em IPFS e sua URI é usada como `tokenURI` do NFT.
 
-Em seguida, o frontend monta uma estrutura `MintAgreement` com os endereços das três partes, a `tokenURI`, o nonce e o prazo limite.
+**2. Assinaturas EIP-712**
+O frontend monta a estrutura `MintAgreement` com os endereços das três partes, a `tokenURI`, o nonce e o deadline. Cada parte assina sem precisar pagar gas.
 
-Cada parte assina esse acordo no padrão EIP-712. O `RightsMinter` valida prazo, nonce e autenticidade individual de cada assinatura.
+**3. Mint do NFT mestre**
+O `RightsMinter` valida deadline, nonce e autenticidade das três assinaturas. Aprovado, chama `PlayerRightsMaster.mintRights(...)` e o NFT mestre é emitido para o clube.
 
-Se todas as validações forem aprovadas, o `RightsMinter` chama o `PlayerRightsMaster`, que emite o NFT mestre com a URI do documento e entrega esse NFT ao clube.
+**4. Criação do vault**
+A factory cria um clone do `RightsVaultImpl` via `factory.createVault(...)`, passando os endereços das partes, os basis points de cada fatia e o nome/símbolo do token daquele contrato específico. O endereço do vault gerado é emitido no evento `VaultCreated`.
 
-Depois disso, o clube pode aprovar o `RightsVault` e chamar `fractionalize()`. O cofre confere a titularidade do NFT, transfere o ativo para si e emite tokens ERC-20 fracionários correspondentes ao direito tokenizado.
+**5. Fracionamento**
+O clube aprova o vault no `PlayerRightsMaster` e chama `fractionalize(tokenId, supply)`. O vault trava o NFT e distribui os tokens `$P_IMAGE` proporcionalmente:
+- Jogador recebe `supply × playerBps / 10.000`
+- Clube recebe `supply × clubBps / 10.000`
+- Advogado recebe `supply × attorneyBps / 10.000`
 
-***
+**6. Ativação**
+O clube aprova a stablecoin no vault e chama `depositCaution(amount)`. O contrato entra em `ACTIVE`.
+
+**7. Ciclo de vida**
+A partir daí o fluxo pode seguir para rescisão pelo jogador, rescisão pelo clube, expiração natural ou transferência de clube.
+
+---
+
+## Regras de Rescisão
+
+| Cenário | Antes de 6 meses | Após 6 meses |
+| :-- | :-- | :-- |
+| Rescisão pelo jogador | 65% da caução vai ao clube, 35% ao jogador | Caução integral devolvida ao clube |
+| Rescisão pelo clube | 65% da caução vai ao jogador, 35% ao clube | Caução integral devolvida ao clube |
+| Expiração (12 meses) | — | Caução integral devolvida ao clube |
+
+---
 
 ## Segurança
 
 - Apenas o minter autorizado pode criar novos NFTs no `PlayerRightsMaster`.
-- O `RightsMinter` rejeita acordos expirados.
-- O `RightsMinter` usa nonce por jogador para evitar replay de assinatura.
-- O `RightsMinter` exige que cada assinatura corresponda exatamente ao endereço esperado no acordo.
-- O `RightsVault` só aceita fracionamento se quem chamou a função for o dono atual do NFT.
-- O `RightsVault` só pode ser inicializado uma vez para aquele ativo travado.
+- Transferência direta de NFT via `transferFrom` padrão é bloqueada — apenas operadores autorizados explicitamente podem mover o ativo.
+- O `RightsMinter` rejeita acordos com deadline expirado.
+- O `RightsMinter` usa nonce por acordo para prevenir replay de assinatura.
+- O `RightsMinter` valida que cada assinatura corresponde exatamente ao endereço esperado.
+- O `RightsVaultImpl` usa `_disableInitializers()` no constructor — a implementação nunca pode ser inicializada diretamente.
+- O vault só aceita fracionamento se o chamador for o dono atual do NFT.
+- O vault usa o padrão CEI (Checks-Effects-Interactions) nas funções de rescisão para prevenir reentrância.
+- O vault usa `ReentrancyGuard` do OpenZeppelin nas funções de movimentação financeira.
+- A factory valida basis points na criação (`playerBps + clubBps + attorneyBps == 10.000`).
 
-***
+---
+
+## Testes
+
+O projeto conta com suíte de testes cobrindo os três contratos principais.
+
+```
+Ran 18 tests for test/RightsVault.t.sol       ✅ 18 passed
+Ran 6 tests  for test/RightsMinter.t.sol       ✅  6 passed
+Ran 6 tests  for test/PlayerRightsMaster.t.sol ✅  6 passed
+
+30 tests passed, 0 failed
+```
+
+Para rodar:
+
+```bash
+forge test -vv
+```
+
+---
 
 ## Stack
 
 | Camada | Tecnologia |
 | :-- | :-- |
 | Smart Contracts | Solidity ^0.8.24, OpenZeppelin v5 |
+| Padrões on-chain | ERC-721, ERC-20, EIP-712, EIP-1167 |
 | Framework de Dev | Foundry (Forge, Cast, Anvil) |
-| Padrões | ERC-721, ERC-20, EIP-712 |
-| Armazenamento | IPFS |
+| Armazenamento off-chain | IPFS |
 | Rede | Sepolia Testnet |
 | Frontend | Next.js + React |
-| Web3 | MetaMask, Wagmi/Viem |
+| Web3 | Wagmi / Viem, MetaMask |
 | Multi-sig | Gnosis Safe |
 
-
-***
+---
 
 ## Estrutura do Repositório
 
-
+```
 epass/
 ├── src/
-│   ├── RightsMinter.sol        # Gateway de autorização multi-parte
-│   ├── PlayerRightsMaster.sol   # NFT mestre ERC-721
-│   └── RightsVault.sol          # Cofre de fracionamento
+│   ├── RightsMinter.sol          # Gateway de autorização multi-parte (EIP-712)
+│   ├── PlayerRightsMaster.sol    # NFT mestre ERC-721
+│   ├── RightsVaultImpl.sol       # Lógica do cofre — implementação compartilhada
+│   ├── RightsVaultFactory.sol    # Factory EIP-1167 para criação de vaults por jogador
+│   └── MockUSDC.sol              # Stablecoin mock para testes locais
 ├── script/
-│   └── SimulatePipeline.s.sol   # Simulação end-to-end do fluxo
+│   ├── Deploy.s.sol              # Deploy dos contratos singleton
+│   └── SimulatePipeline.s.sol    # Simulação end-to-end do fluxo completo
 ├── test/
-│   └── (em desenvolvimento)
+│   ├── PlayerRightsMaster.t.sol
+│   ├── RightsMinter.t.sol
+│   └── RightsVault.t.sol
 ├── epass-web/
 │   └── (Next.js — em desenvolvimento)
 └── README.md
+```
 
+---
 
+## Endereços na Sepolia
 
-***
+| Contrato | Endereço |
+| :-- | :-- |
+| `RightsMinter` | *(a publicar)* |
+| `PlayerRightsMaster` | *(a publicar)* |
+| `RightsVaultImpl` | *(a publicar)* |
+| `RightsVaultFactory` | *(a publicar)* |
+
+> Vaults individuais (clones) são criados dinamicamente via factory. O endereço de cada vault é emitido no evento `VaultCreated(address vault, address player, address club, ...)` e deve ser indexado pelo frontend ou backend.
+
+---
 
 ## Demonstração
 
-bash:
-forge script script/SimulatePipeline.s.sol --rpc-url sepolia --broadcast
+```bash
+# Deploy dos contratos singleton
+forge script script/Deploy.s.sol --rpc-url sepolia --broadcast
 
+# Simulação completa do pipeline
+forge script script/SimulatePipeline.s.sol --rpc-url sepolia --broadcast
+```
 
 | Item | Link |
 | :-- | :-- |
@@ -241,27 +256,12 @@ forge script script/SimulatePipeline.s.sol --rpc-url sepolia --broadcast
 | Aplicação | *(link a publicar)* |
 | Vídeo Demo | *(a publicar)* |
 
-
-***
-
-## Ajuste Conceitual Importante
-
-Hoje, pelo código atual, o projeto **não implementa ainda**:
-
-- repasse automático de doações para o jogador;
-- divisão programática entre jogador, advogado e clube;
-- compra e venda primária dentro do próprio vault;
-- transferência automática de contrato entre clubes com liquidação completa da operação.
-
-Essas ideias podem entrar como evolução futura do protocolo, mas não fazem parte da base atual dos contratos.
-
-***
+---
 
 ## Próximos Passos
 
-Como evolução da arquitetura atual, o projeto prevê incorporar regras de distribuição automática de receitas, repasse direto ao atleta, lógica de arrecadação via compra primária de frações e mecanismos de transferência de posição entre clubes em novas negociações. A base jurídica e técnica para isso já começa com o registro verificável do acordo, a emissão do NFT mestre e seu fracionamento on-chain.
-
-***
-
-Se você quiser, no próximo passo eu posso transformar isso em uma **versão mais formal de README de GitHub**, com linguagem mais limpa, títulos mais consistentes e pronto para colar no repositório.
-
+- 
+-  
+- 
+- 
+- 
