@@ -1008,7 +1008,7 @@ export default function NewContractPage() {
                                                         // Strip spaces and special chars, uppercase
                                                         val = val
                                                             .replace(
-                                                                /[^A-Za-z0-9]/g,
+                                                                /[^A-Za-z0-9_]/g,
                                                                 "",
                                                             )
                                                             .toUpperCase();
