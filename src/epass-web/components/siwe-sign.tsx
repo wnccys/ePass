@@ -2,7 +2,7 @@
 
 import { Eye, EyeOff } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
     useConnect,
     useConnection,
@@ -37,7 +37,6 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
 
     const chainConfig = useChain();
 
-    // We are use Foundry by default and testing purpose
     const chainClient = usePublicClient({ chainId: chainConfig.network.id });
     const [chainStatus, setChainStatus] = useState<
         "idle" | "checking" | "ok" | "error"
@@ -86,15 +85,33 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
         };
     }, [chainClient]);
 
-    // Update address on parent component and session (only if changed)
+    // Keep refs to unstable callbacks so effects don't re-fire on identity changes
+    const updateRef = useRef(update);
+    const onAddressChangeRef = useRef(onAddressChange);
+    useEffect(() => { updateRef.current = update; }, [update]);
+    useEffect(() => { onAddressChangeRef.current = onAddressChange; }, [onAddressChange]);
+
+    // Notify parent component when address changes
     useEffect(() => {
-        onAddressChange?.(address);
-        const currentWallet = session?.user?.walletAddress;
+        onAddressChangeRef.current?.(address);
+    }, [address]);
+
+    // Sync wallet address to NextAuth session (only when it actually changes)
+    const prevSyncedAddress = useRef<string | null | undefined>(undefined);
+    useEffect(() => {
         const targetWallet = address || null;
-        if (session && currentWallet !== targetWallet) {
-            update({ walletAddress: targetWallet });
+        // Skip if we already synced this value
+        if (prevSyncedAddress.current === targetWallet) return;
+
+        const currentWallet = session?.user?.walletAddress ?? null;
+        if (currentWallet !== targetWallet) {
+            prevSyncedAddress.current = targetWallet;
+            updateRef.current({ walletAddress: targetWallet });
+        } else {
+            // Session already matches, just record it
+            prevSyncedAddress.current = targetWallet;
         }
-    }, [address, onAddressChange, session?.user?.walletAddress, update]);
+    }, [address, session?.user?.walletAddress]);
 
     return (
         /** Connect wallet button */

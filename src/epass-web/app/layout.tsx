@@ -53,6 +53,7 @@ export default async function RootLayout({
     children: React.ReactNode;
 }>) {
     const chainConfig = getChainConfig();
+
     return (
         <html
             lang="en"
