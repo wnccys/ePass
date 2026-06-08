@@ -77,8 +77,8 @@ export const contractSchema = z.object({
         .string()
         .min(2, { message: "Token Symbol must be at least 2 characters long" })
         .max(10, { message: "Token Symbol must be 10 characters or less" })
-        .regex(/^\$[A-Za-z0-9]+$/, {
+        .regex(/^\$[A-Za-z0-9_]+$/, {
             message:
-                "Token Symbol must start with $ and contain only letters/numbers with no spaces",
+                "Token Symbol must start with $ and contain only letters/numbers/underscores with no spaces",
         }),
 });

@@ -6,6 +6,13 @@ import { useTranslation } from "react-i18next";
 import { formatUnits } from "viem";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import {
+    useReadRightsVaultImplAttorneyBps,
+    useReadRightsVaultImplCautionAmount,
+    useReadRightsVaultImplCautionBps,
+    useReadRightsVaultImplClubBps,
+    useReadRightsVaultImplPlayerBps,
+} from "@/src/generated";
 
 export function VaultCard({
     agreement,
@@ -21,10 +28,59 @@ export function VaultCard({
         !!agreement.vaultAddress;
 
     const tokenSymbol = agreement.tokenSymbol || "P_IMAGE";
-    const playerShare = agreement.playerShare ?? 10;
-    const clubShare = agreement.clubShare ?? 90;
+
+    // Read contract values using wagmi-cli generated hooks
+    const { data: cautionAmount } = useReadRightsVaultImplCautionAmount({
+        address: agreement.vaultAddress as `0x${string}`,
+        query: {
+            enabled: !!agreement.vaultAddress,
+        },
+    });
+
+    const { data: cautionBps } = useReadRightsVaultImplCautionBps({
+        address: agreement.vaultAddress as `0x${string}`,
+        query: {
+            enabled: !!agreement.vaultAddress,
+        },
+    });
+
+    const { data: playerBps } = useReadRightsVaultImplPlayerBps({
+        address: agreement.vaultAddress as `0x${string}`,
+        query: {
+            enabled: !!agreement.vaultAddress,
+        },
+    });
+
+    const { data: clubBps } = useReadRightsVaultImplClubBps({
+        address: agreement.vaultAddress as `0x${string}`,
+        query: {
+            enabled: !!agreement.vaultAddress,
+        },
+    });
+
+    const { data: attorneyBps } = useReadRightsVaultImplAttorneyBps({
+        address: agreement.vaultAddress as `0x${string}`,
+        query: {
+            enabled: !!agreement.vaultAddress,
+        },
+    });
+
+    // Fallbacks reflect the real default configurations used during deployment
+    const playerShare = playerBps !== undefined ? Number(playerBps) / 100 : 30;
+    const clubShare = clubBps !== undefined ? Number(clubBps) / 100 : 60;
+    const attorneyShare =
+        attorneyBps !== undefined ? Number(attorneyBps) / 100 : 10;
+    const cautionPercentage =
+        cautionBps !== undefined ? Number(cautionBps) / 100 : 50;
+
     const playerTokens = ((1000000 * playerShare) / 100).toLocaleString();
     const clubTokens = ((1000000 * clubShare) / 100).toLocaleString();
+    const attorneyTokens = ((1000000 * attorneyShare) / 100).toLocaleString();
+
+    const cautionAmountFormatted =
+        cautionAmount !== undefined
+            ? formatUnits(cautionAmount, 18)
+            : formatUnits(BigInt(agreement.cautionAmount || 0), 6);
 
     return (
         <Link href={`/contracts/${agreement._id}`} className="block">
@@ -82,11 +138,10 @@ export function VaultCard({
                             {t("dashboard.feed.vaults.cautionDeposited")}
                         </p>
                         <p className="mt-0.5 font-semibold text-foreground">
-                            {formatUnits(
-                                BigInt(agreement.cautionAmount || 0),
-                                6,
-                            )}{" "}
-                            USDC
+                            {cautionAmountFormatted} USDC
+                            <span className="ml-1 font-normal text-[10px] text-muted-foreground">
+                                ({cautionPercentage}%)
+                            </span>
                         </p>
                     </div>
                 </div>
@@ -94,12 +149,28 @@ export function VaultCard({
                 {/* Token Distribution details */}
                 <div className="space-y-2 border-border border-t pt-3">
                     <div className="flex items-center justify-between text-xs">
-                        <span className="flex items-center gap-1 font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
-                            <Coins className="h-3.5 w-3.5 text-primary" />
-                            {t("dashboard.feed.vaults.tokenDistribution", {
-                                symbol: tokenSymbol,
-                            })}
-                        </span>
+                        <div className="flex select-none items-center gap-1.5">
+                            <span className="flex items-center gap-1 font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
+                                <Coins className="h-3.5 w-3.5 text-primary" />
+                                {t("dashboard.feed.vaults.tokenDistribution", {
+                                    symbol: tokenSymbol,
+                                })}
+                            </span>
+                            <div className="group relative z-40 inline-block">
+                                <HelpCircle className="h-3.5 w-3.5 cursor-help text-muted-foreground/60 transition-colors hover:text-foreground" />
+                                <div className="pointer-events-none absolute bottom-full left-1/2 z-[9999] mb-2 w-64 origin-bottom -translate-x-1/2 scale-95 rounded-2xl border border-foreground/10 bg-card/95 p-3.5 text-center text-[11px] text-muted-foreground normal-case leading-relaxed opacity-0 shadow-2xl backdrop-blur-md transition-all duration-300 group-hover:scale-100 group-hover:opacity-100">
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-card/95" />
+                                    <span className="mb-1 block font-semibold text-foreground text-xs">
+                                        {t(
+                                            "dashboard.feed.vaults.distributionHelpTitle",
+                                        )}
+                                    </span>
+                                    {t(
+                                        "dashboard.feed.vaults.distributionHelpText",
+                                    )}
+                                </div>
+                            </div>
+                        </div>
                         {isFractionalized && (
                             <span className="flex items-center gap-0.5 rounded-full border border-emerald-500/10 bg-emerald-500/5 px-2 py-0.5 font-mono text-[10px] text-emerald-500">
                                 <Percent className="h-3 w-3" />
@@ -109,7 +180,7 @@ export function VaultCard({
                     </div>
 
                     {isFractionalized ? (
-                        <div className="grid grid-cols-2 gap-3 rounded-lg border border-border/50 bg-black/5 p-2.5 text-muted-foreground text-xs dark:bg-white/5">
+                        <div className="grid grid-cols-3 gap-3 rounded-lg border border-border/50 bg-black/5 p-2.5 text-muted-foreground text-xs dark:bg-white/5">
                             <div>
                                 <p className="font-semibold text-[10px] uppercase">
                                     {t("dashboard.feed.vaults.clubReserve")}
@@ -125,6 +196,15 @@ export function VaultCard({
                                 <p className="mt-0.5 font-semibold text-foreground">
                                     {playerTokens} {tokenSymbol} ({playerShare}
                                     %)
+                                </p>
+                            </div>
+                            <div>
+                                <p className="font-semibold text-[10px] uppercase">
+                                    {t("dashboard.feed.vaults.attorneyShare")}
+                                </p>
+                                <p className="mt-0.5 font-semibold text-foreground">
+                                    {attorneyTokens} {tokenSymbol} (
+                                    {attorneyShare}%)
                                 </p>
                             </div>
                         </div>

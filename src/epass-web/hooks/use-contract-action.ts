@@ -23,7 +23,7 @@ export function useContractAction(config: any) {
         abi: any,
         functionName: string,
         args: any[],
-        actionType: string,
+        actionType: any,
         chainId: number,
         walletAddress: string,
         agreementId?: string,

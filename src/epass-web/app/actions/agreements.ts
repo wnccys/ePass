@@ -83,11 +83,11 @@ export async function createAgreement(data: CreateAgreementPayload) {
         tokenSymbol.length > 10 ||
         tokenSymbol.length < 2 ||
         /\s/.test(tokenSymbol) ||
-        !/^\$[A-Za-z0-9]+$/.test(tokenSymbol)
+        !/^\$[A-Za-z0-9_]+$/.test(tokenSymbol)
     ) {
         return {
             success: false,
-            error: "Token Symbol must start with $, contain only letters/numbers, have no spaces, and be between 2 and 10 characters long (e.g. $TOKEN_E)",
+            error: "Token Symbol must start with $, contain only letters/numbers/underscores, have no spaces, and be between 2 and 10 characters long (e.g. $TOKEN_E)",
         };
     }
 

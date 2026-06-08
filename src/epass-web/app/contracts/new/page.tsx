@@ -209,7 +209,7 @@ export default function NewContractPage() {
     }
 
     return (
-        <div className="container mx-auto max-w-5xl px-6 py-24 min-h-screen">
+        <div className="container mx-auto min-h-screen max-w-5xl px-6 py-24">
             <FadeIn>
                 <div className="mb-8">
                     <h1 className="font-light font-serif text-4xl tracking-tight">
@@ -577,14 +577,30 @@ export default function NewContractPage() {
                                     }}
                                     children={(field) => (
                                         <div className="space-y-2">
-                                            <label
-                                                htmlFor={field.name}
-                                                className="ml-1 font-medium text-foreground text-sm"
-                                            >
-                                                {t(
-                                                    "contracts.new.cautionAmount",
-                                                )}
-                                            </label>
+                                            <div className="flex select-none items-center gap-1.5">
+                                                <label
+                                                    htmlFor={field.name}
+                                                    className="ml-1 font-medium text-foreground text-sm"
+                                                >
+                                                    {t(
+                                                        "contracts.new.cautionAmount",
+                                                    )}
+                                                </label>
+                                                <div className="group relative z-40 inline-block">
+                                                    <HelpCircle className="h-3.5 w-3.5 cursor-help text-muted-foreground transition-colors hover:text-foreground" />
+                                                    <div className="pointer-events-none absolute top-full left-1/2 z-[9999] mt-2 w-64 origin-top -translate-x-1/2 scale-95 rounded-2xl border border-foreground/10 bg-card/95 p-3.5 text-center text-[11px] text-muted-foreground normal-case leading-relaxed opacity-0 shadow-2xl backdrop-blur-md transition-all duration-300 group-hover:scale-100 group-hover:opacity-100">
+                                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-card/95" />
+                                                        <span className="mb-1 block font-semibold text-foreground text-xs">
+                                                            {t(
+                                                                "dashboard.feed.vaults.distributionHelpTitle",
+                                                            )}
+                                                        </span>
+                                                        {t(
+                                                            "dashboard.feed.vaults.distributionHelpText",
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div className="glass-input flex items-center rounded-2xl px-4 py-3">
                                                 <input
                                                     id={field.name}

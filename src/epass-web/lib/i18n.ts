@@ -392,8 +392,11 @@ const resources = {
                         minted100: "100% Minted",
                         clubReserve: "Club Reserve",
                         playerUpfront: "Player Upfront",
+                        attorneyShare: "Attorney Share",
                         distributionWillOccur:
                             "Token distribution will occur upon vault fractionalization.",
+                        distributionHelpTitle: "Token Distribution Info",
+                        distributionHelpText: "These shares show how the 1,000,000 rights tokens are split, not the USDC caution deposit. The caution deposit acts as the collateral backing the agreement.",
                     },
                 },
                 sidebar: {
@@ -833,8 +836,11 @@ const resources = {
                         minted100: "100% Mintado",
                         clubReserve: "Reserva do Clube",
                         playerUpfront: "Adiantamento do Atleta",
+                        attorneyShare: "Quota do Advogado",
                         distributionWillOccur:
-                            "A distribuição do token ocorrerá após o fracionamento do vault.",
+                            "A distribuição de tokens ocorrerá após o fracionamento do vault.",
+                        distributionHelpTitle: "Info sobre Distribuição",
+                        distributionHelpText: "Estas cotas mostram como os 1.000.000 de tokens de direitos são divididos, não a garantia em USDC. A garantia em USDC serve como colateral de respaldo do acordo.",
                     },
                 },
                 sidebar: {
