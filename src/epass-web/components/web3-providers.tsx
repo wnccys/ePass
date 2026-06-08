@@ -6,8 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type React from "react";
 import { useState } from "react";
 import { createStorage, http, noopStorage, WagmiProvider } from "wagmi";
-import { env } from "@/env";
 import { useChain } from "@/app/context/ChainContext";
+import { env } from "@/env";
 
 export function Web3Providers({ children }: { children: React.ReactNode }) {
     // Instantiate inside the component to prevent SSR data leaks!

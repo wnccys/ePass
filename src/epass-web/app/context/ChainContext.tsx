@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { createContext, ReactNode, useContext } from "react";
+import { createContext, type ReactNode, useContext } from "react";
 import type { Chain } from "viem";
 import { foundry, sepolia } from "viem/chains";
 
@@ -10,15 +10,15 @@ const chains = {
 } as const;
 
 export interface ChainConfig {
-    network: Chain,
-    rpcUrl: string,
+    network: Chain;
+    rpcUrl: string;
 }
 
 const ChainContext = createContext<ChainConfig | null>(null);
 
 export function ChainProvider({
     children,
-    value
+    value,
 }: {
     children: ReactNode;
     value: {

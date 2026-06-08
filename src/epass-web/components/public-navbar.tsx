@@ -55,7 +55,7 @@ export function PublicNavbar({ forceLight = false }: PublicNavbarProps) {
                         </a>
                         <Link
                             href="/login"
-                            className={`group bg-foreground/5 hover:bg-foreground/10 backdrop-blur-md inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-5 py-2 font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] ${textColor} border border-card/10 hover:border-card/50`}
+                            className={`group inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-foreground/5 px-5 py-2 font-semibold text-sm backdrop-blur-md transition-all hover:scale-[1.02] hover:bg-foreground/10 active:scale-[0.98] ${textColor} border border-card/10 hover:border-card/50`}
                         >
                             {t("nav.enterApp")}
                             <ArrowRight

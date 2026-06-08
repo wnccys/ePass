@@ -11,8 +11,8 @@ import {
     usePublicClient,
     useSwitchChain,
 } from "wagmi";
-import { Button } from "@/components/ui/button";
 import { useChain } from "@/app/context/ChainContext";
+import { Button } from "@/components/ui/button";
 
 type WalletConnectProps = {
     onAddressChange?: (address?: string) => void;
@@ -88,8 +88,12 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
     // Keep refs to unstable callbacks so effects don't re-fire on identity changes
     const updateRef = useRef(update);
     const onAddressChangeRef = useRef(onAddressChange);
-    useEffect(() => { updateRef.current = update; }, [update]);
-    useEffect(() => { onAddressChangeRef.current = onAddressChange; }, [onAddressChange]);
+    useEffect(() => {
+        updateRef.current = update;
+    }, [update]);
+    useEffect(() => {
+        onAddressChangeRef.current = onAddressChange;
+    }, [onAddressChange]);
 
     // Notify parent component when address changes
     useEffect(() => {
@@ -145,7 +149,9 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
                     type="button"
                     variant="destructive"
                     onClick={async () => {
-                        await switchChainMutateAsync({ chainId: chainConfig.network.id });
+                        await switchChainMutateAsync({
+                            chainId: chainConfig.network.id,
+                        });
                     }}
                     disabled={isSwitchPending}
                 >
@@ -196,14 +202,32 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
 
             {/* Wallet / Network information block */}
             <div className="space-y-1 px-1 text-[11px] text-muted-foreground">
-                <p>Network target: <span className="capitalize">{ chainConfig.network.name }</span> (chainId: {chainConfig.network.id})</p>
-                {chainId != chainConfig.network.id && <p>Current chainId: {chainId}</p>}
+                <p>
+                    Network target:{" "}
+                    <span className="capitalize">
+                        {chainConfig.network.name}
+                    </span>{" "}
+                    (chainId: {chainConfig.network.id})
+                </p>
+                {chainId != chainConfig.network.id && (
+                    <p>Current chainId: {chainId}</p>
+                )}
                 {chainStatus === "checking" && (
-                    <p>Checking local <span className="capitalize">{chainConfig.network.name}</span> RPC...</p>
+                    <p>
+                        Checking local{" "}
+                        <span className="capitalize">
+                            {chainConfig.network.name}
+                        </span>{" "}
+                        RPC...
+                    </p>
                 )}
                 {chainStatus === "ok" && (
                     <p className="text-emerald-500">
-                        Connected to <span className="capitalize">{ chainConfig.network.name }</span> RPC.
+                        Connected to{" "}
+                        <span className="capitalize">
+                            {chainConfig.network.name}
+                        </span>{" "}
+                        RPC.
                     </p>
                 )}
                 {chainStatus === "error" && (

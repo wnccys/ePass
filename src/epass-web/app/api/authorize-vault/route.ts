@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { createWalletClient, http, publicActions } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
+import { getChainConfig } from "@/app/actions/chain";
 import { env } from "@/env";
 import { playerRightsMasterAbi } from "@/src/generated";
-import { getChainConfig } from "@/app/actions/chain";
 
 export async function POST(req: Request) {
     try {

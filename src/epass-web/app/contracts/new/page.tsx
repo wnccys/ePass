@@ -68,9 +68,9 @@ export default function NewContractPage() {
                     6,
                 ).toString();
 
-                // Calculate deadline (24 hours from now)
+                // Calculate deadline (3 days from now)
                 const deadline = new Date(
-                    Date.now() + 24 * 60 * 60 * 1000,
+                    Date.now() + 3 * 24 * 60 * 60 * 1000,
                 ).toISOString();
 
                 if (!address) {

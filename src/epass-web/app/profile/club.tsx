@@ -329,8 +329,8 @@ export function ClubProfile({
                             </div>
                         </div>
 
-                        <div className="mt-auto flex flex-col items-start gap-4 border-foreground/10 border-t pt-8 w-full">
-                            <div className="flex flex-col sm:flex-row w-full items-center justify-start gap-5 px-2">
+                        <div className="mt-auto flex w-full flex-col items-start gap-4 border-foreground/10 border-t pt-8">
+                            <div className="flex w-full flex-col items-center justify-start gap-5 px-2 sm:flex-row">
                                 <form.Subscribe
                                     selector={(state) => [
                                         state.canSubmit,
@@ -372,13 +372,14 @@ export function ClubProfile({
                                             animate={{ opacity: 1, x: 0 }}
                                             exit={{ opacity: 0, x: -10 }}
                                             className={cn(
-                                                "flex items-center gap-2 font-medium text-sm px-2",
+                                                "flex items-center gap-2 px-2 font-medium text-sm",
                                                 submitMessage.type === "success"
                                                     ? "text-green-500"
                                                     : "text-destructive",
                                             )}
                                         >
-                                            {submitMessage.type === "success" ? (
+                                            {submitMessage.type ===
+                                            "success" ? (
                                                 <CheckCircle2 className="h-5 w-5" />
                                             ) : (
                                                 <AlertCircle className="h-5 w-5" />
@@ -392,6 +393,6 @@ export function ClubProfile({
                     </div>
                 </form>
             </FadeIn>
-            </Card>
+        </Card>
     );
 }

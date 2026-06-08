@@ -2,7 +2,7 @@
 
 import { getServerSession } from "next-auth";
 import dbConnect from "@/lib/db";
-import Transaction, { ITransaction } from "@/models/Transaction";
+import Transaction, { type ITransaction } from "@/models/Transaction";
 import User from "@/models/User";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 

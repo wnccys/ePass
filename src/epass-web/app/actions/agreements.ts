@@ -127,6 +127,17 @@ export async function createAgreement(data: CreateAgreementPayload) {
     const rawDeadline = new Date(deadline);
     rawDeadline.setUTCMilliseconds(0);
 
+    // Validate that the deadline is at least 3 days from now (with a 1-minute tolerance for network transit)
+    const minDeadline = new Date(
+        Date.now() + 3 * 24 * 60 * 60 * 1000 - 60 * 1000,
+    );
+    if (rawDeadline.getTime() < minDeadline.getTime()) {
+        return {
+            success: false,
+            error: "Deadline must be at least 3 days from now",
+        };
+    }
+
     try {
         const agreement = await Agreement.create({
             clubUserId: session.user.id,
@@ -346,7 +357,7 @@ export async function getExpiringAgreements() {
 
         const agreements = await Agreement.find({
             _id: { $in: user.contracts },
-            status: "active",
+            status: { $in: ["pending_signatures", "ready"] },
             deadline: { $gte: now, $lte: thirtyDaysFromNow },
         })
             .lean()

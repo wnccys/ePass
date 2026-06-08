@@ -50,7 +50,7 @@ export default function ContractsPage() {
         );
 
     return (
-        <div className="container mx-auto max-w-5xl px-6 py-24 min-h-screen">
+        <div className="container mx-auto min-h-screen max-w-5xl px-6 py-24">
             <div className="mb-12 flex flex-col items-center justify-between gap-6 md:flex-row">
                 <div>
                     <h1 className="font-light font-serif text-4xl tracking-tight">

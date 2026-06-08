@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Merriweather, Noto_Serif } from "next/font/google";
-import { AppProviders } from "@/components/providers";
-import { MainNavbar } from "@/components/main-navbar";
-import { Web3Providers } from "@/components/web3-providers";
-import { Toaster } from "@/components/ui/sonner";
 import { Footer } from "@/components/footer";
+import { MainNavbar } from "@/components/main-navbar";
+import { AppProviders } from "@/components/providers";
+import { Toaster } from "@/components/ui/sonner";
+import { Web3Providers } from "@/components/web3-providers";
 import { cn } from "@/lib/utils";
 import { getChainConfig } from "./actions/chain";
 import { ChainProvider } from "./context/ChainContext";
@@ -74,17 +74,22 @@ export default async function RootLayout({
                     src="//unpkg.com/react-scan/dist/auto.global.js"
                 ></script> */}
             </head>
-                <body className="min-h-full flex flex-col selection:bg-lime-200/80">
-                    <AppProviders>
-                        <ChainProvider value={{ networkId: chainConfig.network.id, rpcUrl: chainConfig.rpcUrl }}>
-                            <Web3Providers>
-                                <MainNavbar />
-                                {children}
-                                <Footer />
-                                <Toaster />
-                            </Web3Providers>
-                        </ChainProvider>
-                    </AppProviders>
+            <body className="flex min-h-full flex-col selection:bg-lime-200/80">
+                <AppProviders>
+                    <ChainProvider
+                        value={{
+                            networkId: chainConfig.network.id,
+                            rpcUrl: chainConfig.rpcUrl,
+                        }}
+                    >
+                        <Web3Providers>
+                            <MainNavbar />
+                            {children}
+                            <Footer />
+                            <Toaster />
+                        </Web3Providers>
+                    </ChainProvider>
+                </AppProviders>
             </body>
         </html>
     );
