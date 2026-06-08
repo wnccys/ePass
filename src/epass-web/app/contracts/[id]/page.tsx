@@ -1430,9 +1430,28 @@ export default function ContractDetailPage() {
                                 </p>
                             </div>
                             <div>
-                                <p className="text-muted-foreground text-xs uppercase">
-                                    {t("contracts.detail.deadline")}
-                                </p>
+                                <div className="mb-1 flex flex-wrap items-center gap-2">
+                                    <p className="text-muted-foreground text-xs uppercase">
+                                        {t("contracts.detail.deadline")}
+                                    </p>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <button
+                                                    type="button"
+                                                    className="inline-flex cursor-help items-center justify-center rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                                >
+                                                    <HelpCircle className="h-3.5 w-3.5" />
+                                                </button>
+                                            </TooltipTrigger>
+                                            <TooltipContent className="max-w-xs rounded-xl border border-border/40 bg-popover p-3 text-center text-popover-foreground text-xs leading-relaxed shadow-xl">
+                                                {t(
+                                                    "contracts.detail.deadlineExplanation",
+                                                )}
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </div>
                                 <p
                                     className="font-semibold text-sm"
                                     suppressHydrationWarning

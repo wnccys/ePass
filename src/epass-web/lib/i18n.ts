@@ -323,6 +323,8 @@ const resources = {
                         "Your account is responsible for signing as Attorney",
                     tokenUri: "Token URI",
                     deadline: "Deadline",
+                    deadlineExplanation:
+                        "This deadline specifies the timeframe for collecting signatures and minting the contract, not the duration of the active contract itself.",
                     attorneySignExplanation:
                         "If the email and wallet address of the attorney are the same as yours, signing the contract will submit signatures for both roles at the same time.",
                 },
@@ -768,6 +770,8 @@ const resources = {
                         "Sua conta é responsável por assinar como Advogado",
                     tokenUri: "URI do Token",
                     deadline: "Prazo Limite",
+                    deadlineExplanation:
+                        "Este prazo especifica o limite para a coleta de assinaturas e cunhagem do contrato, não a duração do contrato ativo em si.",
                     attorneySignExplanation:
                         "Se o e-mail e o endereço de carteira do advogado forem iguais aos seus, a assinatura do contrato assinará para ambas as funções ao mesmo tempo.",
                 },
