@@ -10,7 +10,7 @@ import { FadeInDown } from "./ui/fade-in-down";
 import { LiquidGlassNavbar } from "./ui/liquid-glass-navbar";
 
 export function MainNavbar() {
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const { t } = useTranslation();
     const role = session?.user?.role;
 
@@ -50,12 +50,6 @@ export function MainNavbar() {
                                     className="transition-colors hover:text-foreground dark:hover:text-white"
                                 >
                                     {t("nav.contracts")}
-                                </Link>
-                                <Link
-                                    href="#"
-                                    className="transition-colors hover:text-foreground dark:hover:text-white"
-                                >
-                                    {t("nav.findClubs")}
                                 </Link>
                                 <Link
                                     href="/profile"

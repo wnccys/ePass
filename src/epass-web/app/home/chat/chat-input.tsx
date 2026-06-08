@@ -271,6 +271,10 @@ export function ChatInput() {
                     <Send className="h-4 w-4" />
                 </button>
             </form>
+
+            <p className="select-none text-center text-[11px] text-muted-foreground/60 leading-normal">
+                {t("dashboard.chat.instabilityNotice")}
+            </p>
         </Card>
     );
 }

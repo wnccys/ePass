@@ -346,6 +346,8 @@ const resources = {
                         "Couldn't reach the AI service. Check your connection and try again.",
                     errorUnavailable:
                         "The AI service is unavailable right now. Please try again.",
+                    instabilityNotice:
+                        "AI may experience instability; please try again if that happens.",
                 },
                 stats: {
                     totalContracts: "Total Contracts",
@@ -366,6 +368,8 @@ const resources = {
                         fractionalizeRights: "Fractionalize Rights",
                         approveTokenAllowance: "Approve Token Allowance",
                         depositCautionUsdc: "Deposit Caution USDC",
+                        approveUsdcToVault: "Approve USDC to Vault",
+                        authorizeVault: "Authorize Vault",
                         rescindContract: "Rescind Contract",
                         contractExpired: "Contract Expired",
                         confirmed: "Confirmed",
@@ -783,6 +787,8 @@ const resources = {
                         "Não foi possível alcançar o serviço de IA. Verifique sua conexão e tente novamente.",
                     errorUnavailable:
                         "O serviço de IA está indisponível no momento. Por favor, tente novamente.",
+                    instabilityNotice:
+                        "A IA pode apresentar instabilidade; por favor, tente novamente se isso acontecer.",
                 },
                 stats: {
                     totalContracts: "Total de Contratos",
@@ -802,7 +808,9 @@ const resources = {
                         createEscrowVault: "Criar Vault de Garantia",
                         fractionalizeRights: "Fracionar Direitos",
                         approveTokenAllowance: "Aprovar Limite de Token",
-                        depositCautionUsdc: "Depositar Caution USDC",
+                        depositCautionUsdc: "Depositar Garantia USDC",
+                        approveUsdcToVault: "Aprovar USDC para o Vault",
+                        authorizeVault: "Autorizar Vault",
                         rescindContract: "Rescindir Contrato",
                         contractExpired: "Contrato Expirado",
                         confirmed: "Confirmado",

@@ -51,6 +51,18 @@ export function TransactionCard({ transaction }: { transaction: any }) {
                     ),
                     color: "text-blue-500 bg-blue-500/10 border-blue-500/20",
                 };
+            case "approve_usdc_to_vault":
+                return {
+                    icon: CheckSquare,
+                    label: t("dashboard.feed.transactions.approveUsdcToVault"),
+                    color: "text-blue-500 bg-blue-500/10 border-blue-500/20",
+                };
+            case "authorize_vault":
+                return {
+                    icon: Lock,
+                    label: t("dashboard.feed.transactions.authorizeVault"),
+                    color: "text-purple-500 bg-purple-500/10 border-purple-500/20",
+                };
             case "deposit_caution":
                 return {
                     icon: ArrowDownCircle,
