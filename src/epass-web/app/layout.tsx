@@ -8,6 +8,8 @@ import { Web3Providers } from "@/components/web3-providers";
 import { Toaster } from "@/components/ui/sonner";
 import { Footer } from "@/components/footer";
 import { cn } from "@/lib/utils";
+import { getChainConfig } from "./actions/chain";
+import { ChainProvider } from "./context/ChainContext";
 
 const notoSerifHeading = Noto_Serif({
     subsets: ["latin"],
@@ -50,6 +52,7 @@ export default async function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const chainConfig = getChainConfig();
     return (
         <html
             lang="en"
@@ -72,12 +75,14 @@ export default async function RootLayout({
             </head>
                 <body className="min-h-full flex flex-col selection:bg-lime-200/80">
                     <AppProviders>
-                        <Web3Providers>
-                            <MainNavbar />
-                            {children}
-                            <Footer />
-                            <Toaster />
-                        </Web3Providers>
+                        <ChainProvider value={{ networkId: chainConfig.network.id, rpcUrl: chainConfig.rpcUrl }}>
+                            <Web3Providers>
+                                <MainNavbar />
+                                {children}
+                                <Footer />
+                                <Toaster />
+                            </Web3Providers>
+                        </ChainProvider>
                     </AppProviders>
             </body>
         </html>

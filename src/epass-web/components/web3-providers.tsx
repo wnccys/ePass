@@ -6,13 +6,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type React from "react";
 import { useState } from "react";
 import { createStorage, http, noopStorage, WagmiProvider } from "wagmi";
-import { foundry, sepolia } from "wagmi/chains";
 import { env } from "@/env";
-import { getChainConfig } from "@/app/actions/chain";
+import { useChain } from "@/app/context/ChainContext";
 
 export function Web3Providers({ children }: { children: React.ReactNode }) {
     // Instantiate inside the component to prevent SSR data leaks!
     const [queryClient] = useState(() => new QueryClient());
+
+    const { network, rpcUrl } = useChain();
 
     const [config] = useState(() => {
         const storage = createStorage({
@@ -26,7 +27,7 @@ export function Web3Providers({ children }: { children: React.ReactNode }) {
         return getDefaultConfig({
             appName: "ePass Football",
             projectId: env.NEXT_PUBLIC_RAINBOW_PROJECT_ID,
-            chains: [getChainConfig().network],
+            chains: [network],
             wallets: [
                 {
                     groupName: "Recommended",
@@ -36,8 +37,7 @@ export function Web3Providers({ children }: { children: React.ReactNode }) {
             ssr: true,
             storage,
             transports: {
-                [foundry.id]: http(env.NEXT_PUBLIC_FOUNDRY_RPC_URL),
-                [sepolia.id]: http(env.NEXT_PUBLIC_SEPOLIA_RPC_URL),
+                [network.id]: http(rpcUrl),
             },
         });
     });

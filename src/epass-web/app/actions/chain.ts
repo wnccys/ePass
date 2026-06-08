@@ -1,15 +1,16 @@
 import { env } from "@/env";
-import { http } from "viem";
-import { foundry, sepolia } from "wagmi/chains";
+import { Chain } from "viem";
+import { foundry, sepolia } from "viem/chains";
 
-const chainConfig =
-    env.NODE_ENV === "production"
-        ?  { network: sepolia, transport: http(env.NEXT_PUBLIC_SEPOLIA_RPC_URL) }
-        : { network: foundry, transport: http(env.NEXT_PUBLIC_FOUNDRY_RPC_URL) };
+export interface ChainConfig {
+    network: Chain,
+    rpcUrl: string
+}
 
-/**
- * Wrapper for chain configuration specifier
- */
-export function getChainConfig() {
-    return chainConfig;
+export function getChainConfig(): ChainConfig {
+    const isProd = env.NODE_ENV === "production";
+
+    return isProd
+        ?  { network: sepolia, rpcUrl: env.NEXT_PUBLIC_SEPOLIA_RPC_URL }
+        : { network: foundry, rpcUrl: env.NEXT_PUBLIC_FOUNDRY_RPC_URL };
 }

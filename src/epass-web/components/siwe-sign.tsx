@@ -11,9 +11,8 @@ import {
     usePublicClient,
     useSwitchChain,
 } from "wagmi";
-import { foundry } from "wagmi/chains";
 import { Button } from "@/components/ui/button";
-import { getChainConfig } from "@/app/actions/chain";
+import { useChain } from "@/app/context/ChainContext";
 
 type WalletConnectProps = {
     onAddressChange?: (address?: string) => void;
@@ -36,7 +35,7 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
         error: switchError,
     } = useSwitchChain();
 
-    const chainConfig = getChainConfig();
+    const chainConfig = useChain();
 
     // We are use Foundry by default and testing purpose
     const chainClient = usePublicClient({ chainId: chainConfig.network.id });

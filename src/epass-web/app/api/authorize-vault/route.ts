@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createWalletClient, publicActions } from "viem";
+import { createWalletClient, http, publicActions } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { env } from "@/env";
 import { playerRightsMasterAbi } from "@/src/generated";
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
         const client = createWalletClient({
             account,
             chain,
-            transport: chainConfig.transport,
+            transport: http(chainConfig.rpcUrl),
         }).extend(publicActions);
 
         const masterNftAddress =
