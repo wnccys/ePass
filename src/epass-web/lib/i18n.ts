@@ -478,7 +478,7 @@ const resources = {
                 contractsThatWork: "Contratos",
                 thatWork: "Que Funcionam",
                 subheading:
-                    "Melhoramos a experiência entre jogadores de futebol e clubes, trazendo confiança e certeza como deve ser, sob a luz da decentralização, segurança e conformidade.",
+                    "Melhoramos a experiência entre jogadores de futebol e clubes, trazendo confiança e certeza como deve ser, sob a luz da descentralização, segurança e conformidade.",
                 readMore: "Ler Mais",
                 enterApp: "Entrar no App",
                 txsExecuted: "Transações Executadas",
