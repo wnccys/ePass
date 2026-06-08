@@ -194,10 +194,9 @@ contract RightsVaultImpl is
         if (masterNft.ownerOf(_tokenId) != msg.sender) revert NotNFTOwner();
         if (_supply == 0) revert SupplyCannotBeZero();
 
+        // CEI: effects before interaction
         fractionalized = true;
         lockedTokenId = _tokenId;
-
-        masterNft.safeTransferFrom(msg.sender, address(this), _tokenId);
 
         uint256 playerShares = (_supply * playerBps) / BPS_BASE;
         uint256 clubShares = (_supply * clubBps) / BPS_BASE;
@@ -209,6 +208,9 @@ contract RightsVaultImpl is
         _mint(player, playerShares);
         _mint(club, clubShares);
         _mint(attorney, attorneyShares);
+
+        // interaction last
+        masterNft.safeTransferFrom(msg.sender, address(this), _tokenId);
 
         emit Fractionalized(_tokenId, _supply, playerShares, clubShares, attorneyShares);
     }
@@ -236,24 +238,29 @@ contract RightsVaultImpl is
         }
         if (amount == 0) revert WrongCautionAmount();
 
-        stablecoin.safeTransferFrom(msg.sender, address(this), amount);
-
+        // CEI: all effects before the external safeTransferFrom
         uint256 cautionPart = (amount * CAUTION_BPS) / BPS_BASE;
         uint256 redeemablePart = amount - cautionPart;
 
         cautionAmount += cautionPart;
         redeemableReserve += redeemablePart;
         mintedShares = redeemablePart;
-
         totalMintedAgainstReserve += mintedShares;
         _mint(club, mintedShares);
 
+        bool activated = false;
         if (status == ContractStatus.PENDING) {
             contractStart = block.timestamp;
             status = ContractStatus.ACTIVE;
-            emit ContractActivated(msg.sender, cautionAmount, contractStart);
+            activated = true;
         }
 
+        // interaction last
+        stablecoin.safeTransferFrom(msg.sender, address(this), amount);
+
+        if (activated) {
+            emit ContractActivated(msg.sender, cautionAmount, contractStart);
+        }
         emit DepositAndMintExecuted(msg.sender, amount, cautionPart, redeemablePart, mintedShares);
     }
         // FUNÇÃO REDEEM SÓ FUNCIONA QUANDO O CONTRATO ESTIVER FUNCIONANDO

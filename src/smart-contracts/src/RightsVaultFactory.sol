@@ -39,13 +39,13 @@ contract RightsVaultFactory is Ownable {
         address _implementation,
         address _masterNftAddress,
         address _stablecoin,
-        address _owner
-    ) Ownable(_owner) {
+        address owner_
+    ) Ownable(owner_) {
         if (
             _implementation == address(0) ||
             _masterNftAddress == address(0) ||
             _stablecoin == address(0) ||
-            _owner == address(0)
+            owner_ == address(0)
         ) revert ZeroAddress();
 
         implementation = _implementation;
@@ -86,6 +86,11 @@ contract RightsVaultFactory is Ownable {
 
         vault = implementation.clone();
 
+        // CEI: register vault in state before external initialize call
+        _allVaults.push(vault);
+        _vaultsByClub[_club].push(vault);
+        _vaultsByPlayer[_player].push(vault);
+
         RightsVaultImpl(vault).initialize(
             masterNftAddress,
             stablecoinAddress,
@@ -99,10 +104,6 @@ contract RightsVaultFactory is Ownable {
             tokenName_,
             tokenSymbol_
         );
-
-        _allVaults.push(vault);
-        _vaultsByClub[_club].push(vault);
-        _vaultsByPlayer[_player].push(vault);
 
         emit VaultCreated(
             vault,

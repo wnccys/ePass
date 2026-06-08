@@ -37,7 +37,8 @@ contract PlayerRightsMaster is ERC721URIStorage, Ownable {
         if (recipient == address(0)) revert ZeroAddress();
 
         uint256 tokenId = ++_nextTokenId;
-        _safeMint(recipient, tokenId);
+        // use _mint (no external callback) — authorizedMinter is trusted to pass valid recipients
+        _mint(recipient, tokenId);
         _setTokenURI(tokenId, uri);
 
         emit RightsMinted(tokenId, recipient, uri);
