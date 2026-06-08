@@ -2,14 +2,14 @@
 
 import { getServerSession } from "next-auth";
 import dbConnect from "@/lib/db";
-import Transaction from "@/models/Transaction";
+import Transaction, { ITransaction } from "@/models/Transaction";
 import User from "@/models/User";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 
 export async function recordTransaction(data: {
     txHash: string;
     chainId: number;
-    actionType: string;
+    actionType: ITransaction["actionType"];
     contractAddress: string;
     walletAddress: string;
     agreementId?: string;

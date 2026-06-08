@@ -8,8 +8,10 @@ export interface ITransaction extends Document {
     actionType:
         | "execute_mint"
         | "create_vault"
+        | "authorize_vault"
         | "fractionalize"
         | "approve_token"
+        | "approve_usdc_to_vault"
         | "deposit_caution"
         | "rescind_player"
         | "rescind_club"
@@ -44,8 +46,10 @@ const TransactionSchema = new Schema<ITransaction>(
             enum: [
                 "execute_mint",
                 "create_vault",
+                "authorize_vault",
                 "fractionalize",
                 "approve_token",
+                "approve_usdc_to_vault",
                 "deposit_caution",
                 "rescind_player",
                 "rescind_club",

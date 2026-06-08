@@ -110,8 +110,6 @@ export default function ContractDetailPage() {
     const { mutateAsync: depositCautionContract } =
         useWriteRightsVaultImplDepositCaution();
     const { mutateAsync: mintMockUsdc } = useWriteMockUsdcMint();
-    const { mutateAsync: setAuthorizedOperator } =
-        useWritePlayerRightsMasterSetAuthorizedOperator();
     const { mutateAsync: rescindByPlayerContract } =
         useWriteRightsVaultImplRescindByPlayer();
     const { mutateAsync: rescindByClubContract } =
@@ -161,10 +159,6 @@ export default function ContractDetailPage() {
                 enabled: !!agreement?.nftTokenId,
             },
         });
-
-    const { data: nftContractOwner } = useReadPlayerRightsMasterOwner({
-        address: PLAYER_RIGHTS_MASTER.address,
-    });
 
     const authorizedOperatorsArgs = useMemo(() => {
         return agreement?.vaultAddress
@@ -548,7 +542,6 @@ export default function ContractDetailPage() {
             }
 
             const txHash = (await authResponse.json()).hash;
-
             if (!txHash) throw new Error("Transaction hash was not returned.");
 
             setActionTxHash(txHash);
@@ -557,7 +550,7 @@ export default function ContractDetailPage() {
             await recordTransaction({
                 txHash,
                 chainId,
-                actionType: "authorize_vault_operator",
+                actionType: "authorize_vault",
                 contractAddress: PLAYER_RIGHTS_MASTER.address,
                 walletAddress: address,
                 agreementId: id,
@@ -883,7 +876,7 @@ export default function ContractDetailPage() {
             await recordTransaction({
                 txHash,
                 chainId,
-                actionType: "rescind_by_player",
+                actionType: "rescind_player",
                 contractAddress: agreement.vaultAddress,
                 walletAddress: address,
                 agreementId: id,
@@ -941,7 +934,7 @@ export default function ContractDetailPage() {
             await recordTransaction({
                 txHash,
                 chainId,
-                actionType: "rescind_by_club",
+                actionType: "rescind_club",
                 contractAddress: agreement.vaultAddress,
                 walletAddress: address,
                 agreementId: id,
@@ -1559,8 +1552,8 @@ export default function ContractDetailPage() {
                                         />
                                     ) : (
                                         <ActionCard
-                                            title="Authorize Vault (Admin Only)"
-                                            description="As the owner of PlayerRightsMaster, you must authorize the Vault Escrow contract clone as an operator before it can fractionalize the NFT."
+                                            title="Authorize Vault"
+                                            description="By submitting this action, the on-chain management master contract will authorize the Vault Escrow contract clone as an operator before it can fractionalize the NFT."
                                             actionName="Authorize Vault Clone"
                                             onAction={handleAuthorizeVault}
                                             status={actionStatus}
