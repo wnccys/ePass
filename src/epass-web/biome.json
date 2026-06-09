@@ -50,5 +50,10 @@
             "!**/dist",
             "!**/build"
         ]
+    },
+    "css": {
+        "parser": {
+            "tailwindDirectives": true
+        }
     }
 }
