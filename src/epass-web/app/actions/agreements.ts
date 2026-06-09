@@ -307,26 +307,51 @@ export async function updateAgreementOnChain(
 
     await dbConnect();
     try {
-        await Agreement.findByIdAndUpdate(id, { $set: data });
+        const agreement = await Agreement.findByIdAndUpdate(
+            id,
+            { $set: data },
+            { new: true },
+        );
 
-        if (data.nftTokenId !== undefined && data.nftTokenId !== null) {
-            const agreement = await Agreement.findById(id);
-            if (agreement) {
-                // Add to club
-                await User.findByIdAndUpdate(agreement.clubUserId, {
-                    $addToSet: { nftTokenIds: data.nftTokenId },
-                });
-                // Add to player
-                await User.findOneAndUpdate(
-                    { email: agreement.playerEmail.toLowerCase() },
-                    { $addToSet: { nftTokenIds: data.nftTokenId } },
-                );
-            }
+        if (
+            agreement &&
+            data.nftTokenId !== undefined &&
+            data.nftTokenId !== null
+        ) {
+            console.log(
+                `[updateAgreementOnChain] Adding nftTokenId ${data.nftTokenId} to club ${agreement.clubUserId} and player ${agreement.playerEmail}`,
+            );
+
+            // Add to club
+            const clubUpdate = await User.findByIdAndUpdate(
+                agreement.clubUserId,
+                { $addToSet: { nftTokenIds: data.nftTokenId } },
+                { new: true },
+            );
+            console.log(
+                `[updateAgreementOnChain] Club user updated:`,
+                clubUpdate
+                    ? `Success (nftTokenIds: ${JSON.stringify(clubUpdate.nftTokenIds)})`
+                    : `Failed (User ${agreement.clubUserId} not found)`,
+            );
+
+            // Add to player
+            const playerUpdate = await User.findOneAndUpdate(
+                { email: agreement.playerEmail.toLowerCase() },
+                { $addToSet: { nftTokenIds: data.nftTokenId } },
+                { new: true },
+            );
+            console.log(
+                `[updateAgreementOnChain] Player user updated:`,
+                playerUpdate
+                    ? `Success (nftTokenIds: ${JSON.stringify(playerUpdate.nftTokenIds)})`
+                    : `Failed (Player ${agreement.playerEmail} not found)`,
+            );
         }
 
         return { success: true };
     } catch (err) {
-        console.error(err);
+        console.error("[updateAgreementOnChain] Error:", err);
         return {
             success: false,
             error: "Failed to update agreement on-chain data",

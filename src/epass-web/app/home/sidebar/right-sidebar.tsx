@@ -4,6 +4,7 @@ import {
     Activity,
     ArrowUpRight,
     CheckCircle,
+    ChevronDown,
     Coins,
     FileText,
     HelpCircle,
@@ -30,6 +31,12 @@ import {
     TooltipProvider as UITooltipProvider,
     TooltipTrigger as UITooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { MOCK_USDC, PLAYER_RIGHTS_MASTER } from "@/lib/web3/contracts";
 import {
     useReadMockUsdcBalanceOf,
@@ -444,20 +451,61 @@ export function RightSidebar({
                                             )}
                                         </span>
                                         <div className="flex items-baseline gap-1">
-                                            <span className="font-bold font-mono text-foreground text-lg">
-                                                {user?.nftTokenIds && user.nftTokenIds.length > 0
-                                                    ? user.nftTokenIds.map(id => `#${id}`).join(", ")
-                                                    : "None"}
-                                            </span>
+                                            {user?.nftTokenIds && user.nftTokenIds.length > 0 ? (
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <button className="flex items-center gap-1 font-bold font-mono text-foreground text-lg hover:text-primary transition-colors cursor-pointer outline-none">
+                                                            #{user.nftTokenIds[0]}
+                                                            {user.nftTokenIds.length > 1 && (
+                                                                <span className="text-[10px] text-muted-foreground font-sans font-normal ml-0.5">
+                                                                    (+{user.nftTokenIds.length - 1})
+                                                                </span>
+                                                            )}
+                                                            <ChevronDown className="h-3 w-3 text-muted-foreground ml-0.5" />
+                                                        </button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent className="glass-card min-w-[100px] p-1" align="start">
+                                                        {user.nftTokenIds.map((id) => (
+                                                            <DropdownMenuItem key={id} className="font-mono text-xs focus:bg-primary/10 focus:text-primary cursor-default">
+                                                                #{id}
+                                                            </DropdownMenuItem>
+                                                        ))}
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            ) : (
+                                                <span className="font-bold font-mono text-foreground text-lg">
+                                                    None
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="space-y-1">
-                                        <span className="block font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
-                                            {t(
-                                                "dashboard.sidebar.usdcBalance",
-                                                "USDC Balance",
-                                            )}
-                                        </span>
+                                        <div className="flex items-center gap-1">
+                                            <span className="block font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
+                                                {t(
+                                                    "dashboard.sidebar.usdcBalance",
+                                                    "USDC Balance",
+                                                )}
+                                            </span>
+                                            <UITooltipProvider>
+                                                <UITooltip>
+                                                    <UITooltipTrigger asChild>
+                                                        <button
+                                                            type="button"
+                                                            className="text-muted-foreground hover:text-foreground transition-colors cursor-help"
+                                                        >
+                                                            <HelpCircle className="h-3 w-3" />
+                                                        </button>
+                                                    </UITooltipTrigger>
+                                                    <UITooltipContent className="max-w-[220px] text-[10px] glass-card leading-relaxed">
+                                                        {t(
+                                                            "dashboard.sidebar.usdcBalanceTooltip",
+                                                            "This is the total balance given by fan donation buy actions.",
+                                                        )}
+                                                    </UITooltipContent>
+                                                </UITooltip>
+                                            </UITooltipProvider>
+                                        </div>
                                         <div className="flex items-baseline gap-1">
                                             <span className="font-bold font-mono text-foreground text-lg">
                                                 {usdcBalance !== undefined
@@ -476,25 +524,6 @@ export function RightSidebar({
                                                 USDC
                                             </span>
                                         </div>
-                                    </div>
-                                </div>
-                                <div className="border-border/50 border-t pt-3 space-y-1">
-                                    <span className="block font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
-                                        {t(
-                                            "dashboard.sidebar.rightsTokens",
-                                            "Rights Tokens",
-                                        )}
-                                    </span>
-                                    <div className="flex items-baseline gap-1.5">
-                                        <span className="font-bold font-mono text-foreground text-lg">
-                                            {formattedVaultBalance}
-                                        </span>
-                                        <span className="font-semibold text-[9px] text-muted-foreground uppercase">
-                                            {tokenSymbol}
-                                        </span>
-                                        <span className="text-[10px] text-muted-foreground truncate max-w-[150px]">
-                                            ({tokenName})
-                                        </span>
                                     </div>
                                 </div>
                             </Card>

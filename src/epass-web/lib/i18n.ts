@@ -333,7 +333,6 @@ const resources = {
                         "If the email and wallet address of the attorney are the same as yours, signing the contract will submit signatures for both roles at the same time.",
                     tokenInfoTitle: "Token & Caution Info",
                     tokenEmission: "Emitted Tokens",
-                    sharesDistribution: "Shares Distribution",
                     cautionSplitTitle: "Caution Allocation Rules",
                     rescissionByPlayer: "Rescission by Player (<6m)",
                     rescissionByClub: "Rescission by Club (<6m)",
@@ -442,6 +441,7 @@ const resources = {
                     rightsNfts: "Rights NFTs",
                     rightsTokens: "Rights Tokens",
                     usdcBalance: "USDC Balance",
+                    usdcBalanceTooltip: "This is the total balance given by fan donation buy actions.",
                     totalDonations: "Total Donations",
                     donationsTooltipExplanation:
                         "This is a mock visualization of accumulated sponsorships. Fans can support the player by purchasing the player's customized fractionalized tokens ({{tokenSymbol}}), which are pegged to USDC. The player receives sponsorships directly from these token holdings.",
@@ -844,7 +844,6 @@ const resources = {
                         "Se o e-mail e o endereço de carteira do advogado forem iguais aos seus, a assinatura do contrato assinará para ambas as funções ao mesmo tempo.",
                     tokenInfoTitle: "Informações de Token & Caução",
                     tokenEmission: "Tokens Emitidos",
-                    sharesDistribution: "Distribuição de Cotas",
                     cautionSplitTitle: "Regras de Divisão da Caução",
                     rescissionByPlayer: "Rescisão pelo Jogador (<6m)",
                     rescissionByClub: "Rescisão pelo Clube (<6m)",
@@ -953,6 +952,7 @@ const resources = {
                     rightsNfts: "NFTs de Direitos",
                     rightsTokens: "Tokens de Direitos",
                     usdcBalance: "Saldo de USDC",
+                    usdcBalanceTooltip: "Este é o saldo total acumulado através de compras de doações de fãs.",
                     totalDonations: "Total de Doações",
                     donationsTooltipExplanation:
                         "Esta é uma visualização fictícia de patrocínios acumulados. Os fãs podem apoiar o jogador comprando os tokens fracionados customizados do jogador ({{tokenSymbol}}), que são pareados com USDC. O jogador recebe patrocínios diretamente dessas posses de tokens.",

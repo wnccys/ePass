@@ -9,6 +9,9 @@ import { getMyTransactions } from "@/app/actions/transactions";
 import type { IUser } from "@/models/User";
 import { getCurrentUser } from "@/services/user";
 import { DashboardClient } from "./dashboard-client";
+import dbConnect from "@/lib/db";
+import Agreement from "@/models/Agreement";
+import User from "@/models/User";
 
 export default async function Home() {
     const user = await getCurrentUser();
@@ -19,6 +22,30 @@ export default async function Home() {
                 Invalid user session
             </div>
         );
+    }
+
+    // Automatically sync nftTokenIds with minted agreements where user is player or club
+    await dbConnect();
+    const syncQuery =
+        user.role === "club"
+            ? { clubUserId: user._id, nftTokenId: { $ne: null } }
+            : { playerEmail: user.email.toLowerCase(), nftTokenId: { $ne: null } };
+
+    const userAgreements = await Agreement.find(syncQuery).select("nftTokenId").lean();
+    const contractNftIds = userAgreements
+        .map((a) => a.nftTokenId)
+        .filter((id): id is number => id !== undefined && id !== null);
+
+    const userNftIds = user.nftTokenIds || [];
+    const missingIds = contractNftIds.filter(
+        (id) => !userNftIds.includes(id),
+    );
+
+    if (missingIds.length > 0) {
+        await User.findByIdAndUpdate(user._id, {
+            $addToSet: { nftTokenIds: { $each: missingIds } },
+        });
+        user.nftTokenIds = [...userNftIds, ...missingIds];
     }
 
     // Bounce to onboarding if not complete
