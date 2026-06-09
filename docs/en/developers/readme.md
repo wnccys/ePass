@@ -6,6 +6,10 @@ This document serves as the developer portal for the **ePass** project. It detai
 
 ## 1. Core Technology Stack
 
+The ePass monorepo relies on:
+* **Node.js `v22.22.2`**
+* **pnpm `v11.5.1`**
+
 The ePass monorepo is divided into two primary directories:
 
 ### Backend & Smart Contracts (`/smart-contracts`)
@@ -28,12 +32,12 @@ The ePass monorepo is divided into two primary directories:
 To simulate the entire hybrid architecture locally, run the following components:
 
 ### 1. Database (MongoDB)
-Start a local MongoDB instance and Mongo-Express explorer using Docker:
+Start a local MongoDB instance and Compooss explorer using Docker:
 ```bash
 docker compose -f src/docker-compose.yml up -d
 ```
 * **MongoDB**: Runs on port `27017`.
-* **Mongo-Express (Web Viewer)**: Accessible at `http://localhost:8081`.
+* **Compooss (Web Viewer)**: Accessible at `http://localhost:6969`.
 
 ### 2. Local Blockchain Node (Anvil)
 Run a local EVM simulation node to deploy and interact with smart contracts:
@@ -43,7 +47,12 @@ anvil
 
 ### 3. Local Block Explorer
 Explore transactions and contracts locally via the custom built explorer:
-* Run the node app located in `/explorer` to inspect blocks and transaction receipts.
+* Navigate to `/explorer`, install dependencies using **yarn**, and start the development server with **dev**:
+  ```bash
+  cd explorer
+  yarn install
+  yarn dev
+  ```
 
 ---
 

@@ -57,7 +57,6 @@ Expõe atributos do JWT descriptografado para a aplicação no lado do cliente:
 * `session.user.id` (ID do MongoDB como string)
 * `session.user.role` (`"player" | "club"`)
 * `session.user.walletAddress` (endereço de carteira vinculada)
-```
 
 ---
 

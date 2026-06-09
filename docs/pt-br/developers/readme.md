@@ -6,6 +6,10 @@ Este documento serve como o portal do desenvolvedor para o projeto **ePass**. El
 
 ## 1. Stack de Tecnologia Principal
 
+O monorepo do ePass depende de:
+* **Node.js `v22.22.2`**
+* **pnpm `v11.5.1`**
+
 O monorepo do ePass é dividido em dois diretórios principais:
 
 ### Backend e Smart Contracts (`/smart-contracts`)
@@ -28,12 +32,12 @@ O monorepo do ePass é dividido em dois diretórios principais:
 Para simular toda a arquitetura híbrida localmente, execute os seguintes componentes:
 
 ### 1. Banco de Dados (MongoDB)
-Inicie uma instância local do MongoDB e o gerenciador web Mongo-Express usando Docker:
+Inicie uma instância local do MongoDB e o gerenciador web Compooss usando Docker:
 ```bash
 docker compose -f src/docker-compose.yml up -d
 ```
 * **MongoDB**: Executa na porta `27017`.
-* **Mongo-Express (Visualizador Web)**: Acessível em `http://localhost:8081`.
+* **Compooss (Visualizador Web)**: Acessível em `http://localhost:6969`.
 
 ### 2. Node de Blockchain Local (Anvil)
 Execute um simulador local de rede EVM para realizar deploys e interações com smart contracts:
@@ -43,7 +47,12 @@ anvil
 
 ### 3. Explorador de Blocos Local
 Inspecione transações e contratos localmente usando o explorador customizado:
-* Execute a aplicação no diretório `/explorer` para inspecionar blocos e recibos de transações.
+* Vá para o diretório `/explorer`, instale as dependências usando **yarn** e inicie com o comando **dev**:
+  ```bash
+  cd explorer
+  yarn install
+  yarn dev
+  ```
 
 ---
 
