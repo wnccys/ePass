@@ -21,7 +21,7 @@ Esse tópico define uma lista de tarefas para serem concluídas. Uma mesma taref
             - [x] Demonstração funcional: Demonstração do fluxo principal da solução, incluindo registro, consulta, validação ou certificação de uma ação de impacto.
             - [x] Demonstração auditável: Exemplo de registro e validação de impacto, com Vídeo demo, prints, links, transações, instruções ou evidências que permitam à banca verificar o funcionamento.
                 - [x] Registros na /home,
-                - [x] Registros na **rede de testes Sepólia** e explorador disponível no código-fonte (./explorer, ethui);
+                - [x] Registros na **rede de testes Sepólia** e explorador disponível no código-fonte (./explorer, ethui e etherscan);
                 - [] Vídeo Demo extra (// TODO)
                 - [x] Prints (slides e docs)
                 - [x] Trasações (home, explorer, etherscan)
@@ -54,41 +54,31 @@ Retirado do Manual Educacional. Características que agregam pontos.
 - [] Aplicação prática real;
 - [] Quais dados são registrados;
 - [] Quais evidências são vinculadas às ações;
-- [] Como a informação pode ser consultada ou verificada;
-- [] Quem participa do fluxo;
+- [x] Como a informação pode ser consultada ou verificada;
+    - [x] Via dashboard da aplicação ou ferramentas externas de auditoria públicas (como Etherscan);
+- [x] Quem participa do fluxo;
+    - [x] Jogadores, Torcedores e Clubes
 - [] Qual métrica de impacto está sendo acompanhada;
 - [] Como a solução aumenta transparência e confiança.
 
 - [x] Transparência dos dados;
     - [] Transparência completa, dados públicos;
 - [] Impacto social ou ambiental claro;
-- [] Boa visualização das informações;
+- [x] Boa visualização das informações;
 - [] Automações bem definidas;
-- [] Experiência do usuário;
-- [] Potencial real de adoção;
-- [] Dashboard simples e compreensível;
-- [] Uso adequado de certificados digitais ou NFTs;
-- [] Integração funcional entre frontend, blockchain e smart contracts;
+- [x] Experiência do usuário;
+- [x] Potencial real de adoção;
+- [x] Dashboard simples e compreensível;
+- [x] Uso adequado de certificados digitais ou NFTs;
+- [x] Integração funcional entre frontend, blockchain e smart contracts;
 - [] Clareza sobre quais dados ficam on-chain e quais ficam off-chain;
-- [] Uso de IPFS ou solução equivalente para evidências, quando fizer sentido;
+- [x] Uso de IPFS ou solução equivalente para evidências, quando fizer sentido;
 - [] Métricas de impacto bem definidas;
-- [] Solução conectada a um problema real de ONGs, empresas, governos ou comunidades.
-
-## Não-Obrigatório
-
-* Tokens com valor financeiro real;
-* Integração bancária real;
-* Auditoria profissional;
-* Aplicativo mobile completo;
-* Deploy em produção;
-* Sistema escalável para uso comercial;
-* Dashboard avançado;
-* Integração com órgãos públicos ou bases oficiais;
-* Validação real por uma ONG, empresa ou governo.
+- [x] Solução conectada a um problema real de ONGs, empresas, governos ou comunidades.
 
 ### Desafio
 
-'A equipe deverá escolher um problema real relacionado a impacto social,
+> 'A equipe deverá escolher um problema real relacionado a impacto social,
 ambiental ou comunitário e propor uma solução capaz de gerar histórico verificável, registrar evidências e, quando fizer sentido, automatizar certificações digitais.'
 
 A categoria escolhida foi exatamente:
