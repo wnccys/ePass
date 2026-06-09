@@ -77,10 +77,8 @@ Retirado do Manual Educacional. Características que agregam pontos.
 
 ### Desafio
 
-Selecionar a categoria mais adequada pro problema.
-
-A equipe deverá escolher um problema real relacionado a impacto social,
-ambiental ou comunitário e propor uma solução capaz de gerar histórico verificável, registrar evidências e, quando fizer sentido, automatizar certificações digitais.
+'A equipe deverá escolher um problema real relacionado a impacto social,
+ambiental ou comunitário e propor uma solução capaz de gerar histórico verificável, registrar evidências e, quando fizer sentido, automatizar certificações digitais.'
 
 A categoria escolhida foi exatamente:
 

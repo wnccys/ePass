@@ -1,4 +1,4 @@
-# Auth System Architecture: Google OAuth, MongoDB, & Wallet Sync
+# Authentication Architecture: Google OAuth, MongoDB, & Wallet Sync
 
 This document details how authentication, user creation, role assignment, and wallet address synchronization work in **ePass** using NextAuth, Mongoose/MongoDB, and JWT.
 
