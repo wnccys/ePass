@@ -10,6 +10,7 @@ export interface IUser extends Document {
     role: "player" | "club";
     onboardingComplete: boolean;
     contracts: mongoose.Types.ObjectId[];
+    nftTokenIds: number[];
 }
 
 // Pass the interface into the Schema via <IUser>
@@ -30,6 +31,10 @@ const UserSchema = new Schema<IUser>(
         onboardingComplete: { type: Boolean, default: false },
         contracts: {
             type: [{ type: Schema.Types.ObjectId, ref: "Agreement" }],
+            default: [],
+        },
+        nftTokenIds: {
+            type: [Number],
             default: [],
         },
     },

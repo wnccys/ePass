@@ -425,6 +425,7 @@ const resources = {
                     draftsOthers: "Drafts/Others",
                     userTokens: "User Tokens",
                     rightsNfts: "Rights NFTs",
+                    rightsTokens: "Rights Tokens",
                     usdcBalance: "USDC Balance",
                     totalDonations: "Total Donations",
                     donationsTooltipExplanation:
@@ -920,6 +921,7 @@ const resources = {
                     draftsOthers: "Rascunhos/Outros",
                     userTokens: "Tokens do Usuário",
                     rightsNfts: "NFTs de Direitos",
+                    rightsTokens: "Tokens de Direitos",
                     usdcBalance: "Saldo de USDC",
                     totalDonations: "Total de Doações",
                     donationsTooltipExplanation:

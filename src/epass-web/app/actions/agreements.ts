@@ -308,6 +308,22 @@ export async function updateAgreementOnChain(
     await dbConnect();
     try {
         await Agreement.findByIdAndUpdate(id, { $set: data });
+
+        if (data.nftTokenId !== undefined && data.nftTokenId !== null) {
+            const agreement = await Agreement.findById(id);
+            if (agreement) {
+                // Add to club
+                await User.findByIdAndUpdate(agreement.clubUserId, {
+                    $addToSet: { nftTokenIds: data.nftTokenId },
+                });
+                // Add to player
+                await User.findOneAndUpdate(
+                    { email: agreement.playerEmail.toLowerCase() },
+                    { $addToSet: { nftTokenIds: data.nftTokenId } },
+                );
+            }
+        }
+
         return { success: true };
     } catch (err) {
         console.error(err);
