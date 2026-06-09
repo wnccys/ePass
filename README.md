@@ -1,6 +1,20 @@
-# 🗺️ Índice do Projeto
+<p align="center">
+  <img src="docs/assets/epass-cover.png" alt="ePass Banner" width="800px" />
+</p>
 
-ePass é um projeto concebido durante o _**HackaWeb3 - Impact Ledger**_ promovido pela [iRede](), desde já, nossos agradecimentos pela oportunidade!
+<h1 align="center">
+  <img src="docs/assets/icon.png" alt="ePass Logo" width="45" height="45" align="center" /> ePass
+</h1>
+
+<p align="center">
+  <strong>Tokenizando o contrato do atleta. Valorizando seu futuro.</strong>
+</p>
+
+ePass é um projeto concebido durante o _**HackaWeb3 - Impact Ledger**_ promovido pelo [iRede](https://irede.org.br/), desde já nossos agradecimentos pela oportunidade!
+
+---
+
+# 🗺️ Índice do Projeto
 
 Este índice apresenta todas as páginas disponíveis neste repositório, divididas entre apresentação da plataforma e documentação técnica/de negócios:
 
@@ -25,18 +39,6 @@ Este índice apresenta todas as páginas disponíveis neste repositório, dividi
 
 ---
 
-<p align="center">
-  <img src="docs/assets/epass-cover.png" alt="ePass Banner" width="800px" />
-</p>
-
-
-<h1 align="center">
-  <img src="docs/assets/icon.png" alt="ePass Logo" width="45" height="45" align="center" /> ePass
-</h1>
-
-<p align="center">
-  <strong>Tokenizando o contrato do atleta. Valorizando seu futuro.</strong>
-</p>
 
 O ePass é um dApp para formalização, registro e fracionamento de direitos de imagem de jovens atletas de futebol. A solução usa blockchain para transformar um acordo jurídico assinado entre atleta, clube e advogado em um ativo digital auditável, verificável e fracionável. Por meio de smart contracts, assinaturas multi-parte e um fluxo de validação on-chain, o ePass garante transparência, segurança jurídica e um mecanismo real de valorização de mercado para jogadores em início de carreira.
 
