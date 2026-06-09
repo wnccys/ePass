@@ -112,7 +112,7 @@ export function RightSidebar({
     }, [address, initialAgreements]);
 
     const { data: vaultBalancesResult } = useReadContracts({
-        contracts: vaultContracts,
+        contracts: vaultContracts as any,
         query: {
             enabled: vaultContracts.length > 0,
         },
