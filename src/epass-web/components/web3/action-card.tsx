@@ -217,7 +217,7 @@ export function ActionCard({
     useEffect(() => {
         if (status === "success" && isInitiator) {
             const lang = i18n.language.startsWith("pt") ? "pt" : "en";
-            const customMsg = SUCCESS_MESSAGES[title] || SUCCESS_MESSAGES[actionName];
+            const customMsg = SUCCESS_MESSAGES[actionName] || SUCCESS_MESSAGES[title];
             const successTitle = customMsg?.[lang]?.title || t("actions.success");
             const successDesc = customMsg?.[lang]?.desc || t("contracts.detail.actionRequired");
 
