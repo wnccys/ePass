@@ -41,6 +41,11 @@ export function ContractCard({
                     color: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20",
                     label: t("contracts.status.vault_created"),
                 };
+            case "pending_deposit":
+                return {
+                    color: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+                    label: t("contracts.status.pending_deposit"),
+                };
             case "active":
                 return {
                     color: "bg-green-500/10 text-green-500 border-green-500/20",

@@ -125,6 +125,7 @@ const resources = {
                 status: {
                     pending: "PENDING",
                     pending_signatures: "PENDING SIGNATURES",
+                    pending_deposit: "PENDING DEPOSIT",
                     active: "ACTIVE",
                     rescinded: "RESCINDED",
                     expired: "EXPIRED",
@@ -329,6 +330,17 @@ const resources = {
                         "This deadline specifies the timeframe for collecting signatures and minting the contract, not the duration of the active contract itself.",
                     attorneySignExplanation:
                         "If the email and wallet address of the attorney are the same as yours, signing the contract will submit signatures for both roles at the same time.",
+                    tokenInfoTitle: "Token & Caution Info",
+                    tokenEmission: "Emitted Tokens",
+                    sharesDistribution: "Shares Distribution",
+                    cautionSplitTitle: "Caution Allocation Rules",
+                    rescissionByPlayer: "Rescission by Player (<6m)",
+                    rescissionByClub: "Rescission by Club (<6m)",
+                    after6Months: "After 6 Months / Expiration",
+                    toPlayer: "To Player",
+                    toClub: "To Club",
+                    hundredPercentToClub: "100% to Club",
+                    hundredPercentToPlayer: "100% to Player",
                 },
             },
             dashboard: {
@@ -618,6 +630,7 @@ const resources = {
                 status: {
                     pending: "PENDENTE",
                     pending_signatures: "ASSINATURAS PENDENTES",
+                    pending_deposit: "DEPÓSITO PENDENTE",
                     active: "ATIVO",
                     rescinded: "RESCINDIDO",
                     expired: "EXPIRADO",
@@ -827,6 +840,17 @@ const resources = {
                         "Este prazo especifica o limite para a coleta de assinaturas e cunhagem do contrato, não a duração do contrato ativo em si.",
                     attorneySignExplanation:
                         "Se o e-mail e o endereço de carteira do advogado forem iguais aos seus, a assinatura do contrato assinará para ambas as funções ao mesmo tempo.",
+                    tokenInfoTitle: "Informações de Token & Caução",
+                    tokenEmission: "Tokens Emitidos",
+                    sharesDistribution: "Distribuição de Cotas",
+                    cautionSplitTitle: "Regras de Divisão da Caução",
+                    rescissionByPlayer: "Rescisão pelo Jogador (<6m)",
+                    rescissionByClub: "Rescisão pelo Clube (<6m)",
+                    after6Months: "Após 6 Meses / Expiração",
+                    toPlayer: "Para o Jogador",
+                    toClub: "Para o Clube",
+                    hundredPercentToClub: "100% para o Clube",
+                    hundredPercentToPlayer: "100% para o Jogador",
                 },
             },
             dashboard: {

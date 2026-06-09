@@ -1953,6 +1953,95 @@ export default function ContractDetailPage() {
                                 </div>
                             )}
                     </div>
+
+                    {/* Token & Caution Information Block */}
+                    <div className="glass-panel rounded-xl p-6 transition-all duration-300 hover:border-primary/30">
+                        <h3 className="mb-4 font-semibold">
+                            {t("contracts.detail.tokenInfoTitle")}
+                        </h3>
+                        
+                        <div className="space-y-4 text-sm">
+                            <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                                <span className="text-muted-foreground">{t("contracts.detail.tokenEmission")}</span>
+                                <span className="font-semibold text-foreground">
+                                    1.000.000 {agreement.tokenSymbol}
+                                </span>
+                            </div>
+
+                            <div className="space-y-3">
+                                <p className="font-medium text-xs text-muted-foreground uppercase tracking-wider">
+                                    {t("contracts.detail.sharesDistribution")}
+                                </p>
+                                {(() => {
+                                    const playerBps = 3000;
+                                    const clubBps = 6000;
+                                    const attorneyBps = 1000;
+                                    return (
+                                        <div className="space-y-3">
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="text-muted-foreground text-xs">{t("contracts.detail.player")}</span>
+                                                <span className="font-semibold text-foreground text-sm">
+                                                    {(playerBps / 100).toFixed(1)}% ({(playerBps * 100).toLocaleString()} {agreement.tokenSymbol})
+                                                </span>
+                                            </div>
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="text-muted-foreground text-xs">{t("contracts.detail.club")}</span>
+                                                <span className="font-semibold text-foreground text-sm">
+                                                    {(clubBps / 100).toFixed(1)}% ({(clubBps * 100).toLocaleString()} {agreement.tokenSymbol})
+                                                </span>
+                                            </div>
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="text-muted-foreground text-xs">{t("contracts.detail.attorney")}</span>
+                                                <span className="font-semibold text-foreground text-sm">
+                                                    {(attorneyBps / 100).toFixed(1)}% ({(attorneyBps * 100).toLocaleString()} {agreement.tokenSymbol})
+                                                </span>
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+
+                            <div className="mt-4 border-t border-border/50 pt-3 space-y-2">
+                                <p className="font-medium text-xs text-muted-foreground uppercase tracking-wider">
+                                    {t("contracts.detail.cautionSplitTitle")}
+                                </p>
+                                <div className="space-y-2 text-xs">
+                                    <div className="space-y-1">
+                                        <div className="font-medium text-muted-foreground pb-0.5">
+                                            {t("contracts.detail.rescissionByPlayer")}
+                                        </div>
+                                        <div className="pl-2 flex items-center justify-between">
+                                            <span>{t("contracts.detail.toClub")}</span>
+                                            <span className="font-semibold">65%</span>
+                                        </div>
+                                        <div className="pl-2 flex items-center justify-between">
+                                            <span>{t("contracts.detail.toPlayer")}</span>
+                                            <span className="font-semibold">35%</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="space-y-1 pt-1">
+                                        <div className="font-medium text-muted-foreground pb-0.5">
+                                            {t("contracts.detail.rescissionByClub")}
+                                        </div>
+                                        <div className="pl-2 flex items-center justify-between">
+                                            <span>{t("contracts.detail.toPlayer")}</span>
+                                            <span className="font-semibold">65%</span>
+                                        </div>
+                                        <div className="pl-2 flex items-center justify-between">
+                                            <span>{t("contracts.detail.toClub")}</span>
+                                            <span className="font-semibold">35%</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between text-muted-foreground pt-2 border-t border-border/20">
+                                        <span>{t("contracts.detail.after6Months")}</span>
+                                        <span className="font-semibold text-foreground">{t("contracts.detail.hundredPercentToClub")}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

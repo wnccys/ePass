@@ -5,7 +5,7 @@ import {
     Link as LinkIcon,
     Loader,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useChainId, useConnection } from "wagmi";
@@ -17,6 +17,53 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+
+const SUCCESS_MESSAGES: Record<string, Record<string, { title: string; desc: string }>> = {
+    "Ready to Mint": {
+        en: { title: "Mint Successful", desc: "The Player Rights NFT has been minted successfully." },
+        pt: { title: "Cunhagem Concluída", desc: "O NFT de Direitos do Jogador foi cunhado com sucesso." },
+    },
+    "Deploy Vault Escrow": {
+        en: { title: "Vault Deployed", desc: "The secure escrow vault clone has been deployed." },
+        pt: { title: "Cofre Implantado", desc: "O clone do cofre de custódia seguro foi implantado." },
+    },
+    "Lock & Fractionalize NFT": {
+        en: { title: "Fractionalized Successfully", desc: "The NFT was locked and image rights tokens have been distributed." },
+        pt: { title: "Fracionado com Sucesso", desc: "O NFT foi travado e os tokens de direito de imagem foram distribuídos." },
+    },
+    "Approve NFT to Vault": {
+        en: { title: "NFT Approved", desc: "The vault has been approved to manage the Master NFT." },
+        pt: { title: "NFT Aprovado", desc: "O cofre foi aprovado para gerenciar o NFT Mestre." },
+    },
+    "Authorize Vault": {
+        en: { title: "Vault Authorized", desc: "The Vault Escrow clone has been successfully authorized." },
+        pt: { title: "Cofre Autorizado", desc: "O clone do cofre de custódia foi autorizado com sucesso." },
+    },
+    "Authorize Vault Clone": {
+        en: { title: "Vault Authorized", desc: "The Vault Escrow clone has been successfully authorized." },
+        pt: { title: "Cofre Autorizado", desc: "O clone do cofre de custódia foi autorizado com sucesso." },
+    },
+    "Approve USDC for Caution": {
+        en: { title: "USDC Approved", desc: "The caution amount approval has been executed." },
+        pt: { title: "USDC Aprovado", desc: "A aprovação do valor da caução foi executada." },
+    },
+    "Deposit Caution": {
+        en: { title: "Caution Deposited", desc: "USDC caution has been deposited. The contract is now ACTIVE!" },
+        pt: { title: "Caução Depositada", desc: "A caução em USDC foi depositada. O contrato agora está ATIVO!" },
+    },
+    "Rescind Agreement (as Player)": {
+        en: { title: "Agreement Rescinded", desc: "The agreement was terminated by the player." },
+        pt: { title: "Acordo Rescindido", desc: "O acordo foi rescindido pelo jogador." },
+    },
+    "Rescind Agreement (as Club)": {
+        en: { title: "Agreement Rescinded", desc: "The agreement was terminated by the club." },
+        pt: { title: "Acordo Rescindido", desc: "O acordo foi rescindido pelo clube." },
+    },
+    "Expire Agreement": {
+        en: { title: "Agreement Expired", desc: "The agreement has expired naturally, returning caution funds." },
+        pt: { title: "Acordo Expirado", desc: "O acordo expirou naturalmente, devolvendo os fundos da caução." },
+    },
+};
 
 interface ActionCardProps {
     title: string;
@@ -79,7 +126,8 @@ export function ActionCard({
 }: ActionCardProps) {
     const { isConnected } = useConnection();
     const chainId = useChainId();
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const [isInitiator, setIsInitiator] = useState(false);
 
     const { network } = useChain();
     const expectedChainId = network.id;
@@ -167,7 +215,12 @@ export function ActionCard({
     }
 
     useEffect(() => {
-        if (status === "success") {
+        if (status === "success" && isInitiator) {
+            const lang = i18n.language.startsWith("pt") ? "pt" : "en";
+            const customMsg = SUCCESS_MESSAGES[title] || SUCCESS_MESSAGES[actionName];
+            const successTitle = customMsg?.[lang]?.title || t("actions.success");
+            const successDesc = customMsg?.[lang]?.desc || t("contracts.detail.actionRequired");
+
             toast.custom(
                 (tToast) => (
                     <div className="sonner-glass-toast relative flex w-full min-w-[320px] flex-col">
@@ -175,10 +228,10 @@ export function ActionCard({
                             <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                             <div className="space-y-1">
                                 <p className="font-semibold text-foreground text-sm">
-                                    {t("actions.success")}
+                                    {successTitle}
                                 </p>
-                                <p className="text-muted-foreground text-xs">
-                                    {t("contracts.detail.actionRequired")}
+                                <p className="text-muted-foreground text-xs leading-relaxed">
+                                    {successDesc}
                                 </p>
                             </div>
                         </div>
@@ -187,8 +240,16 @@ export function ActionCard({
                 ),
                 { duration: 4000 },
             );
+            setIsInitiator(false);
+        } else if (status === "error" && isInitiator) {
+            setIsInitiator(false);
         }
-    }, [status]);
+    }, [status, isInitiator, title, actionName, i18n.language, t]);
+
+    const handleActionClick = async () => {
+        setIsInitiator(true);
+        await onAction();
+    };
 
     return (
         <div className="glass-panel flex flex-col gap-4 rounded-xl p-6">
@@ -237,7 +298,7 @@ export function ActionCard({
             ) : (
                 <div className="flex flex-col gap-4">
                     <button
-                        onClick={onAction}
+                        onClick={handleActionClick}
                         disabled={isBusy}
                         className="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50"
                     >
