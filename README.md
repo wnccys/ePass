@@ -2,7 +2,9 @@
   <img src="docs/assets/epass-cover.png" alt="ePass Banner" width="800px" />
 </p>
 
-<h1 align="center">ePass</h1>
+<h1 align="center">
+  <img src="docs/assets/icon.png" alt="ePass Logo" width="45" height="45" align="center" /> ePass
+</h1>
 
 <p align="center">
   <strong>Tokenizando o contrato do atleta. Valorizando seu futuro.</strong>
@@ -48,35 +50,51 @@ O protocolo é composto por cinco contratos, implantados na **Sepolia Testnet**.
 
 ---
 
-## 🔄 Fluxo off-chain
+## 🔄 Fluxo Off-Chain
 
 ```mermaid
-flowchart LR
-    A[Contrato em PDF] -->|hash| B[IPFS]
-    B -->|URI| C[tokenURI do NFT]
-    D[Jogador] --> E[Assinatura EIP-712]
-    F[Clube] --> E
-    G[Advogado] --> E
+flowchart TD
+    subgraph Documento["1. Registro do Documento Jurídico"]
+        A[Contrato de Imagem em PDF] -->|Gera Hash Criptográfico| B[Armazenamento Descentralizado IPFS]
+        B -->|Retorna Link de Acesso| C["Definição da URI de Metadados (tokenURI)"]
+    end
+
+    subgraph Assinaturas["2. Consentimento Multi-Parte (EIP-712)"]
+        D[Jogador de Futebol] -->|Assina Estrutura do Acordo| G[Coleção de Assinaturas Digitais]
+        E[Clube Contratante] -->|Assina Estrutura do Acordo| G
+        F[Advogado / Procurador] -->|Assina Estrutura do Acordo| G
+    end
+
+    C --> H[Interface monta o Acordo Final]
+    G --> H
 ```
 
 ---
 
-## ⛓️ Fluxo on-chain
+## ⛓️ Fluxo On-Chain
 
 ```mermaid
 flowchart TD
-    A[Frontend monta MintAgreement] --> B[RightsMinter.executeMint]
-    B --> C[Verifica deadline]
-    C --> D[Verifica nonce]
-    D --> E[Valida 3 assinaturas EIP-712]
-    E --> F[PlayerRightsMaster.mintRights]
-    F --> G[NFT mestre mintado para o clube]
-    G --> H[Clube aprova o tokenId para o vault clone]
-    H --> I[RightsVaultClone.fractionalize]
-    I --> J[NFT travado no vault]
-    J --> K[Tokens P_IMAGE distribuídos por basis points]
-    K --> L[Clube chama depositCaution]
-    L --> M[Contrato entra em status ACTIVE]
+    subgraph Registro["1. Autorização & Cunhagem do NFT"]
+        A["Interface envia MintAgreement"] --> B["RightsMinter.executeMint()"]
+        B --> C{"Verifica Deadline & Nonce"}
+        C -->|Válido| D["Verifica Assinaturas (EIP-712)"]
+        D -->|3 Assinaturas OK| E["PlayerRightsMaster.mintRights()"]
+        E --> F["NFT Mestre é cunhado para o Clube"]
+    end
+
+    subgraph Fracionamento["2. Criação & Fracionamento do Cofre"]
+        F --> G["Clube aprova NFT para o Vault Clone"]
+        G --> H["RightsVaultClone.fractionalize()"]
+        H --> I["NFT Mestre é travado no Vault"]
+        I --> J["Emissão & Distribuição de $P_IMAGE (Basis Points)"]
+    end
+
+    subgraph Ativacao["3. Depósito de Caução & Ativação"]
+        J --> K["Clube aprova e deposita Caução (Stablecoin)"]
+        K --> L["RightsVaultClone.depositCaution()"]
+        L --> M["Contrato fica Ativo (ACTIVE)"]
+    end
 ```
 
 ---
@@ -275,12 +293,18 @@ ePass/
 ## 📺 Demonstração
 
 ```bash
-# ⚠️ Não se esqueça de ajustar o endereço contido no contrato, ele está default para o endereço #1 do Foundry
-# Deploy dos contratos singleton
-forge script script/Deploy.s.sol --rpc-url sepolia --broadcast
+# Navegar até a pasta dos smart-contracts
+cd src/smart-contracts
+
+# Configurar a chave privada de deploy ($PRIVATE_KEY) e a URL RPC da rede (ex: Sepolia)
+export PRIVATE_KEY=0x...
+export SEPOLIA_RPC_URL=https://...
+
+# Deploy dos contratos singleton (carrega a chave de forma dinâmica do ambiente)
+forge script script/Deploy.s.sol:Deploy --rpc-url $SEPOLIA_RPC_URL --broadcast -vvvv
 
 # Simulação completa do pipeline
-forge script script/SimulatePipeline.s.sol --rpc-url sepolia --broadcast
+forge script script/SimulatePipeline.s.sol:SimulatePipeline --rpc-url $SEPOLIA_RPC_URL --broadcast -vvvv
 ```
 
 | Item | Link |

@@ -11,7 +11,7 @@ import {RightsVaultFactory} from "../src/RightsVaultFactory.sol";
 contract Deploy is Script {
     function run() public {
         // #1 account in Foundry
-        uint256 deployerPk = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
+        uint256 deployerPk = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(deployerPk);
 
         vm.startBroadcast(deployerPk);
