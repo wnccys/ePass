@@ -423,6 +423,34 @@ const resources = {
                     recentConfirmations: "Recent Confirmations",
                     noRecentConfirmations: "No recent confirmations.",
                     draftsOthers: "Drafts/Others",
+                    userTokens: "User Tokens",
+                    rightsNfts: "Rights NFTs",
+                    usdcBalance: "USDC Balance",
+                    totalDonations: "Total Donations",
+                    donationsTooltipExplanation:
+                        "This is a mock visualization of accumulated sponsorships. Fans can support the player by purchasing the player's customized fractionalized tokens ({{tokenSymbol}}), which are pegged to USDC. The player receives sponsorships directly from these token holdings.",
+                    accumulatedSponsorship: "Accumulated Sponsorship",
+                    savingsTitle: "Savings",
+                    savingsTooltipExplanation:
+                        "These metrics represent real financial benefits and savings realized by using ePass on-chain rails instead of traditional sports banking. The numbers shown here are currently mock simulations.",
+                    clubLiquidityUnlocked: "Liquidity Unlocked",
+                    clubLiquidityUnlockedDesc:
+                        "Immediate stablecoin capital released from active vaults.",
+                    clubFactoringSaved: "Factoring Fees Saved",
+                    clubFactoringSavedDesc:
+                        "Savings compared to traditional bank factoring rates.",
+                    clubTimeSaved: "Days Saved to Funding",
+                    clubTimeSavedDesc:
+                        "Average speed-to-liquidity compared to bank underwriting.",
+                    playerYieldEarned: "Direct likeness Yield",
+                    playerYieldEarnedDesc:
+                        "Sponsor/reserve distributions redeemed by you.",
+                    playerCautionEscrowed: "Caution Escrow Security",
+                    playerCautionEscrowedDesc:
+                        "Collateralized guarantee against club defaults.",
+                    playerGasSaved: "EIP-712 Gas Saved",
+                    playerGasSavedDesc:
+                        "Transaction fees saved using off-chain EIP-712 consent.",
                 },
             },
             actionType: {
@@ -890,6 +918,34 @@ const resources = {
                     recentConfirmations: "Confirmações Recentes",
                     noRecentConfirmations: "Nenhuma confirmação recente.",
                     draftsOthers: "Rascunhos/Outros",
+                    userTokens: "Tokens do Usuário",
+                    rightsNfts: "NFTs de Direitos",
+                    usdcBalance: "Saldo de USDC",
+                    totalDonations: "Total de Doações",
+                    donationsTooltipExplanation:
+                        "Esta é uma visualização fictícia de patrocínios acumulados. Os fãs podem apoiar o jogador comprando os tokens fracionados customizados do jogador ({{tokenSymbol}}), que são pareados com USDC. O jogador recebe patrocínios diretamente dessas posses de tokens.",
+                    accumulatedSponsorship: "Patrocínio Acumulado",
+                    savingsTitle: "Economias",
+                    savingsTooltipExplanation:
+                        "Estas métricas representam economias e benefícios financeiros reais alcançados ao usar a rede on-chain do ePass em vez do banco esportivo tradicional. Os números mostrados aqui são simulações fictícias.",
+                    clubLiquidityUnlocked: "Liquidez Desbloqueada",
+                    clubLiquidityUnlockedDesc:
+                        "Capital imediato em stablecoin liberado dos vaults ativos.",
+                    clubFactoringSaved: "Tarifas de Factoring Salvas",
+                    clubFactoringSavedDesc:
+                        "Economia em comparação com as taxas de factoring bancário tradicional.",
+                    clubTimeSaved: "Dias Salvos para Financiamento",
+                    clubTimeSavedDesc:
+                        "Velocidade média de liquidez comparada à análise bancária.",
+                    playerYieldEarned: "Rendimento de Imagem",
+                    playerYieldEarnedDesc:
+                        "Distribuições de reserva/patrocínio resgatadas por você.",
+                    playerCautionEscrowed: "Garantia de Bônus",
+                    playerCautionEscrowedDesc:
+                        "Garantia colateralizada contra inadimplência do clube.",
+                    playerGasSaved: "Taxa de Gás Salva (EIP-712)",
+                    playerGasSavedDesc:
+                        "Taxas de transação economizadas usando assinaturas off-chain EIP-712.",
                 },
             },
             actionType: {
