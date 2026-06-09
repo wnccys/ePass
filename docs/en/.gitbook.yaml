@@ -1,4 +1,4 @@
-root: ./docs
+root: ./
 title: ePass Documentation
 description: Web3 platform for accessibility and compliance between football players and clubs.
 theme: dark
