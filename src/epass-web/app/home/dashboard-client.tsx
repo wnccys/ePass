@@ -81,6 +81,7 @@ export function DashboardClient({
                         stats={stats}
                         recentTransactions={recentConfirmedTxs}
                         userRole={user.role}
+                        initialAgreements={initialAgreements}
                     />
                 </div>
             </div>

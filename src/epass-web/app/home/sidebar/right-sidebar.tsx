@@ -6,6 +6,7 @@ import {
     CheckCircle,
     Coins,
     FileText,
+    HelpCircle,
     TrendingUp,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -23,6 +24,12 @@ import { formatUnits } from "viem";
 import { useConnection } from "wagmi";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+    Tooltip as UITooltip,
+    TooltipContent as UITooltipContent,
+    TooltipProvider as UITooltipProvider,
+    TooltipTrigger as UITooltipTrigger,
+} from "@/components/ui/tooltip";
 import { MOCK_USDC, PLAYER_RIGHTS_MASTER } from "@/lib/web3/contracts";
 import {
     useReadMockUsdcBalanceOf,
@@ -40,6 +47,7 @@ export function RightSidebar({
     stats,
     recentTransactions,
     userRole,
+    initialAgreements,
 }: {
     stats: {
         totalContracts: number;
@@ -51,6 +59,7 @@ export function RightSidebar({
     };
     recentTransactions: any[];
     userRole: string;
+    initialAgreements?: any[];
 }) {
     const [mounted, setMounted] = useState(false);
     const { t } = useTranslation();
@@ -79,6 +88,12 @@ export function RightSidebar({
             enabled: !!address,
         },
     });
+
+    const activeAgreement = useMemo(() => {
+        return initialAgreements?.find((a) => a.tokenSymbol);
+    }, [initialAgreements]);
+    const tokenSymbol = activeAgreement?.tokenSymbol || "PRT";
+    const tokenName = activeAgreement?.tokenName || "Player Rights Token";
 
     useEffect(() => {
         setMounted(true);
@@ -408,6 +423,144 @@ export function RightSidebar({
                                             USDC
                                         </span>
                                     </div>
+                                </div>
+                            </Card>
+                        </div>
+                    )}
+
+                    {/* Total Donations (Fan Sponsorships) */}
+                    {mounted && (
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-1.5 border-border/40 border-b pb-1">
+                                <TrendingUp className="h-4 w-4 text-primary" />
+                                <div className="flex items-center gap-1.5">
+                                    <h3 className="font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+                                        {t(
+                                            "dashboard.sidebar.totalDonations",
+                                            "Total Donations",
+                                        )}
+                                    </h3>
+                                    <UITooltipProvider>
+                                        <UITooltip>
+                                            <UITooltipTrigger asChild>
+                                                <button
+                                                    type="button"
+                                                    className="inline-flex cursor-help items-center justify-center rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                                >
+                                                    <HelpCircle className="h-3 w-3" />
+                                                </button>
+                                            </UITooltipTrigger>
+                                            <UITooltipContent className="max-w-xs rounded-xl border border-border/40 bg-popover p-3 text-center text-popover-foreground text-xs leading-relaxed shadow-xl">
+                                                {t(
+                                                    "dashboard.sidebar.donationsTooltipExplanation",
+                                                    {
+                                                        tokenSymbol,
+                                                        defaultValue: `This is a mock visualization of accumulated sponsorships. Fans can support the player by purchasing the player's customized fractionalized tokens (${tokenSymbol}), which are pegged to USDC. The player receives sponsorships directly from these token holdings.`,
+                                                    },
+                                                )}
+                                            </UITooltipContent>
+                                        </UITooltip>
+                                    </UITooltipProvider>
+                                </div>
+                            </div>
+
+                            <Card className="glass-card space-y-3 p-4">
+                                <div className="space-y-0.5">
+                                    <span className="block font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
+                                        {t(
+                                            "dashboard.sidebar.accumulatedSponsorship",
+                                            "Accumulated Sponsorship",
+                                        )}
+                                    </span>
+                                    <div className="flex flex-col gap-0.5">
+                                        <h4 className="font-bold font-mono text-foreground text-xl leading-none">
+                                            12,500.00 USDC
+                                        </h4>
+                                        <span className="font-semibold text-[9px] text-muted-foreground uppercase">
+                                            via {tokenName} ({tokenSymbol})
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="h-24 w-full">
+                                    <ResponsiveContainer
+                                        width="100%"
+                                        height="100%"
+                                        minWidth={0}
+                                    >
+                                        <AreaChart
+                                            data={[
+                                                { date: "May 1", amount: 1200 },
+                                                {
+                                                    date: "May 15",
+                                                    amount: 2800,
+                                                },
+                                                { date: "Jun 1", amount: 5400 },
+                                                {
+                                                    date: "Jun 15",
+                                                    amount: 8900,
+                                                },
+                                                {
+                                                    date: "Jul 1",
+                                                    amount: 12500,
+                                                },
+                                            ]}
+                                            margin={{
+                                                top: 5,
+                                                right: 4,
+                                                left: 4,
+                                                bottom: 0,
+                                            }}
+                                        >
+                                            <defs>
+                                                <linearGradient
+                                                    id="donationFill"
+                                                    x1="0"
+                                                    y1="0"
+                                                    x2="0"
+                                                    y2="1"
+                                                >
+                                                    <stop
+                                                        offset="0%"
+                                                        stopColor="oklch(from var(--primary) l c h)"
+                                                        stopOpacity={0.4}
+                                                    />
+                                                    <stop
+                                                        offset="100%"
+                                                        stopColor="oklch(from var(--primary) l c h)"
+                                                        stopOpacity={0}
+                                                    />
+                                                </linearGradient>
+                                            </defs>
+                                            <Tooltip
+                                                cursor={{
+                                                    stroke: "oklch(from var(--primary) l c h / 30%)",
+                                                }}
+                                                contentStyle={{
+                                                    background:
+                                                        "oklch(from var(--card) l c h / 95%)",
+                                                    border: "1px solid oklch(from var(--border) l c h / 40%)",
+                                                    borderRadius: "0.75rem",
+                                                    fontSize: "11px",
+                                                    padding: "6px 10px",
+                                                }}
+                                            />
+                                            <Area
+                                                type="monotone"
+                                                dataKey="amount"
+                                                stroke="oklch(from var(--primary) l c h)"
+                                                strokeWidth={2}
+                                                fill="url(#donationFill)"
+                                            />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
+                                <div className="grid grid-cols-5 gap-1 border-border/50 border-t pt-2 text-center text-[9px] text-muted-foreground">
+                                    <span>May 1</span>
+                                    <span>May 15</span>
+                                    <span>Jun 1</span>
+                                    <span>Jun 15</span>
+                                    <span>Jul 1</span>
                                 </div>
                             </Card>
                         </div>
