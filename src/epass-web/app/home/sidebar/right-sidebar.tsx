@@ -240,6 +240,7 @@ export function RightSidebar({
                                             </Pie>
                                             <Tooltip
                                                 cursor={false}
+                                                allowEscapeViewBox={{ x: true, y: true }}
                                                 contentStyle={{
                                                     background:
                                                         "oklch(from var(--card) l c h / 95%)",
@@ -341,6 +342,7 @@ export function RightSidebar({
                                                 cursor={{
                                                     stroke: "oklch(from var(--primary) l c h / 30%)",
                                                 }}
+                                                allowEscapeViewBox={{ x: true, y: true }}
                                                 contentStyle={{
                                                     background:
                                                         "oklch(from var(--card) l c h / 95%)",
@@ -536,6 +538,7 @@ export function RightSidebar({
                                                 cursor={{
                                                     stroke: "oklch(from var(--primary) l c h / 30%)",
                                                 }}
+                                                allowEscapeViewBox={{ x: true, y: true }}
                                                 contentStyle={{
                                                     background:
                                                         "oklch(from var(--card) l c h / 95%)",
@@ -562,6 +565,175 @@ export function RightSidebar({
                                     <span>Jun 15</span>
                                     <span>Jul 1</span>
                                 </div>
+                            </Card>
+                        </div>
+                    )}
+
+                    {/* Savings & Financial Benefits */}
+                    {mounted && (
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-1.5 border-border/40 border-b pb-1">
+                                <Activity className="h-4 w-4 text-primary" />
+                                <div className="flex items-center gap-1.5">
+                                    <h3 className="font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+                                        {t(
+                                            "dashboard.sidebar.savingsTitle",
+                                            "Savings",
+                                        )}
+                                    </h3>
+                                    <UITooltipProvider>
+                                        <UITooltip>
+                                            <UITooltipTrigger asChild>
+                                                <button
+                                                    type="button"
+                                                    className="inline-flex cursor-help items-center justify-center rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                                >
+                                                    <HelpCircle className="h-3 w-3" />
+                                                </button>
+                                            </UITooltipTrigger>
+                                            <UITooltipContent className="max-w-xs rounded-xl border border-border/40 bg-popover p-3 text-center text-popover-foreground text-xs leading-relaxed shadow-xl">
+                                                {t(
+                                                    "dashboard.sidebar.savingsTooltipExplanation",
+                                                    "These metrics represent real financial benefits and savings realized by using ePass on-chain rails instead of traditional sports banking. The numbers shown here are currently mock simulations.",
+                                                )}
+                                            </UITooltipContent>
+                                        </UITooltip>
+                                    </UITooltipProvider>
+                                </div>
+                            </div>
+
+                            <Card className="glass-card space-y-4 p-4">
+                                {userRole === "club" ? (
+                                    <>
+                                        {/* Club Metric 1 */}
+                                        <div className="space-y-1">
+                                            <span className="block font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
+                                                {t(
+                                                    "dashboard.sidebar.clubLiquidityUnlocked",
+                                                    "Liquidity Unlocked",
+                                                )}
+                                            </span>
+                                            <div className="flex items-baseline gap-1">
+                                                <span className="font-bold font-mono text-base text-emerald-500">
+                                                    68,000.00 USDC
+                                                </span>
+                                            </div>
+                                            <p className="text-[10px] text-muted-foreground leading-snug">
+                                                {t(
+                                                    "dashboard.sidebar.clubLiquidityUnlockedDesc",
+                                                    "Immediate stablecoin capital released from active vaults.",
+                                                )}
+                                            </p>
+                                        </div>
+
+                                        {/* Club Metric 2 */}
+                                        <div className="space-y-1 border-border/30 border-t pt-3">
+                                            <span className="block font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
+                                                {t(
+                                                    "dashboard.sidebar.clubFactoringSaved",
+                                                    "Factoring Fees Saved",
+                                                )}
+                                            </span>
+                                            <div className="flex items-baseline gap-1">
+                                                <span className="font-bold font-mono text-base text-foreground">
+                                                    4,850.00 USDC
+                                                </span>
+                                            </div>
+                                            <p className="text-[10px] text-muted-foreground leading-snug">
+                                                {t(
+                                                    "dashboard.sidebar.clubFactoringSavedDesc",
+                                                    "Savings compared to traditional bank factoring rates.",
+                                                )}
+                                            </p>
+                                        </div>
+
+                                        {/* Club Metric 3 */}
+                                        <div className="space-y-1 border-border/30 border-t pt-3">
+                                            <span className="block font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
+                                                {t(
+                                                    "dashboard.sidebar.clubTimeSaved",
+                                                    "Days Saved to Funding",
+                                                )}
+                                            </span>
+                                            <div className="flex items-baseline gap-1">
+                                                <span className="font-bold font-mono text-base text-primary">
+                                                    40 Days Saved
+                                                </span>
+                                            </div>
+                                            <p className="text-[10px] text-muted-foreground leading-snug">
+                                                {t(
+                                                    "dashboard.sidebar.clubTimeSavedDesc",
+                                                    "Average speed-to-liquidity compared to bank underwriting.",
+                                                )}
+                                            </p>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        {/* Player Metric 1 */}
+                                        <div className="space-y-1">
+                                            <span className="block font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
+                                                {t(
+                                                    "dashboard.sidebar.playerYieldEarned",
+                                                    "Direct Likeness Yield",
+                                                )}
+                                            </span>
+                                            <div className="flex items-baseline gap-1">
+                                                <span className="font-bold font-mono text-base text-emerald-500">
+                                                    3,450.00 USDC
+                                                </span>
+                                            </div>
+                                            <p className="text-[10px] text-muted-foreground leading-snug">
+                                                {t(
+                                                    "dashboard.sidebar.playerYieldEarnedDesc",
+                                                    "Sponsor/reserve distributions redeemed by you.",
+                                                )}
+                                            </p>
+                                        </div>
+
+                                        {/* Player Metric 2 */}
+                                        <div className="space-y-1 border-border/30 border-t pt-3">
+                                            <span className="block font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
+                                                {t(
+                                                    "dashboard.sidebar.playerCautionEscrowed",
+                                                    "Caution Escrow Security",
+                                                )}
+                                            </span>
+                                            <div className="flex items-baseline gap-1">
+                                                <span className="font-bold font-mono text-base text-foreground">
+                                                    25,000.00 USDC
+                                                </span>
+                                            </div>
+                                            <p className="text-[10px] text-muted-foreground leading-snug">
+                                                {t(
+                                                    "dashboard.sidebar.playerCautionEscrowedDesc",
+                                                    "Collateralized guarantee against club defaults.",
+                                                )}
+                                            </p>
+                                        </div>
+
+                                        {/* Player Metric 3 */}
+                                        <div className="space-y-1 border-border/30 border-t pt-3">
+                                            <span className="block font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
+                                                {t(
+                                                    "dashboard.sidebar.playerGasSaved",
+                                                    "EIP-712 Gas Saved",
+                                                )}
+                                            </span>
+                                            <div className="flex items-baseline gap-1">
+                                                <span className="font-bold font-mono text-base text-primary">
+                                                    $12.80 Saved
+                                                </span>
+                                            </div>
+                                            <p className="text-[10px] text-muted-foreground leading-snug">
+                                                {t(
+                                                    "dashboard.sidebar.playerGasSavedDesc",
+                                                    "Transaction fees saved using off-chain EIP-712 consent.",
+                                                )}
+                                            </p>
+                                        </div>
+                                    </>
+                                )}
                             </Card>
                         </div>
                     )}
