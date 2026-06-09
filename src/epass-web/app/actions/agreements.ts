@@ -324,9 +324,44 @@ export async function excludeAgreementFromAccount(agreementId: string) {
 
     await dbConnect();
     try {
+        const agreement = await Agreement.findById(agreementId);
+        if (!agreement) {
+            return { success: false, error: "Agreement not found" };
+        }
+
+        const allowedStatuses = ["draft", "pending_signatures", "ready"];
+        if (!allowedStatuses.includes(agreement.status)) {
+            return {
+                success: false,
+                error: "Cannot exclude an on-chain contract.",
+            };
+        }
+
+        // Pull from the current user's list
         await User.findByIdAndUpdate(session.user.id, {
             $pull: { contracts: agreementId },
         });
+
+        // If the current user is the club, also pull from player and attorney contracts lists
+        const isClub =
+            agreement.clubUserId.toString() === session.user.id ||
+            agreement.clubEmail.toLowerCase() ===
+                session.user.email?.toLowerCase();
+
+        if (isClub) {
+            // Player account
+            await User.findOneAndUpdate(
+                { email: agreement.playerEmail.toLowerCase() },
+                { $pull: { contracts: agreementId } },
+            );
+
+            // Attorney account
+            await User.findOneAndUpdate(
+                { email: agreement.attorneyEmail.toLowerCase() },
+                { $pull: { contracts: agreementId } },
+            );
+        }
+
         return { success: true };
     } catch (err) {
         console.error(err);

@@ -1103,6 +1103,11 @@ export default function ContractDetailPage() {
         ((isPlayer || isAssignedPlayer) && !agreement.playerSignature) ||
         ((isAttorney || isAssignedAttorney) && !agreement.attorneySignature);
 
+    const isExcludeAvailable =
+        agreement.status === "draft" ||
+        agreement.status === "pending_signatures" ||
+        agreement.status === "ready";
+
     return (
         <div className="container mx-auto min-h-screen max-w-4xl px-6 py-24">
             <div className="mb-8 flex items-start justify-between">
@@ -1121,18 +1126,20 @@ export default function ContractDetailPage() {
                     >
                         {agreement.status.replace("_", " ").toUpperCase()}
                     </Badge>
-                    <button
-                        onClick={handleExclude}
-                        disabled={isExcluding}
-                        className="glass-input flex shrink-0 cursor-pointer items-center justify-center rounded-xl border border-destructive/20 p-2.5 text-destructive transition-all hover:scale-105 hover:border-destructive/30 hover:bg-destructive/10 active:scale-95"
-                        title={t("contracts.detail.excludeTooltip")}
-                    >
-                        {isExcluding ? (
-                            <Loader className="h-4 w-4 animate-spin" />
-                        ) : (
-                            <Trash2 className="h-4 w-4" />
-                        )}
-                    </button>
+                    {isExcludeAvailable && (
+                        <button
+                            onClick={handleExclude}
+                            disabled={isExcluding}
+                            className="glass-input flex shrink-0 cursor-pointer items-center justify-center rounded-xl border border-destructive/20 p-2.5 text-destructive transition-all hover:scale-105 hover:border-destructive/30 hover:bg-destructive/10 active:scale-95"
+                            title={t("contracts.detail.excludeTooltip")}
+                        >
+                            {isExcluding ? (
+                                <Loader className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <Trash2 className="h-4 w-4" />
+                            )}
+                        </button>
+                    )}
                 </div>
             </div>
 
