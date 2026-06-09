@@ -9,9 +9,9 @@ import {
     useInView,
     type Variants,
 } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
-import React, { useEffect, useRef } from "react";
+
+import { signIn } from "next-auth/react";
+import React, { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
     Tooltip,
@@ -370,15 +370,14 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 // --- MAIN COMPONENT ---
 export const AuthComponent = () => {
-    const { status } = useSession();
-    const router = useRouter();
     const { t } = useTranslation();
 
-    useEffect(() => {
-        if (status === "authenticated") {
-            router.push("/home");
-        }
-    }, [status, router]);
+    // NOTE: Redirect for already-authenticated users is handled server-side
+    // in login/page.tsx via getServerSession + redirect("/home").
+    // A client-side useEffect checking useSession().status was removed here
+    // because it caused a race condition: after logout, the session provider
+    // could briefly report "authenticated" from a stale JWT refresh,
+    // pushing the user back to /home immediately after reaching /login.
 
     return (
         <div className="flex min-h-screen w-screen flex-col bg-background">

@@ -22,7 +22,7 @@ type WalletConnectProps = {
 export default function SiweButton({ onAddressChange }: WalletConnectProps) {
     const { t } = useTranslation();
     const connection = useConnection();
-    const { data: session, update } = useSession();
+    const { data: session, update, status: sessionStatus } = useSession();
     const {
         mutateAsync: connectMutateAsync,
         status: connectStatus,
@@ -105,8 +105,9 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
     // Sync wallet address to NextAuth session (only when it actually changes)
     const prevSyncedAddress = useRef<string | null | undefined>(undefined);
     useEffect(() => {
-        // Don't sync if there's no active session (e.g. after signOut)
-        if (!session?.user) return;
+        // Don't sync if there's no active, authenticated session
+        // (e.g. during signOut or loading transitions)
+        if (sessionStatus !== "authenticated" || !session?.user) return;
 
         const targetWallet = address || null;
         // Skip if we already synced this value
@@ -120,7 +121,7 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
             // Session already matches, just record it
             prevSyncedAddress.current = targetWallet;
         }
-    }, [address, session?.user?.walletAddress, session?.user]);
+    }, [address, session?.user?.walletAddress, session?.user, sessionStatus]);
 
     return (
         /** Connect wallet button */
