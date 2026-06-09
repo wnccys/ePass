@@ -10,8 +10,8 @@ import {RightsVaultFactory} from "../src/RightsVaultFactory.sol";
 
 contract Deploy is Script {
     function run() public {
-        uint256 deployerPk =
-            0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
+        // #1 account in Foundry
+        uint256 deployerPk = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
         address deployer = vm.addr(deployerPk);
 
         vm.startBroadcast(deployerPk);
@@ -36,8 +36,14 @@ contract Deploy is Script {
         console2.log("=== Deployment Output ===");
         console2.log("NEXT_PUBLIC_MOCK_USDC_ADDRESS=%s", address(usdc));
         console2.log("NEXT_PUBLIC_RIGHTS_MINTER_ADDRESS=%s", address(minter));
-        console2.log("NEXT_PUBLIC_PLAYER_RIGHTS_MASTER_ADDRESS=%s", address(nft));
-        console2.log("NEXT_PUBLIC_RIGHTS_VAULT_IMPLEMENTATION_ADDRESS=%s", address(implementation));
+        console2.log(
+            "NEXT_PUBLIC_PLAYER_RIGHTS_MASTER_ADDRESS=%s",
+            address(nft)
+        );
+        console2.log(
+            "NEXT_PUBLIC_RIGHTS_VAULT_IMPLEMENTATION_ADDRESS=%s",
+            address(implementation)
+        );
         console2.log("NEXT_PUBLIC_VAULT_FACTORY_ADDRESS=%s", address(factory));
         console2.log("=========================");
     }
