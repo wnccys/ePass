@@ -649,8 +649,8 @@ const resources = {
                 detail: {
                     title: "Detalhes do Acordo",
                     escrowDetails: "Detalhes do Escrow",
-                    cautionLocked: "Caution Bloqueado",
-                    cautionRedeemable: "Caution Resgatável",
+                    cautionLocked: "Bônus (Caução) Bloqueado",
+                    cautionRedeemable: "Bônus (Caução) Resgatável",
                     sharesDistribution: "Distribuição de Cotas (Shares)",
                     player: "Jogador",
                     club: "Clube",
@@ -724,7 +724,7 @@ const resources = {
                     rescindAgreementExplanation:
                         "Encerra o contrato prematuramente. Se feito antes de 6 meses (HALF_TIME), aplica-se uma penalidade de 65% sobre o depósito de caution, distribuindo os fundos para a outra parte.",
                     expireAgreementExplanation:
-                        "Conclui o contrato ativo após a duração de 365 dias, devolvendo 100% do depósito de caution bloqueado de volta para o Club.",
+                        "Conclui o contrato ativo após a duração de 365 dias, devolvendo 100% do depósito de bônus (caução) bloqueado de volta para o Club.",
                     contractInspection: "Inspeção do Contrato",
                     agreementInformation: "Informações do Acordo",
                     decentralizedStorage:
@@ -735,7 +735,7 @@ const resources = {
                     viewPinata: "Visualizar no Gateway do Pinata",
                     faucetTitle: "Faucet da Stablecoin USDC",
                     faucetSubtitle:
-                        "Cunhe (Mint) stablecoins de teste para financiar seu depósito de caution",
+                        "Cunhe (Mint) stablecoins de teste para financiar seu depósito de caução",
                     faucetBadge: "Faucet da Testnet",
                     requiredDeposit: "Depósito Obrigatório:",
                     yourBalance: "Seu Saldo:",
@@ -804,7 +804,7 @@ const resources = {
                         "Pergunte para consultar contratos, txs ou criar rascunho de acordo",
                     aiThinking: "IA pensando...",
                     draftTitle: "Rascunho: {{title}}",
-                    cautionLabel: "Caution:",
+                    cautionLabel: "Caução:",
                     playerEmailLabel: "E-mail do Atleta:",
                     tokenLabel: "Token:",
                     reviewSubmit: "Revisar & Enviar Proposta",
@@ -820,7 +820,7 @@ const resources = {
                     totalContracts: "Total de Contratos",
                     activeContracts: "Contratos Ativos",
                     pendingSignatures: "Assinaturas Pendentes",
-                    cautionLocked: "Total de Caution Bloqueado",
+                    cautionLocked: "Total de Caução Bloqueado",
                     activeAgreement: "Acordos Ativos",
                     vaultCount: "Vaults Ativos",
                 },
@@ -854,7 +854,7 @@ const resources = {
                         pendingVault: "Vault Pendente",
                         vaultAddress: "Endereço do Vault",
                         notDeployedYet: "Não implantado ainda",
-                        cautionDeposited: "Caution Depositado",
+                        cautionDeposited: "Caução Depositado",
                         tokenDistribution: "Distribuição do Token {{symbol}}",
                         minted100: "100% Mintado",
                         clubReserve: "Reserva do Clube",
@@ -880,7 +880,7 @@ const resources = {
                     monthsLeft_one: "Falta {{count}} mês",
                     monthsLeft_other: "Faltam {{count}} meses",
                     quickStats: "Estatísticas Rápidas",
-                    totalCautionEscrowed: "Total de Caution Escrowed",
+                    totalCautionEscrowed: "Total de Bônus (Caução) Aplicado",
                     totalCautionEscrowedDesc:
                         "Total de fundos bloqueados em Vaults ativos de PlayerRightsMaster.",
                     contractDistribution: "Distribuição de Contratos",
