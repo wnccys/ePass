@@ -4,9 +4,19 @@ This document details the exact sequence of on-chain operations required to form
 
 ---
 
-## 1. The 5 Steps to Activate a Contract
+## 1. The Pre-requisite: Step 0 (Off-Chain Agreement & Minting)
 
-Once an agreement has been cryptographically signed off-chain by the Player, Club, and Attorney, it can be minted and activated on-chain.
+Before any vault operations can begin, a Master NFT representing the player contract must be minted:
+1. **Drafting**: The club creates a contract draft containing the metadata and the legal PDF IPFS hash.
+2. **EIP-712 Signing**: The Player, Club, and Attorney sign the structured EIP-712 data off-chain using their Web3 wallets.
+3. **Execution**: The Club calls `executeMint()` on the [RightsMinter](file:///home/wnccys/Progs/ETH/ePass/src/smart-contracts/src/RightsMinter.sol) contract, submitting the signatures.
+4. **Minting**: The contract verifies the signatures and instructs [PlayerRightsMaster](file:///home/wnccys/Progs/ETH/ePass/src/smart-contracts/src/PlayerRightsMaster.sol) to mint the Master NFT to the Club.
+
+---
+
+## 2. The 5 Steps to Activate a Vault
+
+Once the Master NFT is owned by the Club, it can be fractionalized and activated:
 
 ```
 [NFT Minted to Club]
@@ -25,6 +35,8 @@ MockUSDC.approve(vaultAddress, cautionAmount)
        │
        ▼ (Step 5: Activate Contract)
 RightsVault.depositCaution(cautionAmount)   <--- Status becomes ACTIVE 🚀
+  - OR -
+RightsVault.depositAndMint(totalAmount)     <--- Alternative: splits caution/reserve
 ```
 
 ### Step 1: Deploy the Vault Proxy Clone
@@ -42,18 +54,22 @@ The Club calls `createVault(...)` on the [RightsVaultFactory](file:///home/wnccy
 ### Step 4: Approve the Caution Deposit
 * **Action**: The Club calls `approve(vaultAddress, cautionAmount)` on the `MockUSDC` (ERC-20) contract, giving the Vault permission to pull the required caution money.
 
-### Step 5: Deposit Caution & Activate
-* **Action**: The Club calls `depositCaution(cautionAmount)` on the **Vault Clone** contract.
-* **Effect**: The Vault pulls the USDC from the Club's balance, records the starting block timestamp (`contractStart`), and sets the status to **`ContractStatus.ACTIVE`** (`1`). The contract is now **fully running**.
+### Step 5: Deposit Caution & Activate (Two Options)
+* **Option A: Pure Caution (`depositCaution`)**:
+  * The Club deposits `cautionAmount` of stablecoin (USDC).
+  * **Effect**: The Vault pulls the USDC, records the starting block timestamp (`contractStart`), and sets the status to **`ContractStatus.ACTIVE`** (`1`).
+* **Option B: Dynamic Deposit & Mint (`depositAndMint`)**:
+  * The Club deposits a `totalAmount` of stablecoin.
+  * **Effect**: The Vault splits the deposit: **50%** is added to the locked `cautionAmount` and **50%** is added to `redeemableReserve`, minting new shares of equivalent value back to the Club. Sets status to **`ContractStatus.ACTIVE`** (`1`).
 
 ---
 
-## 2. The Rescission & Expiration Lifecycle
+## 3. The Rescission & Expiration Lifecycle
 
 Once the contract is `ACTIVE`, the caution money is held in escrow by the Vault clone. The next steps depend on how the contract terminates:
 
 ### Case A: Rescind by Player (`rescindByPlayer()`)
-* **Before 6 Months** (Half-Time): A penalty applies to the player. The Vault sends **65%** of the USDC caution back to the **Club**, and **35%** to the **Player**.
+* **Before 6 Months** (Half-Time + 1 day buffer): A penalty applies to the player. The Vault sends **65%** of the USDC caution back to the **Club**, and **35%** is returned to the **Player**.
 * **After 6 Months**: No penalty. The Vault returns **100%** of the USDC caution back to the **Club**.
 
 ### Case B: Rescind by Club (`rescindByClub()`)
@@ -61,4 +77,17 @@ Once the contract is `ACTIVE`, the caution money is held in escrow by the Vault 
 * **After 6 Months**: No penalty. The Vault returns **100%** of the USDC caution back to the **Club**.
 
 ### Case C: Expiration (`expireContract()`)
-* **After 12 Months**: The contract completes naturally. Anyone can call `expireContract()`, which sets the status to `EXPIRED` (`3`) and returns **100%** of the caution money to the **Club**.
+* **After 12 Months** (365 days + 1 day buffer): The contract completes naturally. Anyone can call `expireContract()`, which sets the status to `EXPIRED` (`3`) and returns **100%** of the caution money to the **Club**.
+
+---
+
+## 4. Post-Activation Operations
+
+### Share Redemption (`redeem()`)
+* **Action**: Any `$P_IMAGE` token holder can call `redeem(shares)` at any time once the contract is no longer `PENDING`.
+* **Effect**: The Vault burns the specified number of shares and returns a proportional amount of the stablecoin `redeemableReserve` to the caller:
+  $$\text{stablecoinAmount} = \frac{\text{shares} \times \text{redeemableReserve}}{\text{totalSupply}}$$
+
+### Athlete Transfer (`transferClub()`)
+* **Action**: The Club can call `transferClub(newClub)` to trade the player's contract.
+* **Effect**: The Vault sets `club = newClub`, sets the status to `TRANSFERRED` (`4`), and transfers all remaining shares owned by the old club to the new club's address.

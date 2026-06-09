@@ -1,39 +1,87 @@
-# ePass
+# General System Specification: On-Chain Football Receivables & RWA Compliance
 
-Este documento define termos e informações relevantes sobre todo o desenvolvimento.
+This document defines the core domain concepts, transfer frameworks, legal contracts, and Real World Asset (RWA) compliance specifications that guide the development of the **ePass** platform.
 
+---
 
-## Visão Geral
+## 1. Domain Overview & The Core Financial Problem
 
-// TODO O tópico abaixo deve ser refeito para se adaptar á demanda de projeto social. Atualmente ela foca muito em transferências internacionais.
-// STUB Existem razões jurídicas pesadas para isso: a FIFA exige que ela própria seja a validadora centralizada do sistema, e o mercado de futebol depende de garantias bancárias tradicionais e da regulamentação de bancos centrais (como o Banco Central do Brasil) para compliance de lavagem de dinheiro.
+Football clubs worldwide, particularly in developing markets (such as Latin America and lower-tier European leagues), frequently suffer from severe cash flow imbalances. While player transfers yield high valuations, buyers rarely pay the full sum upfront. Instead, transfer fees are structured in installments paid over 6 to 24 months. 
 
-## Transferências
+Meanwhile, clubs have immediate, short-term operational expenses:
+* Monthly payroll obligations for athletes and coaching staff.
+* Infrastructure maintenance and youth development funding.
+* Debts and fiscal obligations that require immediate liquidity.
 
-// STUB Reescrever e expandir este trecho.
-* O Software Suíço (FIFA TMS): Para transferências internacionais (ex: Brasil para Europa), tudo passa pelo Transfer Matching System (TMS) da FIFA.
-O clube que compra e o clube que vende precisam fazer o upload de todos os contratos em PDF e preencher os dados da operação (valores, contas bancárias, prazos).
-Se o time europeu colocar que comprou por €10 milhões e o time brasileiro colocar €10,5 milhões, o sistema trava o "match" e a transferência não ocorre.
+### The ePass Solution (RWA Tokenization)
+ePass bridges this gap by tokenizing future transfer receivables and solidarity mechanism rights on-chain:
+```
+[Physical Transfer Contract / Solidary Right]
+                     │
+                     ▼ (Legal Wrapper & IPFS Upload)
+      [EIP-712 Multi-Party Consent]
+                     │
+                     ▼ (On-Chain Minting)
+        [ERC-721 Master Agreement NFT]
+                     │
+                     ▼ (TokenFactory Clone Deploy)
+     [ERC-20 Fractional Shares ($P_IMAGE)]
+                     │
+                     ▼ (DeFi Lending Pool Collateral)
+ [Immediate Liquidity Release in Stablecoins (USDC)]
+```
+By collateralizing the contract on-chain, clubs obtain immediate capital in stablecoins (USDC) from decentralized liquidity pools, which are subsequently repaid as world-world transfer installments flow into the SPV (Special Purpose Vehicle).
 
-* A "Câmara de Compensação" (FIFA Clearing House): Fica em Paris.
-Hoje, todo pagamento internacional passa por lá para garantir que os clubes que formaram o jogador na base recebam automaticamente seus 5% do Mecanismo de Solidariedade.
+---
 
-* O Sistema Nacional (CBF BID): Para transferências entre clubes brasileiros, usa-se o Sistema de Registro Desportivo (SRD) da CBF. Quando o contrato é validado, o nome do jogador sai no Boletim Informativo Diário (BID). Só então ele tem condição legal de jogo.
+## 2. Regulatory Bodies & Traditional Transfer Systems
 
-### Contratos (Como são feitos?)
+A primary barrier to complete on-chain automation is integration with traditional sports regulatory frameworks. ePass coordinates with these entities off-chain through legal wrappers:
 
-// STUB Refinar o texto
+### FIFA TMS (Transfer Matching System)
+* **What it is**: A closed, centralized Web2 system operated by FIFA to register international transfers. Both the buying and selling clubs must upload identical contracts (PDFs) and match transaction details (fees, bank accounts, training compensation, installments).
+* **The Constraint**: Discrepancies as small as €50,000 will halt the matching process, blocking the player's International Transfer Certificate (ITC). ePass matches these parameters in its smart contract builder to align exactly with TMS submissions.
 
-* Transfer Agreement (Contrato de Transferência): Assinado entre os dois clubes.
-Define o valor, o número de parcelas, o banco de destino e as cláusulas de bônus.
+### FIFA Clearing House (Paris)
+* **What it is**: An automated regulatory clearing house that processes international payments to verify and distribute the **Solidarity Mechanism** (typically 5% of any transfer fee split proportionally among the clubs that trained the player between the ages of 12 and 23).
+* **The Constraint**: Currently runs entirely within traditional banking rails. ePass models this by allowing youth clubs to tokenize their future training solidarity shares, providing immediate funding for grassroot facilities.
 
-* Contrato Especial de Trabalho Desportivo (CETD): O contrato de trabalho entre o jogador (CLT) e o novo clube.
-Define salário, luvas (bônus de assinatura) e a multa rescisória.
+### CBF BID (Boletim Informativo Diário - Brazil)
+* **What it is**: The national registration system operated by the Brazilian Football Confederation (CBF). A player is only legally cleared to play in official matches once their updated employment contract (CETD) is registered and published on the BID.
+* **The Constraint**: On-chain status updates must mirror BID registries, which serves as the legal trigger for active contract validation.
 
-* Contrato de Licenciamento de Imagem: Um contrato de natureza civil (não trabalhista) feito entre o clube e uma empresa (PJ) aberta pelo jogador.
-No Brasil, isso pode representar até 40% da remuneração total e paga menos impostos que o salário CLT.
+---
 
+## 3. Legal Contract Typology in Football
 
-## Problema Central
+ePass handles three distinct legal contract categories when tokenizing player assets:
 
-Clubes de futebol sofrem muito com problemas de fluxo de caixa (precisam pagar salários hoje, mas a parcela da venda do jogador só entra daqui a 6 meses). É aqui que os contratos inteligentes estão começando a ser testados através de RWA (Real World Assets - Ativos do Mundo Real).
+### 1. Transfer Agreement (Club-to-Club)
+An agreement signed exclusively between the selling club and the buying club.
+* **Key Terms**: Transfer fee, payment schedules (installments), target bank accounts, future sell-on percentage clauses, and performance bonuses.
+* **Tokenization Scope**: Locked in the Escrow Vault to collateralize the initial USDC loan.
+
+### 2. CETD (Contrato Especial de Trabalho Desportivo)
+The employment contract between the player and their employing club.
+* **Key Terms**: Base salary, sign-on fees (*luvas*), contract duration (typically capped at 5 years), and release clauses (*multas rescisórias*).
+* **Tokenization Scope**: Governs the default parameters (contract duration and early-termination penalties).
+
+### 3. Image Rights Agreement (Civil Contract)
+A civil contract signed between the club and a corporate entity (PJ) owned by the player.
+* **Key Terms**: Licensing rights to the player's likeness for club marketing and sponsorship distributions.
+* **The Rule**: In regions like Brazil, image rights are legally capped at **40% of the player's total compensation** to prevent clubs from bypassing employment taxes.
+* **Tokenization Scope**: This civil receivable is the easiest asset class to fractionalize into ERC-20s (`$P_IMAGE`) because it operates under civil contract law rather than strict labor union regulations.
+
+---
+
+## 4. Social & Youth Development Integration
+
+In Latin America and lower-tier leagues, clubs operate not only as commercial entities but as vital social projects and youth academies (*formadores*). They invest heavily in feeding, educating, and training youth players, hoping to recoup costs through future training compensation and solidarity mechanisms when these players turn professional.
+
+### Social Tokenization Flow in ePass
+To support these youth academies, ePass extends its tokenization capability to future solidarity mechanisms:
+1. **Academy Enrollment**: A youth academy records its training history of a young player on-chain.
+2. **Solidarity Tokenization**: The academy mints a fractional contract representing its future 0.5%–5% solidarity receivables for that specific player.
+3. **Micro-Investments**: Local supporters and global Web3 investors purchase these micro-fractions.
+4. **Social Reinvestment**: The immediate stablecoins obtained are reinvested directly into the academy's infrastructure (training fields, school supplies, medical equipment, coaching salaries).
+5. **Future Settlement**: When the player gets signed professionally or transferred internationally, the Gnosis Safe SPV collects the solidarity payout from the FIFA Clearing House, converting it to stablecoins to pay back the micro-investors.

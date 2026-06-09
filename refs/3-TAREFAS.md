@@ -1,149 +1,88 @@
-# Implementação
+# Project Implementation Roadmap: Tasks, Requirements, Screen Flow, & Tech Stack
 
-Este documento representa aspectos técnicos e TODOs de desenvolvimento funcional e não-funcional do projeto.
+This document details the completed tasks, functional and non-functional requirements, screen-by-screen feature breakdowns, and the technology stack utilized in the **ePass** application.
 
-> Comment Anchor: https://marketplace.visualstudio.com/items?itemName=ExodiusStudios.comment-anchors
+---
 
-- [] Definir Arquitetura
-    - [x] Stack Back-end
-        - [x] Solidity
-        - [x] Foundry
-        - [x] TypeScript
-        - [x] OpenZeppelin
-        - [x] IPFS
+## 1. Technical Implementation Status (Completed Tasks)
 
-    - [x] Stack Front-end
-        - [x] React
-        - [x] Next.Js
-        - [x] Tailwind (v4)
-        - [x] Shadcn
-        - [x] Biome (Linter)
+### Backend & Smart Contracts
+* **[x] Solidity Core Contracts**: Implemented the base agreement logic and EIP-712 validation.
+* **[x] Foundry Suite**: Formulated unit testing and script deployments.
+* **[x] OpenZeppelin Integration**: Inherited secure structures (ECDSA, Nonces, EIP712).
+* **[x] IPFS Integrations**: Implemented backend routers connecting to Pinata SDK for secure PDF document storage.
+* **[x] MongoDB Integration**: Connected database schemas to store off-chain user attributes and draft contracts.
+* **[x] Local Blockchain Environment**: Integrated local nodes (Anvil) and custom block explorers (`./explorer`).
 
-    - [x] Definir DB
-        - [x] MongoDB
+### Frontend & Application Architecture
+* **[x] React 19 & Next.js 16 App Router**: Deployed dynamic routes and server components.
+* **[x] Tailwind CSS v4 & PostCSS**: Integrated high-fidelity dark themes based on OKLCH tokens.
+* **[x] Shadcn UI**: Customized UI elements using a tailored green/lime design preset.
+* **[x] Internationalization (i18n)**: Implemented complete translations (English/Portuguese) across all layouts, dashboards, and SIWE screens.
+* **[x] Web3 Providers**: Configured Wagmi and Viem hooks for React.
+* **[x] CI/CD Pipeline Configuration**:
+  * Set up GitHub Actions for Forge smart contract compiles.
+  * Configured pnpm v11 workspace setups for Next.js builds.
+  * Confirmed Biome CI workflows to automatically check and format code scopes restricted to `src/epass-web`.
 
-    - [x] Docker
-        - [x] MongoDB (Image)
+---
 
-    - [x] Internacionalização (Tradução) (I18n Next)
-    - [] Testes (Foundry, Mocha(Chai))
+## 2. System Requirements Specification
 
-- [] Tasks Funcionais
+### Functional Requirements (FRs)
 
-## Jogador
+#### User Authentication & Role Setup
+* **FR-1**: Users must be able to log in securely using Google OAuth via NextAuth.
+* **FR-2**: Users must be assigned a role (`'player'` or `'club'`) during onboarding.
+* **FR-3**: Users must be able to link and verify their Web3 wallet (e.g., MetaMask, Safe).
 
-- [] Navbar com 3 items
-    - [] Logo
-    - [] Meus Contratos
-    - [] Perfil
-        - [] Drawer (Detalhes do contrato)
-            - [] Contrato
-                - [] Botão de rescindir
-                - [] Id
-                - [] Visualização em PDF
-    - [] Tela de config
-        - [] Nome
-        - [] Imagem
-        - [] Linkar MetaMask
-            // TODO
+#### Contract Creation & Tokenization
+* **FR-4**: Clubs must be able to create image rights contracts by supplying metadata (value, token name, token symbol, percent clause) and uploading a legal PDF to IPFS.
+* **FR-5**: Players, attorneys, and club SPVs must sign the EIP-712 typed data off-chain to confirm consent.
+* **FR-6**: The contract must verify the signatures on-chain and mint a corresponding ERC-721 token representing the legal agreement.
 
-### Home
+#### Escrow Vaults & Yields
+* **FR-7**: Deployed agreements must be locked inside an ERC-1167 clone vault, emitting fractional ERC-20 tokens representing shares.
+* **FR-8**: The vault must track and distribute USDC yield inputs back to fractional token holders.
+* **FR-9**: The contract must enforce penalty deductions (e.g., 65% penalty if rescinded prior to 6 months).
 
-- [] Mostra contrato ativo, e opção de assinar, na mesma página.
-    * Se nenhum contrato for ativo, e mostrado um mensagem adequada.
+---
 
-- [] Rescisão de contrato é feita por este componente [Shadcn Drawer](https://ui.shadcn.com/docs/components/radix/drawer)
+### Non-Functional Requirements (NFRs)
 
-## Clube
+#### Security & Integrity
+* **NFR-1 (Signature Replay Protection)**: Signatures must use unique nonces and chain-specific domain separators (EIP-712) to prevent multi-chain replays.
+* **NFR-2 (Secure Sessions)**: Authentication cookies must be HTTP-only and encrypted to prevent cross-site scripting (XSS) session theft.
 
-- [] Navbar com 3 items
-    - [] Logo
-    - [] Meus Atletas
-        - [] Listagem de atletas
-            * Click (Atleta)
-                - [] Perfil do Atleta (Nova Página)
-                    - [] Nome
-                    - [] Email
-                    - [] Contrato
-                        - [] Drawer
-                        - [] Botão de rescindir
-                        - [] Id
-                        - [] Visualização em PDF
+#### Efficiency & Performance
+* **NFR-3 (Gas Optimization)**: Contract deployment must utilize EIP-1167 Minimal Proxies to minimize gas consumption when generating individual player vaults.
+* **NFR-4 (Off-Chain Coordination)**: Multi-party consent must be gathered off-chain via EIP-712 structured messages to avoid gas overhead prior to finalized execution.
 
-    - [] Perfil do Clube
-    - [] Criar Contrato
-        - [] Formulário
-        - [] Upload de contrato (PDF)
-            - [] Retornar hash do IPFS após upload no Backend
-        - [] Valor Total da Transferência
-        - [] Assinaturas necessárias
-        - [] Porcentagem de Rescisão
-        - [] Nome do token
+---
 
-### Config
+## 3. Screen-by-Screen Layout Specifications
 
-- [] Tela de config
-    - [] Nome
-    - [] Multisig
-    - []
+### 1. Landing Page (`/`)
+* **Features**:
+  * Animated grain gradient backdrop (`@paper-design/shaders-react`).
+  * Public navigation header with call-to-actions.
+  * Platform value propositions and features grids.
 
-### Home
+### 2. Onboarding Page (`/onboarding`)
+* **Features**:
+  * Role assignment selectors (Club vs. Player).
+  * Web3 wallet association trigger (initiates dynamic signature verification).
+  * Database update callback completing the NextAuth session setup.
 
-- [] Listagem de atletas (lista)
-    * Click
-    - [] Perfil do Atleta (Nova Página)
-        - [] Nome
-        - [] Email
-        - [] Contrato
-            - [] Drawer
-            - [] Botão de rescindir
-            - [] Id
-            - [] Visualização em PDF
+### 3. Player Dashboard (`/home` & `/contracts`)
+* **Features**:
+  * **Summary Metrics**: Displays active contracts, pending signatures, and total locked valuations.
+  * **Interactive Charting**: Visual representation of yield streams over time.
+  * **Contract Drawer**: Sliding drawer containing the legal PDF preview, contract details, active statuses, and "Rescind" execution buttons.
+  * **Profile Configuration**: Input forms for user avatar, displayed name, and connected wallet credentials.
 
-## Compra de Token
-
-// TODO
-
-# Perfil de Jogador e Clube
-
-## Jogador
-* **O que é**: Representado por uma conta associada á uma carteira, um jogador é efetivamente a carteira que receberá as doações e rescisão caso aplicável.
-* **O que pode fazer**:
-    * **Visualizar**:
-        * Clube atual
-        * Seu perfil
-
-        == Opcionais ==
-        * Outros clubes
-    * **Contratos**:
-        - [] Visualizar
-            - [] Assinar
-
-        - [] Rescindir
-
-## Clube
-* **O que é**: Representado por uma carteira multi-sig (Gnosis Safe), que pode ver contratos com jogadores, rescindir contratos e inspecionar o mercado,
-é efetivamente a carteira que receberá rescisão quando aplicável.
-
-* **O que pode fazer**:
-    * **Apresentar uma lista concisa de jogadores**:
-        * Lista que pode ser ordenada por preço, qualidade e outros atributos.
-
-    * **Apresentar perfil individual dos jogadores**:
-        * Qualidades, preço, e outras preferências contratuais // TODO Á definir.
-
-    * **Comprar jogadores**:
-        * Uma requisição de compra é aberta, uma transação é proposta.
-        * Essa transação será avaliada pelo jogador, família, advogados, etc...
-        * List de Jogadores iniciantes ainda sem clubes.
-
-        * **Se assinada por todos**:
-            * O contrato é transformado em NFT, e liquidado em tokens que ficam disponíveis para compra.
-            * O jogador pode receber uma porcentagem desses tokens, decididos via contrato.
-            // TODO Definir como abonos, luvas etc... serão cobrados.
-
-        * **Se não for concordada (tempo e assinaturas) por todos**:
-            * O contrato expira e não pode ser executado.
-
-    * **Rescindir o contrato**:
-        * Uma requisição de rescisão é aberta, o contrato é quebrado e a clausula de rescisão é executada.
+### 4. Club Portal (`/athletes` & `/contracts/new`)
+* **Features**:
+  * **Athlete Directory**: Complete search/sort list of athletes based on contract parameters, prices, and metrics.
+  * **Athlete Profiles**: Profile detailing player email, active escrow vaults, and contract parameters.
+  * **Contract Builder**: Form inputs specifying player address, attorney address, token metrics, upload fields for PDF assets, and initial signature triggers.

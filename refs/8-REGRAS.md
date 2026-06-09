@@ -1,68 +1,71 @@
-# RULES
+# ePass: Architectural Guidelines & Development Rules
 
-ePass' Architectural choices. This can also be used as rules for AI agents.
+This document outlines the core architectural choices, coding standards, and development workflows for the **ePass** project. It serves as a reference guide for developers and AI agents.
 
-## General Idea
+---
 
-The architecture focus on simplicity and concepts application.
+## 1. General Principles
+* **Simplicity & Safety**: The code should prioritize readable structures, minimal states, and strong cryptographic verification over complex, ad-hoc abstractions.
+* **Separation of Concerns**: The smart contracts (`/smart-contracts`) govern on-chain settlement, ownership, and financial terms. The web platform (`/epass-web`) manages metadata indexing, user profiles, OAuth authentication, and UI rendering.
 
-## Project Structure
+---
 
-The project uses ```pnpm``` as its package manager.
+## 2. Project Structure & Workspaces
+* **Package Manager**: **pnpm** (version 11.x) is used.
+* **Directory Layout**:
+  * `/smart-contracts`: The Solidity smart contract directory (managed with Foundry).
+  * `/epass-web`: The Next.js 16/React 19 frontend directory.
 
-## Database
+---
 
-## Libs
+## 3. Database Guidelines
+* **Database Engine**: **MongoDB** connected via **Mongoose**.
+* **Model Responsibilities**:
+  * Track off-chain metadata (such as contract drafts, athlete details, and user email identities).
+  * Do **not** store any private keys, contract seed phrases, or sensitive Web3 credentials.
+  * Map OAuth profiles to verified on-chain wallet addresses.
 
-* TailwindCSS
-* Shadcn
-* i18Next
-* Viem
-* Wagmi
-* Tanstack-Form
-* Zod
+---
 
-## CI/CD
+## 4. Primary Libraries & Core Tech Stack
+* **UI & Styling**: **TailwindCSS v4** (configured via CSS variables/OKLCH themes inside `app/globals.css`) and **Shadcn UI** components.
+* **Internationalization**: **i18next** (configured for dual English/Portuguese dashboard layouts).
+* **Web3 Integration**: **Viem** and **Wagmi** hooks.
+* **Forms & Verification**: **Tanstack-Form** (required for form states) and **Zod** (for schema validation).
 
-### Code Formatting
+---
 
-It uses Biome as linter (run throught Github Actions, no need to run manually).
+## 5. CI/CD & Code Quality
+* **Code Formatting**: **Biome** is the mandatory formatter and linter. Biome checks are executed in the CI pipeline scoped specifically to `/epass-web`.
+* **Build Verification**:
+  * Smart contracts are built and validated in CI using `forge build`.
+  * Frontend builds are validated in CI using `pnpm build` (running under node 20 and pnpm v11).
 
-### Build
+---
 
-Folders epass-web and smart-contracts has its own dedicated CI/CD pipeline in order to check and validate build state.
+## 6. Frontend Component & Form Standards
+* **Shadcn UI Preference**: All UI elements should prioritize Shadcn UI primitives over raw HTML tags to maintain design consistency.
+* **Form Logic**:
+  * All user forms must use `@tanstack/react-form`.
+  * Form validations must be declared using **Zod** schemas.
+  * Avoid raw input states; map inputs directly through the Tanstack-Form controller.
 
-### Project Image
+---
 
-// TODO
+## 7. Authentication & Wallet Association
+* **OAuth Boundary**: Authentications must run through **NextAuth** configured with a Google OAuth provider.
+* **Wallet Separation**:
+  * Wallet addresses must not be persisted directly inside core authentication parameters in MongoDB.
+  * Wallet connections are verified on-chain and bound dynamically to the NextAuth JWT session.
+  * Upon user sign-out, session cookies are cleared, and the Web3 connection state is fully flushed.
 
-## Linter
+---
 
-Biome; Can be run by running.
-
-## Architecture
-
-### Components
-
-#### General
-
-All components should preferentially use Shadcn components whenever possible. divs and other standard tags are also allowed. But the priority is the shadcn ones.
-Globals.css has theme styles and glass styles for components.
-
-#### Forms
-
-* All forms must use @tanstack-form.
-* Taking care for validations and outdated function calls. Examples can be seen on the profile/onboarding-form.tsx component.
-* All forms validations must be made with Zod.
-
-### Authentication
-
-The project uses Next-Auth with OAuth, specially with Google Provider.
-
-### Wallets
-
-No wallet information is saved on this app's DB. It is saved on cookies and disconnected on sign-out.
-
-### Contracts
-
-Contracts uses Foundry ecosystem and are called on front-end by using wagmi-cli (pnpm wagmi);
+## 8. Smart Contract Development Standards
+* **Solidity Version**: `^0.8.24` compiled via **Foundry**.
+* **ABI Bindings**: Frontend interfaces are generated using **Wagmi-CLI** (`pnpm wagmi`) to maintain typed hook bindings.
+* **Security & Clean Code**:
+  * Every state-changing function must strictly follow the **Checks-Effects-Interactions (CEI)** pattern.
+  * All external payment and transfer functions must inherit and apply OpenZeppelin's `nonReentrant` guards.
+  * Vault deployments must use the **EIP-1167 Minimal Proxy** standard to optimize gas consumption during scaling.
+  * Off-chain signatures must follow the **EIP-712** typed data specification.
