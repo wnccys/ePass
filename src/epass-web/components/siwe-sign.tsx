@@ -139,7 +139,9 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
                     disabled={isConnectPending || !injectedConnector}
                 >
                     {isConnectPending
-                        ? t("siwe.confirmInWallet", { wallet: selectedConnectorName ?? t("siwe.wallet") })
+                        ? t("siwe.confirmInWallet", {
+                              wallet: selectedConnectorName ?? t("siwe.wallet"),
+                          })
                         : t("siwe.connectWallet")}
                 </Button>
             )}
@@ -159,7 +161,9 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
                 >
                     {isSwitchPending
                         ? t("siwe.switchingNetwork")
-                        : t("siwe.switchTo", { network: chainConfig.network.name })}
+                        : t("siwe.switchTo", {
+                              network: chainConfig.network.name,
+                          })}
                 </Button>
             )}
 
@@ -181,7 +185,9 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
                             className="h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground"
                             onClick={() => setShowAddress((v) => !v)}
                             aria-label={
-                                showAddress ? t("siwe.hideAddress") : t("siwe.revealAddress")
+                                showAddress
+                                    ? t("siwe.hideAddress")
+                                    : t("siwe.revealAddress")
                             }
                         >
                             {showAddress ? (
@@ -218,12 +224,16 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
                 )}
                 {chainStatus === "checking" && (
                     <p>
-                        {t("siwe.checkingRpc", { network: chainConfig.network.name })}
+                        {t("siwe.checkingRpc", {
+                            network: chainConfig.network.name,
+                        })}
                     </p>
                 )}
                 {chainStatus === "ok" && (
                     <p className="text-emerald-500">
-                        {t("siwe.connectedRpc", { network: chainConfig.network.name })}
+                        {t("siwe.connectedRpc", {
+                            network: chainConfig.network.name,
+                        })}
                     </p>
                 )}
                 {chainStatus === "error" && (
@@ -233,7 +243,9 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
                 )}
                 {connectError && (
                     <p className="text-destructive">
-                        {t("siwe.connectFailed", { error: connectError.message })}
+                        {t("siwe.connectFailed", {
+                            error: connectError.message,
+                        })}
                     </p>
                 )}
                 {switchError && (
