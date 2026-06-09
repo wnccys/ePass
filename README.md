@@ -1,6 +1,12 @@
-# ePass ⚽
+<p align="center">
+  <img src="docs/assets/epass-cover.png" alt="ePass Banner" width="800px" />
+</p>
 
-> **Tokenizando o contrato do atleta. Valorizando seu futuro.**
+<h1 align="center">ePass</h1>
+
+<p align="center">
+  <strong>Tokenizando o contrato do atleta. Valorizando seu futuro.</strong>
+</p>
 
 O ePass é um dApp para formalização, registro e fracionamento de direitos de imagem de jovens atletas de futebol. A solução usa blockchain para transformar um acordo jurídico assinado entre atleta, clube e advogado em um ativo digital auditável, verificável e fracionável. Por meio de smart contracts, assinaturas multi-parte e um fluxo de validação on-chain, o ePass garante transparência, segurança jurídica e um mecanismo real de valorização de mercado para jogadores em início de carreira.
 
@@ -8,7 +14,7 @@ O protocolo se apoia em cinco contratos: um gateway de assinaturas EIP-712, um N
 
 ---
 
-## O Problema
+## 📌 O Problema
 
 Quando um jovem atleta assina seu primeiro contrato profissional, dois documentos são produzidos: o contrato de trabalho e o contrato de direito de imagem. O segundo costuma ter pouca padronização, baixa auditabilidade e pouca visibilidade pública. O atleta nem sempre tem controle claro sobre o que está sendo cedido.
 
@@ -18,7 +24,7 @@ Jogadores em início de carreira geralmente possuem contratos de baixo valor nom
 
 ---
 
-## A Solução
+## 💡 A Solução
 
 O ePass digitaliza e registra o contrato de direito de imagem on-chain, com respaldo em IPFS. O acordo passa a ter rastreabilidade pública e pode ser validado criptograficamente pelas partes envolvidas.
 
@@ -26,7 +32,7 @@ Com o contrato registrado, o vault emite os tokens `$P_IMAGE` — frações digi
 
 ---
 
-## Arquitetura de Smart Contracts
+## 🏗️ Arquitetura de Smart Contracts
 
 O protocolo é composto por cinco contratos, implantados na **Sepolia Testnet**.
 
@@ -42,7 +48,7 @@ O protocolo é composto por cinco contratos, implantados na **Sepolia Testnet**.
 
 ---
 
-## Fluxo off-chain
+## 🔄 Fluxo off-chain
 
 ```mermaid
 flowchart LR
@@ -55,7 +61,7 @@ flowchart LR
 
 ---
 
-## Fluxo on-chain
+## ⛓️ Fluxo on-chain
 
 ```mermaid
 flowchart TD
@@ -75,7 +81,7 @@ flowchart TD
 
 ---
 
-## Papel de Cada Contrato
+## 📄 Papel de Cada Contrato
 
 ### RightsMinter
 
@@ -103,7 +109,7 @@ Factory que cria novos vaults via `Clones.clone()` (EIP-1167 minimal proxy). Cad
 
 ---
 
-## Estados do Contrato (Vault)
+## 🚦 Estados do Contrato (Vault)
 
 | Status | Descrição |
 | :-- | :-- |
@@ -115,7 +121,7 @@ Factory que cria novos vaults via `Clones.clone()` (EIP-1167 minimal proxy). Cad
 
 ---
 
-## Como a Solução Funciona
+## ⚙️ Como a Solução Funciona
 
 **1. Registro off-chain**
 O contrato jurídico é negociado entre jogador, clube e advogado. O documento é armazenado em IPFS e sua URI é usada como `tokenURI` do NFT.
@@ -143,7 +149,7 @@ A partir daí o fluxo pode seguir para rescisão pelo jogador, rescisão pelo cl
 
 ---
 
-## Regras de Rescisão
+## ⚖️ Regras de Rescisão
 
 | Cenário | Antes de 6 meses | Após 6 meses |
 | :-- | :-- | :-- |
@@ -153,7 +159,7 @@ A partir daí o fluxo pode seguir para rescisão pelo jogador, rescisão pelo cl
 
 ---
 
-## Segurança
+## 🛡️ Segurança
 
 - Apenas o minter autorizado pode criar novos NFTs no `PlayerRightsMaster`.
 - Transferência direta de NFT via `transferFrom` padrão é bloqueada — apenas operadores autorizados explicitamente podem mover o ativo.
@@ -168,10 +174,12 @@ A partir daí o fluxo pode seguir para rescisão pelo jogador, rescisão pelo cl
 
 ---
 
-## Testes
+## 🧪 Testes
 
-O projeto conta com suíte de testes cobrindo os três contratos principais.
+O projeto possui cobertura de testes automatizados abrangendo tanto a camada on-chain (smart contracts) quanto as regras do frontend e fluxos integrados da aplicação.
 
+### 1. Smart Contracts (Foundry)
+Testes unitários completos cobrindo os fluxos principais e casos de falha.
 ```
 Ran 18 tests for test/RightsVault.t.sol       ✅ 18 passed
 Ran 6 tests  for test/RightsMinter.t.sol       ✅  6 passed
@@ -180,54 +188,78 @@ Ran 6 tests  for test/PlayerRightsMaster.t.sol ✅  6 passed
 30 tests passed, 0 failed
 ```
 
-Para rodar:
-
+Para rodar os testes dos smart contracts:
 ```bash
+cd src/smart-contracts
 forge test -vv
 ```
 
+### 2. Frontend & Hooks (Vitest)
+Testes de comportamento de UI e regras de negócio/hooks no cliente em execução.
+
+Para rodar os testes unitários do frontend:
+```bash
+cd src/epass-web
+pnpm run test
+```
+
+### 3. End-to-End (Playwright & Playwright BDD)
+Simulações interativas de fluxos de ponta a ponta (login, preenchimento de formulários, conexões SIWE, assinaturas criptográficas).
+
+Para rodar os testes de e2e:
+```bash
+cd src/epass-web
+pnpm run test:e2e
+```
+
 ---
 
-## Stack
+## 🛠️ Stack
 
-| Camada | Tecnologia |
-| :-- | :-- |
-| Smart Contracts | Solidity ^0.8.24, OpenZeppelin v5 |
-| Padrões on-chain | ERC-721, ERC-20, EIP-712, EIP-1167 |
-| Framework de Dev | Foundry (Forge, Cast, Anvil) |
-| Armazenamento off-chain | IPFS |
-| Rede | Sepolia Testnet |
-| Frontend | Next.js + React |
-| Web3 | Wagmi / Viem, MetaMask |
-| Multi-sig | Gnosis Safe |
+O ecossistema ePass é construído sobre as seguintes tecnologias:
+
+| Camada | Tecnologia | Descrição |
+| :--- | :--- | :--- |
+| **Smart Contracts** | Solidity `^0.8.24` | Linguagem de desenvolvimento dos contratos inteligentes do protocolo |
+| **Padrões On-chain** | ERC-721, ERC-20, EIP-712, EIP-1167 | NFTs mestres, tokens fracionários, assinaturas off-chain estruturadas e clones de baixo consumo de gas |
+| **Framework Blockchain** | Foundry (Forge, Cast, Anvil) | Orquestrador de deploys, testes unitários, scripts Solidity e simulação local de EVM |
+| **Segurança On-chain** | OpenZeppelin Contracts v5 | Implementações de bibliotecas padrão de tokens, proxies seguros e proteção contra reentrância |
+| **Armazenamento** | IPFS (Pinata SDK) | Hospedagem distribuída, pública e imutável para os documentos legais dos contratos em PDF |
+| **Frontend Core** | React 19 & Next.js 16 (App Router) | Interface rica e dinâmica operada via componentes do lado cliente e servidor |
+| **Estilização** | Tailwind CSS v4 & PostCSS | Biblioteca de utilidades estilísticas modernas e tema customizado em OKLCH |
+| **Segurança & Sessão** | NextAuth.js & Google OAuth | Login social de usuários sincronizado a uma sessão persistida e criptografada via cookies JWT |
+| **Integração Web3** | Wagmi / Viem & RainbowKit | Hooks tipados para interação RPC, assinatura EIP-712 e modais estéticos de conexão de carteiras |
+| **Banco de Dados** | MongoDB & Mongoose | Banco de dados NoSQL local para o cadastro de contas, onboardings e cache de metadados |
+| **Linter / Formatter** | Biome | Ferramenta centralizada para análise estática e padronização visual de sintaxe TypeScript/JavaScript |
+| **Visualizações** | Recharts | Renderização de gráficos e evolução de contratos nos painéis de controle administrativos |
+| **Gerenciadores** | pnpm `v11.5.1` & yarn `v4.7.0` | Orquestradores rápidos de dependências no frontend (`epass-web`) e explorer (`/explorer`) |
+| **Ambientes Locais** | Docker & Docker Compose | Inicializador da infraestrutura de desenvolvimento (banco de dados e visualizador web) |
+| **Visualizador MongoDB** | Compooss | Interface web simplificada de exploração de registros do banco na porta `6969` |
 
 ---
 
-## Estrutura do Repositório
+## 📂 Estrutura do Repositório
 
 ```
-epass/
-├── src/
-│   ├── RightsMinter.sol          # Gateway de autorização multi-parte (EIP-712)
-│   ├── PlayerRightsMaster.sol    # NFT mestre ERC-721
-│   ├── RightsVaultImpl.sol       # Lógica do cofre — implementação compartilhada
-│   ├── RightsVaultFactory.sol    # Factory EIP-1167 para criação de vaults por jogador
-│   └── MockUSDC.sol              # Stablecoin mock para testes locais
-├── script/
-│   ├── Deploy.s.sol              # Deploy dos contratos singleton
-│   └── SimulatePipeline.s.sol    # Simulação end-to-end do fluxo completo
-├── test/
-│   ├── PlayerRightsMaster.t.sol
-│   ├── RightsMinter.t.sol
-│   └── RightsVault.t.sol
-├── epass-web/
-│   └── (Next.js — em desenvolvimento)
+ePass/
+├── anvil/                      # Configurações do node blockchain local Anvil
+├── docs/                       # Documentação Gitbook (en, pt-br)
+├── explorer/                   # Explorador de blocos local (Vite/React/Yarn)
+├── mock-data/                  # Dados falsos e mocks para testes
+├── scripts/                    # Scripts utilitários gerais
+├── src/                        # Código-fonte principal do projeto
+│   ├── docker-compose.yml      # Banco MongoDB e interface Compooss (porta 6969)
+│   ├── smart-contracts/        # Backend e Smart Contracts (Foundry/Solidity)
+│   │   ├── src/                # Código Solidity (RightsMinter, PlayerRightsMaster, etc.)
+│   │   ├── script/             # Scripts de deploy e simulação em Solidity
+│   │   └── test/               # Testes Foundry (.t.sol)
+│   └── epass-web/              # Web App Frontend (Next.js 16 / React 19 / pnpm)
 └── README.md
 ```
 
 ---
 
-## Endereços na Sepolia
+## 📍 Endereços na Sepolia
 
 | Contrato | Endereço |
 | :-- | :-- |
@@ -240,9 +272,10 @@ epass/
 
 ---
 
-## Demonstração
+## 📺 Demonstração
 
 ```bash
+# ⚠️ Não se esqueça de ajustar o endereço contido no contrato, ele está default para o endereço #1 do Foundry
 # Deploy dos contratos singleton
 forge script script/Deploy.s.sol --rpc-url sepolia --broadcast
 
@@ -258,10 +291,8 @@ forge script script/SimulatePipeline.s.sol --rpc-url sepolia --broadcast
 
 ---
 
-## Próximos Passos
+## 🚀 Próximos Passos
 
-- 
--  
-- 
-- 
-- 
+- Implementação do nosso próprio oráculo, para cálculos de abonos e luvas em cima de dados reais e dinâmicos.
+- Implementação de mercado interno para compra de tokens emitidos on-app.
+- Implementação de vínculos maiores de conformidade contratual (customizações) na criação de contratos.
