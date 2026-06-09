@@ -1528,7 +1528,6 @@ export default function ContractDetailPage() {
                             status={mintStatus}
                             errorMsg={mintErrorMsg}
                             txHash={mintTxHash}
-                            expectedChainId={31337}
                         />
                     )}
 
@@ -1541,7 +1540,6 @@ export default function ContractDetailPage() {
                             status={actionStatus}
                             errorMsg={actionErrorMsg}
                             txHash={actionTxHash}
-                            expectedChainId={31337}
                         />
                     )}
 
@@ -1570,7 +1568,6 @@ export default function ContractDetailPage() {
                                             status={actionStatus}
                                             errorMsg={actionErrorMsg}
                                             txHash={actionTxHash}
-                                            expectedChainId={31337}
                                         />
                                     ) : (
                                         <ActionCard
@@ -1581,7 +1578,6 @@ export default function ContractDetailPage() {
                                             status={actionStatus}
                                             errorMsg={actionErrorMsg}
                                             txHash={actionTxHash}
-                                            expectedChainId={31337}
                                         />
                                     )}
                                 </>
@@ -1705,7 +1701,6 @@ export default function ContractDetailPage() {
                                 status={actionStatus}
                                 errorMsg={actionErrorMsg}
                                 txHash={actionTxHash}
-                                expectedChainId={31337}
                             />
                         </div>
                     )}
@@ -1810,7 +1805,6 @@ export default function ContractDetailPage() {
                                     status={actionStatus}
                                     errorMsg={actionErrorMsg}
                                     txHash={actionTxHash}
-                                    expectedChainId={31337}
                                 />
                             )}
 
@@ -1827,7 +1821,6 @@ export default function ContractDetailPage() {
                                     status={actionStatus}
                                     errorMsg={actionErrorMsg}
                                     txHash={actionTxHash}
-                                    expectedChainId={31337}
                                 />
                             )}
 
@@ -1842,7 +1835,6 @@ export default function ContractDetailPage() {
                                         status={actionStatus}
                                         errorMsg={actionErrorMsg}
                                         txHash={actionTxHash}
-                                        expectedChainId={31337}
                                     />
                                 )}
                         </div>

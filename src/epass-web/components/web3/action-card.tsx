@@ -16,6 +16,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useChain } from "@/app/context/ChainContext";
 
 interface ActionCardProps {
     title: string;
@@ -32,7 +33,6 @@ interface ActionCardProps {
         | "error";
     errorMsg?: string | null;
     txHash?: string | null;
-    expectedChainId?: number;
 }
 
 const STEP_EXPLANATIONS: Record<string, string> = {
@@ -76,11 +76,13 @@ export function ActionCard({
     status,
     errorMsg,
     txHash,
-    expectedChainId = 31337, // default foundry
 }: ActionCardProps) {
     const { isConnected } = useConnection();
     const chainId = useChainId();
     const { t } = useTranslation();
+
+    const { network } = useChain();
+    const expectedChainId = network.id;
     const isWrongChain = chainId !== expectedChainId;
 
     const isBusy =
