@@ -281,10 +281,11 @@ ePass/
 
 | Contrato | Endereço |
 | :-- | :-- |
-| `RightsMinter` | *(a publicar)* |
-| `PlayerRightsMaster` | *(a publicar)* |
-| `RightsVaultImpl` | *(a publicar)* |
-| `RightsVaultFactory` | *(a publicar)* |
+| `Mock USDC` | `0x425fFDE215AD4B2c6Ae83D4acD140a88fd3306A7` |
+| `RightsMinter` | `0x4ba2F61B0Aee99ec9340D23A3E231D6aE076B15b` |
+| `PlayerRightsMaster` | `0x11F3d779cF39BC845a31c952d2dA30b2962dD421` |
+| `RightsVaultImpl` | `0x30c8b0895cDFE28271Db6ef92136b73c308e6394` |
+| `RightsVaultFactory` | `0x2273ae0ff0189D54D7EBcf3AD27FC6BB28857005` |
 
 > Vaults individuais (clones) são criados dinamicamente via factory. O endereço de cada vault é emitido no evento `VaultCreated(address vault, address player, address club, ...)` e deve ser indexado pelo frontend ou backend.
 
@@ -306,12 +307,6 @@ forge script script/Deploy.s.sol:Deploy --rpc-url $SEPOLIA_RPC_URL --broadcast -
 # Simulação completa do pipeline
 forge script script/SimulatePipeline.s.sol:SimulatePipeline --rpc-url $SEPOLIA_RPC_URL --broadcast -vvvv
 ```
-
-| Item | Link |
-| :-- | :-- |
-| Smart Contracts (Sepolia) | *(endereço a publicar)* |
-| Aplicação | *(link a publicar)* |
-| Vídeo Demo | *(a publicar)* |
 
 ---
 
