@@ -1,18 +1,13 @@
 "use client";
 
-import {
-    AlertCircle,
-    ArrowUpRight,
-    Calendar,
-    CheckCircle2,
-    Clock,
-    ShieldAlert,
-} from "lucide-react";
+import { ArrowUpRight, Calendar, CheckCircle2, Clock } from "lucide-react";
 import Link from "next/link";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { formatUnits } from "viem";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { useReadRightsVaultImplTimeRemaining } from "@/src/generated";
 
 export function ContractStatusCard({
     agreement,
@@ -76,27 +71,37 @@ export function ContractStatusCard({
 
     const statusConfig = getStatusConfig(agreement.status);
 
-    // Calculate time remaining (for active contracts)
-    const getTimeRemaining = (deadlineStr: string) => {
-        if (!deadlineStr) return null;
-        const deadline = new Date(deadlineStr);
-        const diffTime = deadline.getTime() - Date.now();
-        if (diffTime <= 0) return t("contracts.status.expired");
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        if (diffDays > 30) {
-            const diffMonths = Math.floor(diffDays / 30);
-            return diffMonths > 1
-                ? t("dashboard.sidebar.monthsLeft_other", { count: diffMonths })
-                : t("dashboard.sidebar.monthsLeft_one", { count: diffMonths });
-        }
-        return diffDays > 1
-            ? t("dashboard.sidebar.daysLeft_other", { count: diffDays })
-            : t("dashboard.sidebar.daysLeft_one", { count: diffDays });
-    };
+    const isBelowMinted = ["draft", "pending_signatures", "ready"].includes(
+        agreement.status,
+    );
 
-    const timeRemaining = agreement.deadline
-        ? getTimeRemaining(agreement.deadline)
-        : null;
+    const { data: timeRemainingOnChain } = useReadRightsVaultImplTimeRemaining({
+        address: agreement.vaultAddress as `0x${string}`,
+        query: {
+            enabled: !!agreement.vaultAddress && !isBelowMinted,
+        },
+    });
+
+    const displayDuration = useMemo(() => {
+        if (isBelowMinted) {
+            return agreement.deadline
+                ? new Date(agreement.deadline).toLocaleString()
+                : "N/A";
+        }
+
+        if (timeRemainingOnChain !== undefined) {
+            if (timeRemainingOnChain > 0n) {
+                const days = timeRemainingOnChain / 86400n;
+                const hours = (timeRemainingOnChain % 86400n) / 3600n;
+                return `${days.toString()}d ${hours.toString()}h`;
+            }
+            return t("contracts.status.expired");
+        }
+
+        return agreement.deadline
+            ? new Date(agreement.deadline).toLocaleString()
+            : "N/A";
+    }, [agreement.deadline, isBelowMinted, timeRemainingOnChain, t]);
 
     return (
         <Link href={`/contracts/${agreement._id}`} className="block">
@@ -157,16 +162,17 @@ export function ContractStatusCard({
                                 {agreement.vaultAddress.slice(-4)}
                             </p>
                         </div>
-                    ) : userRole === "player" &&
-                      agreement.status === "active" &&
-                      timeRemaining ? (
+                    ) : isBelowMinted ||
+                      agreement.status === "active" ||
+                      agreement.status === "minted" ||
+                      agreement.status === "vault_created" ? (
                         <div>
                             <p className="text-muted-foreground">
                                 {t("common.duration")}
                             </p>
                             <p className="mt-0.5 flex items-center gap-1 font-medium text-foreground">
                                 <Calendar className="h-3.5 w-3.5 text-primary" />
-                                {timeRemaining}
+                                {displayDuration}
                             </p>
                         </div>
                     ) : (

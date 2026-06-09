@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useChainId, useConnection } from "wagmi";
+import { useChain } from "@/app/context/ChainContext";
 import SiweButton from "@/components/siwe-sign";
 import {
     Tooltip,
@@ -16,7 +17,6 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useChain } from "@/app/context/ChainContext";
 
 interface ActionCardProps {
     title: string;

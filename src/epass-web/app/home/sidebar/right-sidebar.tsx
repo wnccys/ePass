@@ -8,7 +8,7 @@ import {
     FileText,
     TrendingUp,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
     Area,
@@ -20,8 +20,14 @@ import {
     Tooltip,
 } from "recharts";
 import { formatUnits } from "viem";
+import { useConnection } from "wagmi";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { MOCK_USDC, PLAYER_RIGHTS_MASTER } from "@/lib/web3/contracts";
+import {
+    useReadMockUsdcBalanceOf,
+    useReadPlayerRightsMasterBalanceOf,
+} from "@/src/generated";
 
 const COLORS = [
     "oklch(from var(--primary) l c h)", // Active
@@ -48,6 +54,31 @@ export function RightSidebar({
 }) {
     const [mounted, setMounted] = useState(false);
     const { t } = useTranslation();
+    const { address } = useConnection();
+
+    const usdcBalanceArgs = useMemo(() => {
+        return address ? ([address as `0x${string}`] as const) : undefined;
+    }, [address]);
+
+    const { data: usdcBalance } = useReadMockUsdcBalanceOf({
+        address: MOCK_USDC.address,
+        args: usdcBalanceArgs,
+        query: {
+            enabled: !!address,
+        },
+    });
+
+    const nftBalanceArgs = useMemo(() => {
+        return address ? ([address as `0x${string}`] as const) : undefined;
+    }, [address]);
+
+    const { data: nftBalance } = useReadPlayerRightsMasterBalanceOf({
+        address: PLAYER_RIGHTS_MASTER.address,
+        args: nftBalanceArgs,
+        query: {
+            enabled: !!address,
+        },
+    });
 
     useEffect(() => {
         setMounted(true);
@@ -166,6 +197,7 @@ export function RightSidebar({
                                     <ResponsiveContainer
                                         width="100%"
                                         height="100%"
+                                        minWidth={0}
                                     >
                                         <PieChart>
                                             <Pie
@@ -179,19 +211,17 @@ export function RightSidebar({
                                                 dataKey="value"
                                                 stroke="none"
                                             >
-                                                {chartData.map(
-                                                    (entry, index) => (
-                                                        <Cell
-                                                            key={`cell-${index}`}
-                                                            fill={
-                                                                COLORS[
-                                                                    index %
-                                                                        COLORS.length
-                                                                ]
-                                                            }
-                                                        />
-                                                    ),
-                                                )}
+                                                {chartData.map((_, index) => (
+                                                    <Cell
+                                                        key={`cell-${index}`}
+                                                        fill={
+                                                            COLORS[
+                                                                index %
+                                                                    COLORS.length
+                                                            ]
+                                                        }
+                                                    />
+                                                ))}
                                             </Pie>
                                             <Tooltip
                                                 cursor={false}
@@ -261,6 +291,7 @@ export function RightSidebar({
                                     <ResponsiveContainer
                                         width="100%"
                                         height="100%"
+                                        minWidth={0}
                                     >
                                         <AreaChart
                                             data={timelineData}
@@ -318,6 +349,65 @@ export function RightSidebar({
                                     {timelineData.map((d) => (
                                         <span key={d.day}>{d.day}</span>
                                     ))}
+                                </div>
+                            </Card>
+                        </div>
+                    )}
+
+                    {/* User Tokens (the quantity the player has) */}
+                    {mounted && address && (
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-1.5 border-border/40 border-b pb-1">
+                                <Coins className="h-4 w-4 text-primary" />
+                                <h3 className="font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+                                    {t(
+                                        "dashboard.sidebar.userTokens",
+                                        "User Tokens",
+                                    )}
+                                </h3>
+                            </div>
+
+                            <Card className="glass-card grid grid-cols-2 gap-4 p-4">
+                                <div className="space-y-1">
+                                    <span className="block font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
+                                        {t(
+                                            "dashboard.sidebar.rightsNfts",
+                                            "Rights NFTs",
+                                        )}
+                                    </span>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="font-bold font-mono text-foreground text-lg">
+                                            {nftBalance !== undefined
+                                                ? nftBalance.toString()
+                                                : "0"}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="block font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
+                                        {t(
+                                            "dashboard.sidebar.usdcBalance",
+                                            "USDC Balance",
+                                        )}
+                                    </span>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="font-bold font-mono text-foreground text-lg">
+                                            {usdcBalance !== undefined
+                                                ? parseFloat(
+                                                      formatUnits(
+                                                          usdcBalance,
+                                                          18,
+                                                      ),
+                                                  ).toLocaleString(undefined, {
+                                                      minimumFractionDigits: 2,
+                                                      maximumFractionDigits: 2,
+                                                  })
+                                                : "0.00"}
+                                        </span>
+                                        <span className="font-semibold text-[9px] text-muted-foreground uppercase">
+                                            USDC
+                                        </span>
+                                    </div>
                                 </div>
                             </Card>
                         </div>

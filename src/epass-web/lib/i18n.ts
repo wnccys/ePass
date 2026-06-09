@@ -432,6 +432,8 @@ const resources = {
                 deposit_caution: "Deposit Caution",
                 rescind: "Rescind Agreement",
                 expire: "Expire Agreement",
+                approve_usdc_to_vault: "Approve USDC to Vault",
+                authorize_vault: "Authorize Vault",
             },
             actions: {
                 confirmWallet: "Please confirm the transaction in your wallet.",
@@ -897,6 +899,8 @@ const resources = {
                 deposit_caution: "Depositar Caution",
                 rescind: "Rescindir Acordo",
                 expire: "Expirar Acordo",
+                approve_usdc_to_vault: "Aprovar USDC para o Vault",
+                authorize_vault: "Autorizar Vault",
             },
             actions: {
                 confirmWallet:
