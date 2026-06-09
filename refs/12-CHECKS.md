@@ -12,7 +12,7 @@ Esse tópico define uma lista de tarefas para serem concluídas. Uma mesma taref
 
 - [] Definir Requisitos
     - [] Obrigatórios
-        - [] Uso de blockchain
+        - [x] Uso de blockchain
         - [x] Registro verificável de ações de impacto
         - [x] Histórico auditável
         - [x] Smart contract funcional
@@ -20,10 +20,17 @@ Esse tópico define uma lista de tarefas para serem concluídas. Uma mesma taref
             - [x] Smart contract deployado: Link da testnet pública e endereço do smart contract deployado, quando aplicável à solução.
             - [x] Demonstração funcional: Demonstração do fluxo principal da solução, incluindo registro, consulta, validação ou certificação de uma ação de impacto.
             - [x] Demonstração auditável: Exemplo de registro e validação de impacto, com Vídeo demo, prints, links, transações, instruções ou evidências que permitam à banca verificar o funcionamento.
+                - [x] Registros na /home,
+                - [x] Registros na **rede de testes Sepólia** e explorador disponível no código-fonte (./explorer, ethui);
+                - [] Vídeo Demo extra (// TODO)
+                - [x] Prints (slides e docs)
+                - [x] Trasações (home, explorer, etherscan)
             - [x] Link da aplicação, quando aplicável: Link da aplicação publicada, protótipo navegável, dashboard ou ambiente de demonstração.
+                [ePass](https://epass-football.vercel.app/);
 
         - [x] Código minimamente comentado
         - [x] README explicando o funcionamento da solução
+            - [x] Documentação completa disponível em [ePass Docs](https://epass.gitbook.io/epass-docs)
         - [] Vídeo-pitch demonstrando a execução
         - [] Apresentação de slides
 
@@ -31,13 +38,19 @@ Esse tópico define uma lista de tarefas para serem concluídas. Uma mesma taref
 
 Retirado do Manual Educacional. Características que agregam pontos.
 
-- [] Uso de blockchain;
-- [] Registro de ações de impacto;
-- [] Uso de smart contracts;
-- [] Histórico auditável;
-- [] Emissão automática de certificados, NFTs ou reconhecimentos, quando aplicável;
-- [] Clareza da solução;
-- [] Valor social, ambiental ou comunitário;
+- [x] Uso de blockchain;
+    - [x] Sepolia e Foundry
+- [x] Registro de ações de impacto;
+    - [x] Históricos e dashboards como citado anteriormente (em Obrigatórios);
+- [x] Uso de smart contracts;
+    - [x] Lógica contratual inteiramente on-chain!
+- [x] Histórico auditável;
+- [x] Emissão automática de certificados, NFTs ou reconhecimentos, quando aplicável;
+    - [x] Emissão de NFTs e Tokens ERC-20
+- [x] Clareza da solução;
+    - [x] Documentação completa disponível em [ePass Docs](https://epass.gitbook.io/epass-docs)
+- [x] Valor social, ambiental ou comunitário;
+    - [] Explicado na documentação, demonstração técnica extra e vídeo-pitch // TODO fazer o vídeo extra
 - [] Aplicação prática real;
 - [] Quais dados são registrados;
 - [] Quais evidências são vinculadas às ações;
@@ -46,7 +59,8 @@ Retirado do Manual Educacional. Características que agregam pontos.
 - [] Qual métrica de impacto está sendo acompanhada;
 - [] Como a solução aumenta transparência e confiança.
 
-- [] Transparência dos dados;
+- [x] Transparência dos dados;
+    - [] Transparência completa, dados públicos;
 - [] Impacto social ou ambiental claro;
 - [] Boa visualização das informações;
 - [] Automações bem definidas;
