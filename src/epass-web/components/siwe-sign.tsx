@@ -120,7 +120,7 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
             // Session already matches, just record it
             prevSyncedAddress.current = targetWallet;
         }
-    }, [address, session?.user?.walletAddress]);
+    }, [address, session?.user?.walletAddress, session?.user]);
 
     return (
         /** Connect wallet button */
@@ -217,7 +217,7 @@ export default function SiweButton({ onAddressChange }: WalletConnectProps) {
                     </span>{" "}
                     (chainId: {chainConfig.network.id})
                 </p>
-                {chainId != chainConfig.network.id && (
+                {chainId !== chainConfig.network.id && (
                     <p>
                         {t("siwe.currentChainId")} {chainId || t("siwe.none")}
                     </p>
