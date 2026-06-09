@@ -13,24 +13,21 @@ Esse tópico define uma lista de tarefas para serem concluídas. Uma mesma taref
 - [] Definir Requisitos
     - [] Obrigatórios
         - [] Uso de blockchain
-        - [] Registro verificável de ações de impacto
-        - [] Histórico auditável
-        - [] Smart contract funcional
-        - [] Repositório GitHub funcional
-            - [] Smart contract deployado: Link da testnet pública e endereço do smart contract deployado, quando aplicável à solução.
-            - [] Demonstração funcional: Demonstração do fluxo principal da solução, incluindo registro, consulta, validação ou certificação de uma ação de impacto.
-            - [] Demonstração auditável: Exemplo de registro e validação de impacto, com Vídeo demo, prints, links, transações, instruções ou evidências que permitam à banca verificar o funcionamento.
-            - [] Link da aplicação, quando aplicável: Link da aplicação publicada, protótipo navegável, dashboard ou ambiente de demonstração.
+        - [x] Registro verificável de ações de impacto
+        - [x] Histórico auditável
+        - [x] Smart contract funcional
+        - [x] Repositório GitHub funcional
+            - [x] Smart contract deployado: Link da testnet pública e endereço do smart contract deployado, quando aplicável à solução.
+            - [x] Demonstração funcional: Demonstração do fluxo principal da solução, incluindo registro, consulta, validação ou certificação de uma ação de impacto.
+            - [x] Demonstração auditável: Exemplo de registro e validação de impacto, com Vídeo demo, prints, links, transações, instruções ou evidências que permitam à banca verificar o funcionamento.
+            - [x] Link da aplicação, quando aplicável: Link da aplicação publicada, protótipo navegável, dashboard ou ambiente de demonstração.
 
-        - [] Código minimamente comentado
-        - [] README explicando o funcionamento da solução
+        - [x] Código minimamente comentado
+        - [x] README explicando o funcionamento da solução
         - [] Vídeo-pitch demonstrando a execução
         - [] Apresentação de slides
 
-    - [] Requisitos Funcionais
-    - [] Requisitos Não-Funcionais
-
-    ## Video-Pitch e Documentação Escrita
+## Video-Pitch e Documentação Escrita
 
 Retirado do Manual Educacional. Características que agregam pontos.
 
