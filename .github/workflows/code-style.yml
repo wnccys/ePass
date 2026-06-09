@@ -30,6 +30,7 @@ jobs:
       - name: Format Code
         # This fixes all formatting issues automatically in the CI runner
         run: biome format --write .
+        working-directory: src/epass-web
 
       - name: Commit formatting changes
         # Pushes the fixes back to your GitHub branch
@@ -41,3 +42,4 @@ jobs:
         # Since formatting is already fixed, this will now only fail
         # if there are strict linting errors (not warnings)
         run: biome ci .
+        working-directory: src/epass-web
