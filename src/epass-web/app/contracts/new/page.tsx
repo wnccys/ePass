@@ -198,6 +198,9 @@ export default function NewContractPage() {
         handleChange("");
         setUploadedFileName(null);
         setUploadError(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
     };
 
     if (session?.user?.role !== "club") {
@@ -894,13 +897,14 @@ export default function NewContractPage() {
                                             )}
 
                                             {field.state.meta.errors.length >
-                                                0 && (
-                                                <p className="mt-1 ml-1 text-destructive text-xs">
-                                                    {t(
-                                                        "contracts.new.uploadRequired",
-                                                    )}
-                                                </p>
-                                            )}
+                                                0 &&
+                                                !isUploading && (
+                                                    <p className="mt-1 ml-1 text-destructive text-xs">
+                                                        {t(
+                                                            "contracts.new.uploadRequired",
+                                                        )}
+                                                    </p>
+                                                )}
                                         </div>
                                     )}
                                 />
