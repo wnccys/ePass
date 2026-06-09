@@ -1062,6 +1062,11 @@ export default function ContractDetailPage() {
             </div>
         );
 
+    // Wallet mismatch validation (session wallet vs contract-assigned wallet)
+    const sessionWallet = session?.user?.walletAddress?.toLowerCase();
+    const userEmail = session?.user?.email?.toLowerCase();
+    const userRole = session?.user?.role;
+
     // Checks for signature availability (connected wallet)
     const isClub =
         address?.toLowerCase() === agreement.clubWalletAddress.toLowerCase();
@@ -1070,11 +1075,6 @@ export default function ContractDetailPage() {
     const isAttorney =
         address?.toLowerCase() ===
         agreement.attorneyWalletAddress.toLowerCase();
-
-    // Wallet mismatch validation (session wallet vs contract-assigned wallet)
-    const sessionWallet = session?.user?.walletAddress?.toLowerCase();
-    const userEmail = session?.user?.email?.toLowerCase();
-    const userRole = session?.user?.role;
 
     const isAssignedClub =
         userRole === "club" && userEmail === agreement.clubEmail.toLowerCase();
@@ -1552,7 +1552,7 @@ export default function ContractDetailPage() {
 
                     {agreement.status === "vault_created" && (
                         <div className="space-y-4">
-                            {isClub ? (
+                            {isClub && (
                                 <>
                                     {isVaultAuthorized ? (
                                         <ActionCard
@@ -1588,7 +1588,9 @@ export default function ContractDetailPage() {
                                         />
                                     )}
                                 </>
-                            ) : (
+                            )}
+
+                            {isPlayer && (
                                 <div className="glass-panel space-y-3 rounded-xl border-primary bg-primary/10 p-6">
                                     <div className="flex items-start gap-3">
                                         <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
