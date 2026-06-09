@@ -17,6 +17,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import {
     BaseError,
     ContractFunctionRevertedError,
@@ -90,6 +91,39 @@ export default function ContractDetailPage() {
     const [loading, setLoading] = useState(true);
     const [isCopied, setIsCopied] = useState(false);
     const [isExcluding, setIsExcluding] = useState(false);
+
+    const isUserRejection = (err: any): boolean => {
+        const message = (err.message || "").toLowerCase();
+        const shortMessage = (err.shortMessage || "").toLowerCase();
+        return (
+            message.includes("user rejected") ||
+            message.includes("user denied") ||
+            shortMessage.includes("user rejected") ||
+            shortMessage.includes("user denied") ||
+            err.code === 4001
+        );
+    };
+
+    const handleActionError = async (
+        err: any,
+        txHashVar: string | null | undefined,
+        setStatusFn: (status: any) => void,
+        setErrorMsgFn: (msg: string | null) => void,
+    ) => {
+        if (isUserRejection(err)) {
+            setStatusFn("idle");
+            setErrorMsgFn(null);
+            toast.error(t("contracts.detail.rejectedInWallet"));
+        } else {
+            setStatusFn("error");
+            if (txHashVar) {
+                await failTransaction(txHashVar);
+            }
+            setErrorMsgFn(
+                err.shortMessage || err.message || "Transaction failed.",
+            );
+        }
+    };
 
     // Signature hook
     const {
@@ -366,20 +400,18 @@ export default function ContractDetailPage() {
             }
         } catch (err: any) {
             console.error("Minting error:", err);
-            setMintStatus("error");
-
-            if (txHash) {
-                // If transaction failed/reverted on-chain, update database transaction to 'failed'
-                await failTransaction(txHash);
-            }
-
-            // User rejected
-            if (err.message?.includes("User rejected") || err.code === 4001) {
-                setMintErrorMsg("Transaction was rejected in your wallet.");
+            if (isUserRejection(err)) {
+                setMintStatus("idle");
+                setMintErrorMsg(null);
+                toast.error(t("contracts.detail.rejectedInWallet"));
                 return;
             }
 
-            // Parse custom contract errors from RightsMinter.sol
+            setMintStatus("error");
+            if (txHash) {
+                await failTransaction(txHash);
+            }
+
             if (err instanceof BaseError) {
                 const revertError = err.walk(
                     (e) => e instanceof ContractFunctionRevertedError,
@@ -505,13 +537,7 @@ export default function ContractDetailPage() {
             }
         } catch (err: any) {
             console.error("Create vault error:", err);
-            setActionStatus("error");
-            if (actionTxHash) {
-                await failTransaction(actionTxHash);
-            }
-            setActionErrorMsg(
-                err.shortMessage || err.message || "Transaction failed.",
-            );
+            await handleActionError(err, actionTxHash, setActionStatus, setActionErrorMsg);
         }
     };
 
@@ -574,13 +600,7 @@ export default function ContractDetailPage() {
             }
         } catch (err: any) {
             console.error("Authorize vault operator error:", err);
-            setActionStatus("error");
-            if (actionTxHash) {
-                await failTransaction(actionTxHash);
-            }
-            setActionErrorMsg(
-                err.shortMessage || err.message || "Transaction failed.",
-            );
+            await handleActionError(err, actionTxHash, setActionStatus, setActionErrorMsg);
         }
     };
 
@@ -698,13 +718,7 @@ export default function ContractDetailPage() {
             }
         } catch (err: any) {
             console.error("Fractionalization error:", err);
-            setActionStatus("error");
-            if (actionTxHash) {
-                await failTransaction(actionTxHash);
-            }
-            setActionErrorMsg(
-                err.shortMessage || err.message || "Transaction failed.",
-            );
+            await handleActionError(err, actionTxHash, setActionStatus, setActionErrorMsg);
         }
     };
 
@@ -822,13 +836,7 @@ export default function ContractDetailPage() {
             }
         } catch (err: any) {
             console.error("Deposit caution error:", err);
-            setActionStatus("error");
-            if (actionTxHash) {
-                await failTransaction(actionTxHash);
-            }
-            setActionErrorMsg(
-                err.shortMessage || err.message || "Transaction failed.",
-            );
+            await handleActionError(err, actionTxHash, setActionStatus, setActionErrorMsg);
         }
     };
 
@@ -904,14 +912,8 @@ export default function ContractDetailPage() {
                 throw new Error("Transaction reverted on-chain.");
             }
         } catch (err: any) {
-            console.error("Rescind error:", err);
-            setActionStatus("error");
-            if (actionTxHash) {
-                await failTransaction(actionTxHash);
-            }
-            setActionErrorMsg(
-                err.shortMessage || err.message || "Transaction failed.",
-            );
+            console.error("Rescind error (Player):", err);
+            await handleActionError(err, actionTxHash, setActionStatus, setActionErrorMsg);
         }
     };
 
@@ -962,14 +964,8 @@ export default function ContractDetailPage() {
                 throw new Error("Transaction reverted on-chain.");
             }
         } catch (err: any) {
-            console.error("Rescind error:", err);
-            setActionStatus("error");
-            if (actionTxHash) {
-                await failTransaction(actionTxHash);
-            }
-            setActionErrorMsg(
-                err.shortMessage || err.message || "Transaction failed.",
-            );
+            console.error("Rescind error (Club):", err);
+            await handleActionError(err, actionTxHash, setActionStatus, setActionErrorMsg);
         }
     };
 
@@ -1021,13 +1017,7 @@ export default function ContractDetailPage() {
             }
         } catch (err: any) {
             console.error("Expire error:", err);
-            setActionStatus("error");
-            if (actionTxHash) {
-                await failTransaction(actionTxHash);
-            }
-            setActionErrorMsg(
-                err.shortMessage || err.message || "Transaction failed.",
-            );
+            await handleActionError(err, actionTxHash, setActionStatus, setActionErrorMsg);
         }
     };
 

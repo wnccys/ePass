@@ -296,6 +296,7 @@ const resources = {
                     notFound: "Agreement not found.",
                     walletMismatchSigning:
                         "Signing is disabled due to wallet mismatch. Sync the correct wallet on your profile.",
+                    rejectedInWallet: "Transaction was rejected in your wallet.",
                     excludeTooltip: "Exclude Contract from My Account",
                     onChainAgreement: "On-Chain Image Rights Agreement",
                     nonce: "Nonce:",
@@ -803,6 +804,7 @@ const resources = {
                     notFound: "Acordo não encontrado.",
                     walletMismatchSigning:
                         "A assinatura está desativada devido à incompatibilidade de carteira. Sincronize a carteira correta em seu perfil.",
+                    rejectedInWallet: "Transação rejeitada na carteira.",
                     excludeTooltip: "Excluir Contrato da Minha Conta",
                     onChainAgreement: "Acordo de Direito de Imagem On-Chain",
                     nonce: "Nonce:",
