@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/epass-cover.png" alt="ePass Banner" width="800px" />
+  <img src="docs/assets/epass-cover.png" alt="ePass Banner" width="1000px" />
 </p>
 
 <h1 align="center">
@@ -10,7 +10,7 @@
   <strong>Tokenizando o contrato do atleta. Valorizando seu futuro.</strong>
 </p>
 
-ePass é um projeto concebido durante o _**HackaWeb3 - Impact Ledger**_ promovido pelo [iRede](https://irede.org.br/), desde já nossos agradecimentos pela oportunidade!
+O ePass é um projeto concebido durante o _**HackaWeb3 - Impact Ledger**_ promovido pelo [iRede](https://irede.org.br/), desde já nossos agradecimentos pela oportunidade!
 
 ---
 
@@ -21,6 +21,8 @@ Este índice apresenta todas as páginas disponíveis neste repositório, dividi
 ### 📖 Apresentação
 * [README (Esta Página)](./README.md) - Visão geral do ecossistema ePass, arquitetura de contratos, fluxo do protocolo e instruções de uso.
 * [Mapa de Fluxo Geral (Excali-Flow)](./docs/assets/excali-flow.png) - Mapeamento visual em alta fidelidade do ciclo financeiro, smart contracts e lógica de garantias.
+* [Guia de Contribuição (Contributing)](./CONTRIBUTING.md) - Instruções para reportar bugs, sugerir melhorias e enviar contribuições de código (Bilingue: PT/EN).
+* [Licença MIT (License)](./LICENSE) - Termos de licenciamento de software livre do projeto ePass.
 
 ### 📚 Documentos (Docs)
 * [Doc completa no Gitbook](https://epass.gitbook.io/epass-docs/) - Documentação completa organizada, com suporte de IA para explicações diretas ao ponto.
@@ -245,37 +247,6 @@ A partir daí o fluxo pode seguir para rescisão pelo jogador, rescisão pelo cl
 
 ---
 
-## 🧪 Testes
-
-O ePass conta com uma suite de testes robusta e automatizada cobrindo a camada de contratos inteligentes (smart contracts), testes unitários e hooks de frontend, além de testes de comportamento de ponta a ponta (E2E/BDD).
-
-A explicação técnica detalhada de cada suite de teste e a arquitetura das validações podem ser encontradas no guia de documentação:
-* [Guia de Testes Automatizados](./docs/pt-br/tests.md)
-
-### Executando os Testes
-
-Para rodar os testes de cada camada de forma rápida:
-
-**Smart Contracts (Foundry):**
-```bash
-cd src/smart-contracts
-forge test -vv
-```
-
-**Frontend (Vitest):**
-```bash
-cd src/epass-web
-pnpm run test
-```
-
-**End-to-End (Playwright & BDD):**
-```bash
-cd src/epass-web
-pnpm run test:e2e
-```
-
----
-
 ## 🛠️ Stack
 
 O ecossistema ePass é construído sobre as seguintes tecnologias:
@@ -321,6 +292,37 @@ ePass/
 
 ---
 
+## 🧪 Testes
+
+O ePass conta com uma suite de testes robusta e automatizada cobrindo a camada de contratos inteligentes (smart contracts), testes unitários e hooks de frontend, além de testes de comportamento de ponta a ponta (E2E/BDD).
+
+A explicação técnica detalhada de cada suite de teste e a arquitetura das validações podem ser encontradas no guia de documentação:
+* [Guia de Testes Automatizados](./docs/pt-br/tests.md)
+
+### Executando os Testes
+
+Para rodar os testes de cada camada de forma rápida:
+
+**Smart Contracts (Foundry):**
+```bash
+cd src/smart-contracts
+forge test -vv
+```
+
+**Frontend (Vitest):**
+```bash
+cd src/epass-web
+pnpm run test
+```
+
+**End-to-End (Playwright & BDD):**
+```bash
+cd src/epass-web
+pnpm run test:e2e
+```
+
+---
+
 ## 📍 Endereços na Sepolia
 
 | Contrato | Endereço |
@@ -359,7 +361,7 @@ forge script script/SimulatePipeline.s.sol:SimulatePipeline --rpc-url $SEPOLIA_R
 | Membro | Responsabilidade |
 | :---: | :--- |
 | <img src="https://github.com/wnccys.png" width="50" style="border-radius:50%"/><br/>**[Vinicius](https://github.com/wnccys)** | Integração Front/Backend · Definição da Arquitetura · Documentação |
-| <img src="https://github.com/RosettiBR.png" width="50" style="border-radius:50%"/><br/>**[Matheus Rosetti](https://github.com/RosettiBR)** | Smart Contracts · Pitch · Documentação |
+| <img src="https://github.com/RosettiBR.png" width="50" style="border-radius:50%"/><br/>**[Matheus](https://github.com/RosettiBR)** | Smart Contracts · Pitch · Documentação |
 | <img src="https://github.com/Janiel-Gomes.png" width="50" style="border-radius:50%"/><br/>**[Janiel](https://github.com/Janiel-Gomes)** | Testes (E2E/Vitest) · Auditorias de Segurança |
 
 ---
