@@ -37,6 +37,8 @@ const resources = {
             nav: {
                 home: "Home",
                 contracts: "Contracts",
+                myToken: "My Token",
+                manageTokens: "Manage Tokens",
                 findClubs: "Find Clubs",
                 myProfile: "My Profile",
                 clubProfile: "Club Profile",
@@ -525,6 +527,8 @@ const resources = {
             nav: {
                 home: "Início",
                 contracts: "Contratos",
+                myToken: "Meu Token",
+                manageTokens: "Gerenciar Tokens",
                 findClubs: "Buscar Clubes",
                 myProfile: "Meu Perfil",
                 clubProfile: "Perfil do Clube",

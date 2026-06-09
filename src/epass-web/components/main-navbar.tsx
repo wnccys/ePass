@@ -52,6 +52,12 @@ export function MainNavbar() {
                                     {t("nav.contracts")}
                                 </Link>
                                 <Link
+                                    href="/tokens"
+                                    className="transition-colors hover:text-foreground dark:hover:text-white"
+                                >
+                                    {t("nav.myToken")}
+                                </Link>
+                                <Link
                                     href="/profile"
                                     className="transition-colors hover:text-foreground dark:hover:text-white"
                                 >
@@ -72,6 +78,12 @@ export function MainNavbar() {
                                     className="transition-colors hover:text-foreground dark:hover:text-white"
                                 >
                                     {t("nav.contracts")}
+                                </Link>
+                                <Link
+                                    href="/tokens"
+                                    className="transition-colors hover:text-foreground dark:hover:text-white"
+                                >
+                                    {t("nav.manageTokens")}
                                 </Link>
                                 <Link
                                     href="/contracts/new"
