@@ -53,24 +53,24 @@
     --color-lemon-lime-400: oklch(91.58% 0.191 116.27);
     --color-lemon-lime-500: oklch(89.95% 0.206 117.22);
     --color-lemon-lime-600: oklch(76.21% 0.174 117.46);
-    --color-lemon-lime-700: oklch(61.66% 0.140 116.99);
+    --color-lemon-lime-700: oklch(61.66% 0.14 116.99);
     --color-lemon-lime-800: oklch(46.10% 0.103 116.76);
     --color-lemon-lime-900: oklch(29.44% 0.064 116.01);
-    --color-lemon-lime-950: oklch(23.68% 0.050 114.76);
+    --color-lemon-lime-950: oklch(23.68% 0.05 114.76);
 
     --color-evergreen-50: oklch(97.32% 0.016 182.72);
     --color-evergreen-100: oklch(94.59% 0.034 180.43);
     --color-evergreen-200: oklch(89.27% 0.063 179.92);
     --color-evergreen-300: oklch(84.40% 0.092 178.23);
-    --color-evergreen-400: oklch(79.73% 0.115 176.70);
+    --color-evergreen-400: oklch(79.73% 0.115 176.7);
     --color-evergreen-500: oklch(75.73% 0.132 174.13);
-    --color-evergreen-600: oklch(64.12% 0.110 174.50);
+    --color-evergreen-600: oklch(64.12% 0.11 174.5);
     --color-evergreen-700: oklch(52.21% 0.089 174.45);
     --color-evergreen-800: oklch(39.32% 0.064 175.27);
     --color-evergreen-900: oklch(25.55% 0.039 175.52);
     --color-evergreen-950: oklch(20.76% 0.028 179.24);
 
-    --color-pacific-blue-50: oklch(97.47% 0.020 204.43);
+    --color-pacific-blue-50: oklch(97.47% 0.02 204.43);
     --color-pacific-blue-100: oklch(94.98% 0.041 204.11);
     --color-pacific-blue-200: oklch(90.65% 0.078 202.94);
     --color-pacific-blue-300: oklch(86.68% 0.107 203.53);
