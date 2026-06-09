@@ -1,7 +1,5 @@
 # Checks
 
-All hackaton checks
-
 Esse tópico define uma lista de tarefas para serem concluídas. Uma mesma tarefa pode (e é recomendado) ser quebrada em tarefas menores no que a ideia for amadurecendo.
 
 - [x] Definir Nome
@@ -10,8 +8,8 @@ Esse tópico define uma lista de tarefas para serem concluídas. Uma mesma taref
 - [x] Definir Ideia de Projeto
     - [x] Projeto social focado em acessiblidade e conformidade entre jogadores e clubes de futebol;
 
-- [] Definir Requisitos
-    - [] Obrigatórios
+- [x] Definir Requisitos
+    - [x] Obrigatórios
         - [x] Uso de blockchain
         - [x] Registro verificável de ações de impacto
         - [x] Histórico auditável
@@ -31,8 +29,8 @@ Esse tópico define uma lista de tarefas para serem concluídas. Uma mesma taref
         - [x] Código minimamente comentado
         - [x] README explicando o funcionamento da solução
             - [x] Documentação completa disponível em [ePass Docs](https://epass.gitbook.io/epass-docs)
-        - [] Vídeo-pitch demonstrando a execução
-        - [] Apresentação de slides
+        - [x] Vídeo-pitch demonstrando a execução
+        - [x] Apresentação de slides
 
 ## Video-Pitch e Documentação Escrita
 
@@ -51,9 +49,11 @@ Retirado do Manual Educacional. Características que agregam pontos.
     - [x] Documentação completa disponível em [ePass Docs](https://epass.gitbook.io/epass-docs)
 - [x] Valor social, ambiental ou comunitário;
     - [] Explicado na documentação, demonstração técnica extra e vídeo-pitch // TODO fazer o vídeo extra
-- [] Aplicação prática real;
-- [] Quais dados são registrados;
-- [] Quais evidências são vinculadas às ações;
+- [x] Aplicação prática real;
+- [x] Quais dados são registrados;
+    - [x] Email, carteiras e contrato
+- [x] Quais evidências são vinculadas às ações;
+    - [] // TODO
 - [x] Como a informação pode ser consultada ou verificada;
     - [x] Via dashboard da aplicação ou ferramentas externas de auditoria públicas (como Etherscan);
 - [x] Quem participa do fluxo;
@@ -62,18 +62,22 @@ Retirado do Manual Educacional. Características que agregam pontos.
 - [] Como a solução aumenta transparência e confiança.
 
 - [x] Transparência dos dados;
-    - [] Transparência completa, dados públicos;
-- [] Impacto social ou ambiental claro;
+    - [x] Transparência completa, dados públicos;
+- [x] Impacto social ou ambiental claro;
 - [x] Boa visualização das informações;
-- [] Automações bem definidas;
+- [x] Automações bem definidas;
 - [x] Experiência do usuário;
 - [x] Potencial real de adoção;
 - [x] Dashboard simples e compreensível;
 - [x] Uso adequado de certificados digitais ou NFTs;
 - [x] Integração funcional entre frontend, blockchain e smart contracts;
-- [] Clareza sobre quais dados ficam on-chain e quais ficam off-chain;
+- [x] Clareza sobre quais dados ficam on-chain e quais ficam off-chain;
+    - [x] Apenas dados offchain // TODO
 - [x] Uso de IPFS ou solução equivalente para evidências, quando fizer sentido;
-- [] Métricas de impacto bem definidas;
+- [x] Métricas de impacto bem definidas;
+    - [x] Tempo economizado
+    - [x] Certeza do compliance (que o contrato será executado conforme definido)
+    - [x] Doações (financiamento do jogador) por fãs e outros atores, via compra de seu token.
 - [x] Solução conectada a um problema real de ONGs, empresas, governos ou comunidades.
 
 ### Desafio

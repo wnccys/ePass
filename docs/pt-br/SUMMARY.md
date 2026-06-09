@@ -9,6 +9,7 @@
 ## 💻 Para Desenvolvedores
 * [Guia de Início](developers/readme.md)
 * [Smart Contracts](developers/contracts.md)
+* [Testes Automatizados](tests.md)
 * [Fluxo de Autenticação](developers/auth.md)
 * [Diretrizes de Desenvolvimento](developers/guidelines.md)
 * [Design e Estética](developers/design.md)

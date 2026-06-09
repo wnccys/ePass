@@ -1,8 +1,10 @@
-# 📘 Mini Doc ePass
+# 📘 1 - Mini Doc Técnica: Contratos e Fluxo Geral
 
---------------------------------------------------------------------------------
+Este documento apresenta a arquitetura, referências de funções e o fluxo de chamadas dos contratos inteligentes do ePass. Para uma análise detalhada sobre o ciclo de vida dos contratos, lógica de garantia, segurança e integração com a interface do usuário (UI), consulte o [2 - Resumo do Fluxo de Contratos](./TECH-DOC-2.md).
 
-## 🏗️ Arquitetura dos Contratos (Atual)
+---
+
+## 🏗️ Arquitetura dos Contratos
 
 | Contrato             | Responsabilidade                                                              |
 |----------------------|-------------------------------------------------------------------------------|
@@ -13,7 +15,7 @@
 | RightsVaultFactory   | Cria vaults via clone (OpenZeppelin Clones) e centraliza configuração de     |
 |                      | masterNft/stablecoin                                                          |
 
-### 🔑 Mudanças Principais rispetto à Versão Anterior
+### 🔑 Mudanças Principais relacionadas à Versão Anterior
 
 | O que mudou             | Por quê                                                    |
 |-------------------------|------------------------------------------------------------|
@@ -28,7 +30,7 @@
 
 --------------------------------------------------------------------------------
 
-## 🔄 Fluxo Geral de Chamada (Atualizado)
+## 🔄 Fluxo Geral de Chamada
 
 1. Frontend monta MintAgreement (player, club, attorney, tokenURI, nonce, deadline)
 2. Jogador, clube e advogado assinam payload EIP-712
@@ -54,7 +56,7 @@
 
 --------------------------------------------------------------------------------
 
-## 📄 Documentação por Contrato (Atualizada)
+## 📄 Documentação por Contrato
 
 ### 1. RightsMinter
 
@@ -310,7 +312,7 @@ Observações importantes:
 
 --------------------------------------------------------------------------------
 
-## 🖥️ Fluxo de Integração no Frontend (Atualizado)
+## 🖥️ Fluxo de Integração no Frontend
 
 ### Etapa 1 — Assinatura
 
@@ -394,7 +396,7 @@ Depois disso, frontend pode:
 - Chamada fractionalize (vault)
 - Chamada depositCaution OU depositAndMint (vault)
 - Leitura de estados: canRedeem, timeRemaining, isBeforeHalfTime, getFinancialState
-- Listener de eventos: VaultCreated, Fractionalized, ContractActivated, Redeemed, ContractRescinded...*
+- Listener de eventos: VaultCreated, Fractionalized, ContractActivated, Redeemed, ContractRescinded...
 
 ### No Backend
 
@@ -403,37 +405,3 @@ Depois disso, frontend pode:
 - Validação de status (via subgraph ou indexador)
 - Indexação de eventos
 - Armazenamento de metadata/IPFS
-
---------------------------------------------------------------------------------
-
-## 🌐 Endereços para Configurar (NÃO hardcoded)
-
-Esses valores vêm de .env ou contrato de config:
-
-| Config                      | Descrição                              |
-|-----------------------------|----------------------------------------|
-| PLAYER_RIGHTS_MASTER_ADDRESS| PlayerRightsMaster (ERC721)           |
-| RIGHTS_MINTER_ADDRESS       | RightsMinter                          |
-| RIGHTS_VAULT_FACTORY_ADDRESS| RightsVaultFactory                    |
-| STABLECOIN_ADDRESS          | USDC/USDT (IERC20)                    |
-| PLAYER_ADDRESS              | Jogador (via wallet connect)          |
-| CLUB_ADDRESS                | Clube (via wallet connect ou config)  |
-| ATTORNEY_ADDRESS            | Advogado (config)                     |
-| AUTHORIZED_OPERATORS        | Lista de operadores para transfer NFT |
-
---------------------------------------------------------------------------------
-
-## ⚠️ Notas Importantes (Atualizadas)
-
-1. NFT mestre fica com o clube (não com jogador)
-2. Jogador assina, mas não custodiar NFT
-3. Vault não é tesouraria de salário
-4. Contrato valoriza direito de imagem + organiza relação jurídica/econômica
-5. Padrão atual: OpenZeppelin Clones (não É EIP-1167 antigo, não É deploy direto)
-6. ERC20 per-vault tem nome/symbol próprios (ex: "PXRT")
-7. depositAndMint cria liquidez extra (50% caution + 50% redeemable + mint shares)
-8. redeem permite trocar shares por stablecoin proporcionalmente
-9. Penalidade 65% se rescindir antes de 6 meses + 1 dia
-10. Em expiração, caução 100% vai para club (mesmo player tenha shares)
-
---------------------------------------------------------------------------------

@@ -1,6 +1,34 @@
+# 🗺️ Índice do Projeto
+
+ePass é um projeto concebido durante o _**HackaWeb3 - Impact Ledger**_ promovido pela [iRede](), desde já, nossos agradecimentos pela oportunidade!
+
+Este índice apresenta todas as páginas disponíveis neste repositório, divididas entre apresentação da plataforma e documentação técnica/de negócios:
+
+### 📖 Apresentação
+* [README (Esta Página)](./README.md) - Visão geral do ecossistema ePass, arquitetura de contratos, fluxo do protocolo e instruções de uso.
+* [Mapa de Fluxo Geral (Excali-Flow)](./docs/assets/excali-flow.png) - Mapeamento visual em alta fidelidade do ciclo financeiro, smart contracts e lógica de garantias.
+
+### 📚 Documentos (Docs)
+* [Doc completa no Gitbook](https://epass.gitbook.io/epass-docs/) - Documentação completa organizada, com suporte de IA para explicações diretas ao ponto.
+* [Sobre o ePass](./docs/pt-br/about.md) - O problema do mercado de direitos de imagem e a nossa proposta de solução.
+* [Fluxo para Clubes](./docs/pt-br/clubs.md) - Como a plataforma e o sistema de garantia funcionam do ponto de vista do clube.
+* [Fluxo para Jogadores](./docs/pt-br/players.md) - Regras de negócio, direitos e controle financeiro do ponto de vista do atleta.
+* [Guia do Desenvolvedor (Início)](./docs/pt-br/developers/readme.md) - Como rodar o repositório localmente e entender a stack de desenvolvimento.
+* [Arquitetura de Smart Contracts](./docs/pt-br/developers/contracts.md) - A lógica detalhada de cada contrato inteligente singleton e proxy clone.
+* [Decisões de Design & Interface](./docs/pt-br/developers/design.md) - A filosofia visual do ePass e padrões estéticos adotados.
+* [Sessão & Segurança (Auth)](./docs/pt-br/developers/auth.md) - Como a autenticação via NextAuth, cookies JWT e sessões funcionam de ponta a ponta.
+* [Padrões & Diretrizes](./docs/pt-br/developers/guidelines.md) - Regras de linting, formatação e commits do projeto.
+* [Pontos em Discussão](./docs/pt-br/developers/discussion.md) - Detalhes sobre upgrades futuros, oráculos e melhorias pendentes.
+* [Mini Doc Técnica - 1](./refs/TECH-DOC.md) - Detalhes sobre a arquitetura dos contratos inteligentes, chamadas de funções e fluxo geral de integração no frontend.
+* [Mini Doc Técnica - 2](./refs/TECH-DOC-2.md) - Análise detalhada do ciclo de vida, proxies mínimos (clones), verificação EIP-712, segurança e integração de UI.
+* [Guia de Testes Automatizados](./docs/pt-br/tests.md) - Explicação aprofundada da arquitetura e execução de testes Foundry, Vitest e Playwright BDD.
+
+---
+
 <p align="center">
   <img src="docs/assets/epass-cover.png" alt="ePass Banner" width="800px" />
 </p>
+
 
 <h1 align="center">
   <img src="docs/assets/icon.png" alt="ePass Logo" width="45" height="45" align="center" /> ePass
@@ -74,28 +102,51 @@ flowchart TD
 ## ⛓️ Fluxo On-Chain
 
 ```mermaid
-flowchart TD
-    subgraph Registro["1. Autorização & Cunhagem do NFT"]
-        A["Interface envia MintAgreement"] --> B["RightsMinter.executeMint()"]
-        B --> C{"Verifica Deadline & Nonce"}
-        C -->|Válido| D["Verifica Assinaturas (EIP-712)"]
-        D -->|3 Assinaturas OK| E["PlayerRightsMaster.mintRights()"]
-        E --> F["NFT Mestre é cunhado para o Clube"]
-    end
+flowchart LR
+    %% Nodes
+    A["1. Interface envia MintAgreement"]
+    B["2. RightsMinter.executeMint()"]
+    C{"3. Verifica Deadline & Nonce"}
+    D["4. Verifica Assinaturas (EIP-712)"]
+    E["5. PlayerRightsMaster.mintRights()"]
+    F["6. NFT Mestre cunhado para o Clube"]
+    G["7. Clube aprova NFT para Vault Clone"]
+    H["8. RightsVaultClone.fractionalize()"]
+    I["9. NFT Mestre travado no Vault"]
+    J["10. Emissão & Distribuição de $P_IMAGE"]
+    K["11. Clube deposita Caução"]
+    L["12. RightsVaultClone.depositCaution()"]
+    M["13. Contrato fica Ativo (ACTIVE)"]
 
-    subgraph Fracionamento["2. Criação & Fracionamento do Cofre"]
-        F --> G["Clube aprova NFT para o Vault Clone"]
-        G --> H["RightsVaultClone.fractionalize()"]
-        H --> I["NFT Mestre é travado no Vault"]
-        I --> J["Emissão & Distribuição de $P_IMAGE (Basis Points)"]
-    end
+    %% S-Shape Connections
+    A --> B --> C
+    C -->|Válido| D --> E
+    F --> E
+    G --> F
+    H --> G
+    H --> I
+    I --> J --> K --> L --> M
 
-    subgraph Ativacao["3. Depósito de Caução & Ativação"]
-        J --> K["Clube aprova e deposita Caução (Stablecoin)"]
-        K --> L["RightsVaultClone.depositCaution()"]
-        L --> M["Contrato fica Ativo (ACTIVE)"]
-    end
+    %% Estilização (Classes)
+    classDef regStyle fill:#d4ebf2,stroke:#1a73e8,stroke-width:2px,color:#0b2545;
+    classDef fracStyle fill:#ebdcf9,stroke:#8a3ab9,stroke-width:2px,color:#2c003e;
+    classDef activeStyle fill:#e6f9f0,stroke:#00c853,stroke-width:2px,color:#003311;
+
+    %% Aplicação dos Estilos
+    class A,B,C,D,E,F regStyle;
+    class G,H,I,J fracStyle;
+    class K,L,M activeStyle;
 ```
+
+---
+
+## 🎨 Mapeamento Geral do Protocolo (Excali-Flow)
+
+Abaixo está o fluxo geral e completo mapeando a arquitetura dos contratos inteligentes, o fluxo financeiro de garantias, a lógica de redeems/penalidades e a integração com a aplicação, desenhado utilizando o Excalidraw:
+
+<p align="center">
+  <img src="docs/assets/excali-flow.png" alt="Excali-Flow ePass" width="800px" />
+</p>
 
 ---
 
@@ -194,37 +245,28 @@ A partir daí o fluxo pode seguir para rescisão pelo jogador, rescisão pelo cl
 
 ## 🧪 Testes
 
-O projeto possui cobertura de testes automatizados abrangendo tanto a camada on-chain (smart contracts) quanto as regras do frontend e fluxos integrados da aplicação.
+O ePass conta com uma suite de testes robusta e automatizada cobrindo a camada de contratos inteligentes (smart contracts), testes unitários e hooks de frontend, além de testes de comportamento de ponta a ponta (E2E/BDD).
 
-### 1. Smart Contracts (Foundry)
-Testes unitários completos cobrindo os fluxos principais e casos de falha.
-```
-Ran 18 tests for test/RightsVault.t.sol       ✅ 18 passed
-Ran 6 tests  for test/RightsMinter.t.sol       ✅  6 passed
-Ran 6 tests  for test/PlayerRightsMaster.t.sol ✅  6 passed
+A explicação técnica detalhada de cada suite de teste e a arquitetura das validações podem ser encontradas no guia de documentação:
+* [Guia de Testes Automatizados](./docs/pt-br/tests.md)
 
-30 tests passed, 0 failed
-```
+### Executando os Testes
 
-Para rodar os testes dos smart contracts:
+Para rodar os testes de cada camada de forma rápida:
+
+**Smart Contracts (Foundry):**
 ```bash
 cd src/smart-contracts
 forge test -vv
 ```
 
-### 2. Frontend & Hooks (Vitest)
-Testes de comportamento de UI e regras de negócio/hooks no cliente em execução.
-
-Para rodar os testes unitários do frontend:
+**Frontend (Vitest):**
 ```bash
 cd src/epass-web
 pnpm run test
 ```
 
-### 3. End-to-End (Playwright & Playwright BDD)
-Simulações interativas de fluxos de ponta a ponta (login, preenchimento de formulários, conexões SIWE, assinaturas criptográficas).
-
-Para rodar os testes de e2e:
+**End-to-End (Playwright & BDD):**
 ```bash
 cd src/epass-web
 pnpm run test:e2e
@@ -310,8 +352,19 @@ forge script script/SimulatePipeline.s.sol:SimulatePipeline --rpc-url $SEPOLIA_R
 
 ---
 
+## 👥 Equipe e Responsabilidades
+
+| Membro | Responsabilidade |
+| :---: | :--- |
+| <img src="https://github.com/wnccys.png" width="50" style="border-radius:50%"/><br/>**[Vinicius](https://github.com/wnccys)** | Integração Front/Backend · Definição da Arquitetura · Documentação |
+| <img src="https://github.com/RosettiBR.png" width="50" style="border-radius:50%"/><br/>**[Matheus Rosetti](https://github.com/RosettiBR)** | Smart Contracts · Pitch · Documentação |
+| <img src="https://github.com/Janiel-Gomes.png" width="50" style="border-radius:50%"/><br/>**[Janiel](https://github.com/Janiel-Gomes)** | Testes (E2E/Vitest) · Auditorias de Segurança |
+
+---
+
 ## 🚀 Próximos Passos
 
 - Implementação do nosso próprio oráculo, para cálculos de abonos e luvas em cima de dados reais e dinâmicos.
 - Implementação de mercado interno para compra de tokens emitidos on-app.
 - Implementação de vínculos maiores de conformidade contratual (customizações) na criação de contratos.
+
