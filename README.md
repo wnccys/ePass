@@ -20,7 +20,9 @@ Este índice apresenta todas as páginas disponíveis neste repositório, dividi
 
 ### 📖 Apresentação
 * [README (Esta Página)](./README.md) - Visão geral do ecossistema ePass, arquitetura de contratos, fluxo do protocolo e instruções de uso.
-* [Mapa de Fluxo Geral (Excali-Flow)](./docs/assets/excali-flow.png) - Mapeamento visual em alta fidelidade do ciclo financeiro, smart contracts e lógica de garantias.
+* [Fluxo de Negócios (Business Flow)](./docs/assets/business-flow.png) - Mapeamento de regras de negócios, stakeholders e fluxo financeiro geral do ePass.
+* [Fluxo Técnico 1 (Smart Contracts)](./docs/assets/flow1.png) - Diagrama técnico detalhado do deploy, assinaturas EIP-712 e fracionamento.
+* [Fluxo Técnico 2 (Ciclo de Vida)](./docs/assets/flow2.png) - Diagrama detalhado do ciclo de vida dos cofres (active, penalty, rescind, expire).
 * [Guia de Contribuição (Contributing)](./CONTRIBUTING.md) - Instruções para reportar bugs, sugerir melhorias e enviar contribuições de código (Bilingue: PT/EN).
 * [Licença MIT (License)](./LICENSE) - Termos de licenciamento de software livre do projeto ePass.
 
@@ -144,13 +146,31 @@ flowchart LR
 
 ---
 
-## 🎨 Mapeamento Geral do Protocolo (Excali-Flow)
+## 🎨 Diagramas de Mapeamento (Excalidraw)
 
-Abaixo está o fluxo geral e completo mapeando a arquitetura dos contratos inteligentes, o fluxo financeiro de garantias, a lógica de redeems/penalidades e a integração com a aplicação, desenhado utilizando o Excalidraw:
+Abaixo estão os mapeamentos visuais do ecossistema ePass desenvolvidos no Excalidraw, divididos entre dinâmica de negócios, arquitetura técnica e ciclo financeiro dos cofres:
+
+### 💼 1. Fluxo de Negócios (Business Flow)
+Mapeia os papéis dos envolvidos (atleta, clube e advogado), a dinâmica de distribuição de tokens e as regras financeiras macro.
 
 <p align="center">
-  <img src="docs/assets/excali-flow.png" alt="Excali-Flow ePass" width="800px" />
+  <img src="docs/assets/business-flow.png" alt="Fluxo de Negócios ePass" width="800px" />
 </p>
+
+### ⛓️ 2. Fluxo Técnico 1 (Smart Contracts & Deploy)
+Mostra o fluxo de assinaturas EIP-712 off-chain, validação e mint no `RightsMinter`, além do clone de vaults via `Clones` (ERC-1167).
+
+<p align="center">
+  <img src="docs/assets/flow1.png" alt="Fluxo Técnico 1 ePass" width="800px" />
+</p>
+
+### ⏱️ 3. Fluxo Técnico 2 (Ciclo de Vida do Cofre & Escrow)
+Mapeia as transações on-chain de depósito de caução, fracionamento, resgates e regras para os estados de ACTIVE, RESCINDED e EXPIRED.
+
+<p align="center">
+  <img src="docs/assets/flow2.png" alt="Fluxo Técnico 2 ePass" width="800px" />
+</p>
+
 
 ---
 
