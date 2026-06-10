@@ -1,4 +1,4 @@
-# 🧪 Guia de Testes Automatizados
+# Guia de Testes Automatizados
 
 O ePass conta com uma suite de testes robusta e automatizada para garantir a confiabilidade de todas as regras de negócio on-chain (smart contracts) e off-chain (frontend e integrações). O pipeline de testes é dividido em três camadas principais: unitários on-chain, unitários/integração do cliente e testes de comportamento ponta a ponta (E2E/BDD).
 

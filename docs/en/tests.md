@@ -1,4 +1,4 @@
-# 🧪 Automated Testing Guide
+# Automated Testing Guide
 
 ePass features a robust and automated testing suite to guarantee the reliability of all business rules on-chain (smart contracts) and off-chain (frontend and integrations). The testing pipeline is divided into three main layers: on-chain unit tests, client unit/integration tests, and end-to-end behavior-driven development tests (E2E/BDD).
 
