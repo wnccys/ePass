@@ -150,21 +150,21 @@ flowchart LR
 
 Abaixo estão os mapeamentos visuais do ecossistema ePass desenvolvidos no Excalidraw, divididos entre dinâmica de negócios, arquitetura técnica e ciclo financeiro dos cofres:
 
-### 💼 1. Fluxo de Negócios (Business Flow)
+### 💼 1. Fluxo de Negócios
 Mapeia os papéis dos envolvidos (atleta, clube e advogado), a dinâmica de distribuição de tokens e as regras financeiras macro.
 
 <p align="center">
   <img src="docs/assets/business-flow.png" alt="Fluxo de Negócios ePass" width="800px" />
 </p>
 
-### ⛓️ 2. Fluxo Técnico 1 (Smart Contracts & Deploy)
+### ⛓️ 2. Fluxo Técnico 1
 Mostra o fluxo de assinaturas EIP-712 off-chain, validação e mint no `RightsMinter`, além do clone de vaults via `Clones` (ERC-1167).
 
 <p align="center">
   <img src="docs/assets/flow1.png" alt="Fluxo Técnico 1 ePass" width="800px" />
 </p>
 
-### ⏱️ 3. Fluxo Técnico 2 (Ciclo de Vida do Cofre & Escrow)
+### ⏱️ 3. Fluxo Técnico 2
 Mapeia as transações on-chain de depósito de caução, fracionamento, resgates e regras para os estados de ACTIVE, RESCINDED e EXPIRED.
 
 <p align="center">
