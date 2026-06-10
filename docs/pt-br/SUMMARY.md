@@ -4,6 +4,7 @@
 * [Sobre o ePass](about.md)
 * [Clubes](clubs.md)
 * [Jogadores](players.md)
+* [Uso de IA](ai.md)
 
 ---
 ## 💻 Para Desenvolvedores
