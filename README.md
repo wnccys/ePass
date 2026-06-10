@@ -27,6 +27,7 @@ Este índice apresenta todas as páginas disponíveis neste repositório, dividi
 * [Licença MIT (License)](./LICENSE) - Termos de licenciamento de software livre do projeto ePass.
 
 ### 📚 Documentos (Docs)
+* [Lista de Verificação (Checks)](./refs/CHECKS.md) - Documento com a lista de requisitos concluídos do desafio para auxiliar os avaliadores na validação das entregas.
 * [Doc completa no Gitbook](https://epass.gitbook.io/epass-docs/) - Documentação completa organizada, com suporte de IA para explicações diretas ao ponto.
 * [Sobre o ePass](./docs/pt-br/about.md) - O problema do mercado de direitos de imagem e a nossa proposta de solução.
 * [Fluxo para Clubes](./docs/pt-br/clubs.md) - Como a plataforma e o sistema de garantia funcionam do ponto de vista do clube.
@@ -40,6 +41,7 @@ Este índice apresenta todas as páginas disponíveis neste repositório, dividi
 * [Mini Doc Técnica - 1](./refs/TECH-DOC.md) - Detalhes sobre a arquitetura dos contratos inteligentes, chamadas de funções e fluxo geral de integração no frontend.
 * [Mini Doc Técnica - 2](./refs/TECH-DOC-2.md) - Análise detalhada do ciclo de vida, proxies mínimos (clones), verificação EIP-712, segurança e integração de UI.
 * [Guia de Testes Automatizados](./docs/pt-br/tests.md) - Explicação aprofundada da arquitetura e execução de testes Foundry, Vitest e Playwright BDD.
+* [Uso de Inteligência Artificial](./docs/pt-br/ai.md) - Detalhes sobre como o desenvolvimento do projeto ePass foi apoiado por ferramentas de Inteligência Artificial.
 
 ---
 
@@ -249,6 +251,24 @@ A partir daí o fluxo pode seguir para rescisão pelo jogador, rescisão pelo cl
 | Rescisão pelo jogador | 65% da caução vai ao clube, 35% ao jogador | Caução integral devolvida ao clube |
 | Rescisão pelo clube | 65% da caução vai ao jogador, 35% ao clube | Caução integral devolvida ao clube |
 | Expiração (12 meses) | — | Caução integral devolvida ao clube |
+
+---
+
+## ⛓️ Dados On-chain vs. Off-chain
+
+Para garantir conformidade, privacidade e economia de taxas (gas efficiency), os dados do ecossistema ePass são distribuídos estrategicamente entre o ambiente on-chain (blockchain) e off-chain (IPFS e banco de dados):
+
+### 🌐 Dados On-chain (Blockchain)
+* **Carteiras Criptográficas:** Endereços das chaves públicas das três partes envolvidas (Jogador, Clube e Advogado).
+* **Assinaturas Digitais EIP-712:** O consentimento multi-parte criptografado e validado on-chain para autorizar a mintagem do NFT.
+* **Vínculo do NFT (Token URI):** O hash criptográfico e a URI apontando para o IPFS, garantindo que a referência jurídica do acordo original seja permanente e imutável.
+* **Parâmetros do Cofre (Vault):** O valor da caução bloqueada (caution deposit em USDC), a distribuição de frações acordada (basis points) e a linha do tempo do contrato.
+* **Saldo e Estado do Escrow:** Saldos das fatias de tokens de imagem, depósitos de USDC e logs de auditoria do ciclo de vida do cofre (PENDING, ACTIVE, etc.).
+
+### 🖥️ Dados Off-chain (IPFS e Banco de Dados)
+* **Arquivo PDF do Contrato:** O documento assinado original do contrato de imagem (hospedado de forma descentralizada na rede IPFS via Pinata).
+* **Informações Pessoais de Perfil:** Avatares, nomes sociais e biografias curtas que não impactam a lógica financeira do smart contract.
+* **Credenciais e Contatos:** Endereços de e-mail dos usuários e cookies JWT de autenticação persistidos via NextAuth.
 
 ---
 
