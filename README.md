@@ -20,14 +20,14 @@ Este índice apresenta todas as páginas disponíveis neste repositório, dividi
 
 ### 📖 Apresentação
 * [README (Esta Página)](./README.md) - Visão geral do ecossistema ePass, arquitetura de contratos, fluxo do protocolo e instruções de uso.
-* [Fluxo de Negócios (Business Flow)](./docs/assets/business-flow.png) - Mapeamento de regras de negócios, stakeholders e fluxo financeiro geral do ePass.
+* [Fluxo de Negócios](./docs/assets/business-flow.png) - Mapeamento de regras de negócios, stakeholders e fluxo financeiro geral do ePass.
 * [Fluxo Técnico 1 (Smart Contracts)](./docs/assets/flow1.png) - Diagrama técnico detalhado do deploy, assinaturas EIP-712 e fracionamento.
 * [Fluxo Técnico 2 (Ciclo de Vida)](./docs/assets/flow2.png) - Diagrama detalhado do ciclo de vida dos cofres (active, penalty, rescind, expire).
-* [Guia de Contribuição (Contributing)](./CONTRIBUTING.md) - Instruções para reportar bugs, sugerir melhorias e enviar contribuições de código (Bilingue: PT/EN).
-* [Licença MIT (License)](./LICENSE) - Termos de licenciamento de software livre do projeto ePass.
+* [Guia de Contribuição](./CONTRIBUTING.md) - Instruções para reportar bugs, sugerir melhorias e enviar contribuições de código (Bilingue: PT/EN).
+* [Licença](./LICENSE) - Termos de licenciamento de software livre do projeto ePass.
 
 ### 📚 Documentos (Docs)
-* [Lista de Verificação (Checks)](./refs/CHECKS.md) - Documento com a lista de requisitos concluídos do desafio para auxiliar os avaliadores na validação das entregas.
+* [Lista de Verificação](./refs/CHECKS.md) - Documento com a lista de requisitos concluídos do desafio para auxiliar os avaliadores na validação das entregas.
 * [Doc completa no Gitbook](https://epass.gitbook.io/epass-docs/) - Documentação completa organizada, com suporte de IA para explicações diretas ao ponto.
 * [Sobre o ePass](./docs/pt-br/about.md) - O problema do mercado de direitos de imagem e a nossa proposta de solução.
 * [Fluxo para Clubes](./docs/pt-br/clubs.md) - Como a plataforma e o sistema de garantia funcionam do ponto de vista do clube.
