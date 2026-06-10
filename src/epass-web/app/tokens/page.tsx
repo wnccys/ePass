@@ -181,11 +181,11 @@ export default function TokensPage() {
     // Chart 1: Share Allocation (Pie Chart)
     const shareAllocationData = useMemo(() => {
         return [
-            { name: "Player Shares", value: playerBps / 100, color: CHART_COLORS[0] },
-            { name: "Club Shares", value: clubBps / 100, color: CHART_COLORS[1] },
-            { name: "Attorney Shares", value: attorneyBps / 100, color: CHART_COLORS[2] },
+            { name: t("tokens.playerShares", "Player Shares"), value: playerBps / 100, color: CHART_COLORS[0] },
+            { name: t("tokens.clubShares", "Club Shares"), value: clubBps / 100, color: CHART_COLORS[1] },
+            { name: t("tokens.attorneyShares", "Attorney Shares"), value: attorneyBps / 100, color: CHART_COLORS[2] },
         ];
-    }, [playerBps, clubBps, attorneyBps]);
+    }, [playerBps, clubBps, attorneyBps, t]);
 
     // Chart 2: Caution vs Redeemable Reserve (Bar Chart)
     const reservesData = useMemo(() => {
@@ -193,15 +193,15 @@ export default function TokensPage() {
         const reserveNum = reserveVal ? Number(formatUnits(reserveVal, 18)) : 0;
         return [
             {
-                name: "Caution Locked",
+                name: t("tokens.cautionLocked", "Caution Locked"),
                 USDC: cautionNum,
             },
             {
-                name: "Redeemable Reserve",
+                name: t("tokens.redeemableReserve", "Redeemable Reserve"),
                 USDC: reserveNum,
             },
         ];
-    }, [cautionVal, reserveVal]);
+    }, [cautionVal, reserveVal, t]);
 
     // Chart 3: Simulated Price Trajectory (Line Chart)
     const priceTrajectoryData = useMemo(() => {
@@ -244,18 +244,18 @@ export default function TokensPage() {
         const total = pBal + cBal + aBal;
         if (total === 0) {
             return [
-                { name: "Player", value: 30, color: CHART_COLORS[0] },
-                { name: "Club", value: 60, color: CHART_COLORS[1] },
-                { name: "Attorney", value: 10, color: CHART_COLORS[2] },
+                { name: t("tokens.player", "Player"), value: 30, color: CHART_COLORS[0] },
+                { name: t("tokens.club", "Club"), value: 60, color: CHART_COLORS[1] },
+                { name: t("tokens.attorney", "Attorney"), value: 10, color: CHART_COLORS[2] },
             ];
         }
 
         return [
-            { name: "Player Address", value: pBal, color: CHART_COLORS[0] },
-            { name: "Club Address", value: cBal, color: CHART_COLORS[1] },
-            { name: "Attorney Address", value: aBal, color: CHART_COLORS[2] },
+            { name: t("tokens.playerAddress", "Player Address"), value: pBal, color: CHART_COLORS[0] },
+            { name: t("tokens.clubAddress", "Club Address"), value: cBal, color: CHART_COLORS[1] },
+            { name: t("tokens.attorneyAddress", "Attorney Address"), value: aBal, color: CHART_COLORS[2] },
         ];
-    }, [playerBalance, clubBalance, attorneyBalance]);
+    }, [playerBalance, clubBalance, attorneyBalance, t]);
 
     // Chart 6: Trading Volume (Bar Chart)
     const volumeData = useMemo(() => {
@@ -269,9 +269,17 @@ export default function TokensPage() {
 
     // Status map helper
     const getStatusLabel = (statusNum?: number) => {
-        if (statusNum === undefined) return "UNKNOWN";
-        const statuses = ["PENDING", "ACTIVE", "RESCINDED", "EXPIRED", "TRANSFERRED"];
-        return statuses[statusNum] || "UNKNOWN";
+        if (statusNum === undefined) return t("contracts.status.unknown", "UNKNOWN");
+        const keys = [
+            "contracts.status.pending",
+            "contracts.status.active",
+            "contracts.status.rescinded",
+            "contracts.status.expired",
+            "contracts.status.transferred",
+        ];
+        const fallbacks = ["PENDING", "ACTIVE", "RESCINDED", "EXPIRED", "TRANSFERRED"];
+        const key = keys[statusNum];
+        return key ? t(key, fallbacks[statusNum]) : t("contracts.status.unknown", "UNKNOWN");
     };
 
     if (loading) {
@@ -297,13 +305,13 @@ export default function TokensPage() {
                     <div>
                         <h1 className="font-light font-serif text-4xl tracking-tight">
                             {user.role === "club"
-                                ? t("nav.manageTokens", "Manage Tokens")
-                                : t("nav.myToken", "My Token")}
+                                ? t("tokens.titleClub", "Manage Tokens")
+                                : t("tokens.titlePlayer", "My Token")}
                         </h1>
                         <p className="mt-2 text-muted-foreground text-sm">
                             {user.role === "club"
-                                ? "Monitor and analyze all fractionalized token metrics across your club's active player agreements."
-                                : "View real-time token statistics, vesting progress, and distribution for your active contract."}
+                                ? t("tokens.subtitleClub", "Monitor and analyze all fractionalized token metrics across your club's active player agreements.")
+                                : t("tokens.subtitlePlayer", "View real-time token statistics, vesting progress, and distribution for your active contract.")}
                         </p>
                     </div>
 
@@ -311,7 +319,7 @@ export default function TokensPage() {
                     {user.role === "club" && agreements.length > 0 && (
                         <div className="flex flex-col gap-1.5 shrink-0">
                             <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                                Select Agreement Token
+                                {t("tokens.selectAgreement", "Select Agreement Token")}
                             </label>
                             <select
                                 value={selectedAgreementId}
@@ -332,18 +340,18 @@ export default function TokensPage() {
                 {agreements.length === 0 ? (
                     <Card className="glass-card flex flex-col items-center justify-center p-12 text-center border-dashed border-2">
                         <Coins className="h-16 w-16 text-muted-foreground/40 mb-4 animate-pulse" />
-                        <h3 className="font-serif text-xl font-semibold mb-2">No Tokens Found</h3>
+                        <h3 className="font-serif text-xl font-semibold mb-2">{t("tokens.noTokensTitle", "No Tokens Found")}</h3>
                         <p className="text-muted-foreground max-w-md text-sm mb-6">
                             {user.role === "club"
-                                ? "Your club doesn't have any active fractionalized contracts yet. Propose a contract, sign it, and fractionalize it to see metrics here."
-                                : "You don't have any active fractionalized contracts yet. Once your club finishes the vault setup, your token will be displayed here."}
+                                ? t("tokens.noTokensDescClub", "Your club doesn't have any active fractionalized contracts yet. Propose a contract, sign it, and fractionalize it to see metrics here.")
+                                : t("tokens.noTokensDescPlayer", "You don't have any active fractionalized contracts yet. Once your club finishes the vault setup, your token will be displayed here.")}
                         </p>
                         {user.role === "club" && (
                             <Link
                                 href="/contracts/new"
                                 className="flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 font-semibold text-white text-sm transition-transform hover:scale-105"
                             >
-                                Propose Contract
+                                {t("tokens.proposeBtn", "Propose Contract")}
                             </Link>
                         )}
                     </Card>
@@ -354,7 +362,7 @@ export default function TokensPage() {
                             <Card className="glass-card grid grid-cols-1 md:grid-cols-4 gap-6 p-6">
                                 <div className="space-y-1">
                                     <span className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                                        Token Name & Symbol
+                                        {t("tokens.tokenNameSymbol", "Token Name & Symbol")}
                                     </span>
                                     <h4 className="text-lg font-bold flex items-center gap-2">
                                         {activeAgreement.tokenName}{" "}
@@ -369,7 +377,7 @@ export default function TokensPage() {
 
                                 <div className="space-y-1">
                                     <span className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                                        On-Chain Status
+                                        {t("tokens.onChainStatus", "On-Chain Status")}
                                     </span>
                                     <div className="flex items-center gap-2 text-sm font-semibold">
                                         {statusRaw === 1 ? (
@@ -385,7 +393,7 @@ export default function TokensPage() {
                                         )}
                                     </div>
                                     <p className="text-xs text-muted-foreground">
-                                        Vesting started:{" "}
+                                        {t("tokens.vestingStarted", "Vesting started:")}{" "}
                                         {contractStart
                                             ? new Date(Number(contractStart) * 1000).toLocaleDateString()
                                             : "N/A"}
@@ -394,7 +402,7 @@ export default function TokensPage() {
 
                                 <div className="space-y-1">
                                     <span className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                                        Total Shares Issued
+                                        {t("tokens.totalSharesIssued", "Total Shares Issued")}
                                     </span>
                                     <div className="text-lg font-mono font-bold">
                                         {formatEthValue(supplyVal)}{" "}
@@ -403,13 +411,13 @@ export default function TokensPage() {
                                         </span>
                                     </div>
                                     <p className="text-xs text-muted-foreground">
-                                        Pegged value tracking active
+                                        {t("tokens.peggedValueActive", "Pegged value tracking active")}
                                     </p>
                                 </div>
 
                                 <div className="space-y-1">
                                     <span className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                                        My Active Holding
+                                        {t("tokens.myActiveHolding", "My Active Holding")}
                                     </span>
                                     <div className="text-lg font-mono font-bold text-primary">
                                         {user.role === "club"
@@ -420,7 +428,7 @@ export default function TokensPage() {
                                         </span>
                                     </div>
                                     <p className="text-xs text-muted-foreground">
-                                        Representing your fractionalized share
+                                        {t("tokens.representingFractionalized", "Representing your fractionalized share")}
                                     </p>
                                 </div>
                             </Card>
@@ -431,7 +439,7 @@ export default function TokensPage() {
                             <div className="flex justify-center p-8 bg-card/10 rounded-2xl animate-pulse">
                                 <Loader className="h-6 w-6 animate-spin text-primary mr-2" />
                                 <span className="text-sm text-muted-foreground font-medium">
-                                    Fetching live on-chain token statistics...
+                                    {t("tokens.fetchingStats", "Fetching live on-chain token statistics...")}
                                 </span>
                             </div>
                         )}
@@ -444,7 +452,7 @@ export default function TokensPage() {
                                 <div className="flex items-center gap-2 border-b border-foreground/10 pb-2">
                                     <PieChartIcon className="h-4 w-4 text-primary" />
                                     <h4 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
-                                        1. Share Allocation
+                                        {t("tokens.chartShareAllocation", "1. Share Allocation")}
                                     </h4>
                                 </div>
                                 <div className="h-48 w-full">
@@ -490,7 +498,7 @@ export default function TokensPage() {
                                 <div className="flex items-center gap-2 border-b border-foreground/10 pb-2">
                                     <Coins className="h-4 w-4 text-primary" />
                                     <h4 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
-                                        2. Holder Distribution
+                                        {t("tokens.chartHolderDistribution", "2. Holder Distribution")}
                                     </h4>
                                 </div>
                                 <div className="h-48 w-full">
@@ -537,7 +545,7 @@ export default function TokensPage() {
                                 <div className="flex items-center gap-2 border-b border-foreground/10 pb-2">
                                     <Lock className="h-4 w-4 text-primary" />
                                     <h4 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
-                                        3. Caution & Reserves
+                                        {t("tokens.chartCautionReserves", "3. Caution & Reserves")}
                                     </h4>
                                 </div>
                                 <div className="h-48 w-full">
@@ -560,7 +568,7 @@ export default function TokensPage() {
                                 </div>
                                 <p className="text-[10px] text-muted-foreground text-center flex items-center justify-center gap-1 leading-tight">
                                     <Info className="h-3.5 w-3.5 shrink-0" />
-                                    Total Value Locked (TVL) is backed 100% by USDC collateral.
+                                    {t("tokens.tvlExplanation", "Total Value Locked (TVL) is backed 100% by USDC collateral.")}
                                 </p>
                             </Card>
 
@@ -569,7 +577,7 @@ export default function TokensPage() {
                                 <div className="flex items-center gap-2 border-b border-foreground/10 pb-2">
                                     <TrendingUp className="h-4 w-4 text-primary" />
                                     <h4 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
-                                        4. Price Performance (USDC)
+                                        {t("tokens.chartPricePerformance", "4. Price Performance (USDC)")}
                                     </h4>
                                 </div>
                                 <div className="h-48 w-full">
@@ -597,7 +605,7 @@ export default function TokensPage() {
                                     </ResponsiveContainer>
                                 </div>
                                 <p className="text-[10px] text-muted-foreground text-center">
-                                    Peg stability tracker. Historical tracking of fractionalized value.
+                                    {t("tokens.pegStabilityTracker", "Peg stability tracker. Historical tracking of fractionalized value.")}
                                 </p>
                             </Card>
 
@@ -606,7 +614,7 @@ export default function TokensPage() {
                                 <div className="flex items-center gap-2 border-b border-foreground/10 pb-2">
                                     <Calendar className="h-4 w-4 text-primary" />
                                     <h4 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
-                                        5. Vesting Progress (12 Months)
+                                        {t("tokens.chartVestingProgress", "5. Vesting Progress (12 Months)")}
                                     </h4>
                                 </div>
                                 <div className="h-48 w-full">
@@ -631,11 +639,11 @@ export default function TokensPage() {
                                 <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground">
                                     <div className="flex items-center gap-1.5">
                                         <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full" />
-                                        <span>Unlocked Reserve</span>
+                                        <span>{t("tokens.unlockedReserve", "Unlocked Reserve")}</span>
                                     </div>
                                     <div className="flex items-center gap-1.5">
                                         <span className="w-2.5 h-2.5 bg-amber-500 rounded-full" />
-                                        <span>Locked Reserve</span>
+                                        <span>{t("tokens.lockedReserve", "Locked Reserve")}</span>
                                     </div>
                                 </div>
                             </Card>
@@ -645,7 +653,7 @@ export default function TokensPage() {
                                 <div className="flex items-center gap-2 border-b border-foreground/10 pb-2">
                                     <Activity className="h-4 w-4 text-primary" />
                                     <h4 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
-                                        6. Weekly Trading Volume
+                                        {t("tokens.chartWeeklyVolume", "6. Weekly Trading Volume")}
                                     </h4>
                                 </div>
                                 <div className="h-48 w-full">
@@ -667,7 +675,7 @@ export default function TokensPage() {
                                     </ResponsiveContainer>
                                 </div>
                                 <p className="text-[10px] text-muted-foreground text-center">
-                                    Pegged secondary market activity (simulated mock volume).
+                                    {t("tokens.secondaryMarketActivity", "Pegged secondary market activity (simulated mock volume).")}
                                 </p>
                             </Card>
 

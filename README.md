@@ -189,12 +189,12 @@ Contrato ERC-721 que representa o direito de imagem registrado. Cada token corre
 Contrato de implementação (lógica) do cofre. Não pode ser usado diretamente — o `constructor()` chama `_disableInitializers()` para proteger o contrato. Toda lógica reside aqui e é compartilhada por todos os clones via EIP-1167.
 
 Responsabilidades:
-- travar o NFT mestre;
-- emitir os tokens `$P_IMAGE` distribuídos por basis points entre jogador, clube e advogado;
-- guardar e controlar a caução em stablecoin;
-- tratar rescisão com penalidade proporcional ao momento do contrato;
-- tratar expiração natural após 12 meses;
-- permitir transferência de titularidade entre clubes.
+- Travar o NFT mestre;
+- Emitir os tokens `$P_IMAGE` distribuídos por basis points entre jogador, clube e advogado;
+- Guardar e controlar a caução em stablecoin;
+- Tratar rescisão com penalidade proporcional ao momento do contrato;
+- Tratar expiração natural após 12 meses;
+- Permitir transferência de titularidade entre clubes.
 
 ### RightsVaultFactory
 
